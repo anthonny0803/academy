@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('phone', 15);
             $table->string('email', 50)->nullable(); // En caso de que usen email
             $table->string('address', 255);
+            $table->timestamps();
         });
     }
 

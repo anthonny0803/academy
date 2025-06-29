@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('representative_id')->nullable(); // Se asocia con un representante
+            $table->unsignedBigInteger('representative_id')->nullable();
+            $table->unsignedBigInteger('section_id'); // La sección a la que pertenece el estudiante
             $table->string('name', 30);
             $table->string('last_name', 30);
             $table->date('birth_date');
             $table->string('email', 30)->nullable();
             $table->string('school_year', 30);
-            $table->string('document', 15)->unique(); // Documento como identificador de acceso
+            $table->string('document', 15)->unique();
             $table->boolean('status')->default(true);
             $table->string('address', 255);
             $table->string('phone', 15);
@@ -29,6 +30,8 @@ return new class extends Migration
             $table->string('mother_last_name', 30)->nullable();
             $table->timestamps();
             $table->timestamp('last_login')->nullable();
+            $table->foreign('representative_id')->references('id')->on('representatives')->onDelete('restrict');
+            $table->foreign('section_id')->references('id')->on('sections')->onDelete('restrict');
         });
     }
 
