@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {          
+        Schema::create('users', function (Blueprint $table) {
             $table->id();  // ID autoincremental como clave primaria
-            $table->string('username', 30)->unique();  // Nombre de usuario único, usado para iniciar sesión
-            $table->string('password', 255);  // Contraseña encriptada (recomendado 255 para hashes como bcrypt o Argon2)
-            $table->unsignedBigInteger('role_id');  // Clave foránea hacia la tabla 'roles' (un usuario solo puede tener un rol)
-            $table->boolean('status')->default(true);  // Estado del usuario (activo/inactivo) — true por defecto
-            $table->timestamp('last_login')->nullable();  // Fecha y hora del último inicio de sesión
-            $table->timestamps();  // Fechas de creación y actualización del registro (created_at y updated_at)
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('restrict');  // Definimos la clave foránea que apunta a la tabla 'roles'
+            $table->string('username', 30)->unique();  // Nombre de usuario único, usado para login
+            $table->string('password', 255);  // Contraseña hasheada (bcrypt, Argon2, etc)
+            $table->unsignedBigInteger('role_id');  // FK a tabla roles (un usuario tiene un solo rol)
+            $table->boolean('status')->default(true);  // Estado activo/inactivo, por defecto activo
+            $table->timestamp('last_login')->nullable();  // Último login, nullable
+            $table->timestamps();  // created_at y updated_at
+
+            // Llave foránea con restricción para mantener integridad
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('restrict');
         });
     }
 

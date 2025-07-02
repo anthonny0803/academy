@@ -12,19 +12,28 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('grades', function (Blueprint $table) {
-            $table->id();  // Clave primaria autoincremental para cada registro de nota
-            $table->unsignedBigInteger('student_id');  // Relaciona la nota con el estudiante (tabla students)
-            $table->unsignedBigInteger('subject_id');  // Relaciona la nota con la materia o asignatura (tabla subjects)
-            $table->unsignedBigInteger('teacher_id')->nullable();  // Opcional: profesor que asignó la nota (tabla users, puede ser null si no se sabe)
-            $table->float('grade', 4, 2);  // Nota con máximo 2 decimales, ej. 95.50. Tamaño total 4 (incluye decimales)
-            $table->date('date_recorded');  // Fecha cuando se registró la nota
-            $table->timestamps();  // created_at y updated_at para auditoría
-            // Integridad referencial
-            $table->foreign('student_id')->references('id')->on('students')->onDelete('restrict');  // No se puede borrar estudiante si tiene notas
-            $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('restrict');  // Igual para materia
-            $table->foreign('teacher_id')->references('id')->on('users')->onDelete('restrict');  // Para el docente asignador, restricción para no borrar docente con notas
+            $table->id(); // Clave primaria
 
+            // Referencia a la matrícula del estudiante
+            $table->unsignedBigInteger('enrollment_id');
 
+            // Referencia a la asignación docente-materia-sección
+            $table->unsignedBigInteger('teacher_subject_section_id');
+
+            // Nota obtenida, máximo 99.99
+            $table->float('grade', 4, 2);
+
+            // Fecha en que se registró esta nota
+            $table->date('date_recorded');
+
+            $table->timestamps(); // created_at y updated_at
+
+            // Relaciones
+            $table->foreign('enrollment_id')->references('id')->on('enrollments')->onDelete('restrict');
+            $table->foreign('teacher_subject_section_id')->references('id')->on('teacher_subject_section')->onDelete('restrict');
+
+            // Índice único para evitar duplicados
+            $table->unique(['enrollment_id', 'teacher_subject_section_id', 'date_recorded'], 'unique_grade_record');
         });
     }
 

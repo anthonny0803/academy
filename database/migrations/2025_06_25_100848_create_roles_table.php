@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id(); // clave primaria autoincremental
-            $table->string('name', 50)->unique(); // nombre del rol
-            $table->string('description', 255)->nullable(); // descripción opcional
+            $table->string('name', 50)->unique(); // nombre del rol (ej. admin, docente, representante)
+            $table->string('description', 255)->nullable(); // descripción opcional para aclarar el rol
             $table->timestamps(); // created_at y updated_at
+
         });
     }
 

@@ -12,15 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permission_role', function (Blueprint $table) {
-            $table->id(); // Clave primaria (opcional, pero buena práctica para trazabilidad)
-            $table->unsignedBigInteger('permission_id'); // ID del permiso
-            $table->unsignedBigInteger('role_id');       // ID del rol
-            // Claves foráneas para asegurar integridad referencial
-            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade'); // Si se borra el permiso, se borra la relación
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade'); // Si se borra el rol, también se borra la relación
-            // Garantiza que no se duplique una relación entre el mismo rol y permiso
+            $table->id(); // clave primaria para trazabilidad (nunca sobra)
+            $table->unsignedBigInteger('permission_id'); // FK a permisos
+            $table->unsignedBigInteger('role_id');       // FK a roles
+
+            // Integridad referencial para que no queden relaciones huérfanas
+            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+
+            // Evita duplicados exactos de combinación permiso-rol
             $table->unique(['permission_id', 'role_id']);
-            $table->timestamps(); // Para saber cuándo se creó o actualizó la relación
+
+            $table->timestamps(); // para auditar cambios en relaciones
+
         });
     }
 

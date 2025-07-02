@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sections', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 50)->unique();
-            $table->string('description')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
+            $table->id(); // clave primaria autoincremental
+            $table->string('name', 50)->unique(); // nombre único para la sección
+            $table->string('description')->nullable(); // descripción opcional para detalles extra
+            $table->boolean('is_active')->default(true); // controla si la sección está activa o no
+            $table->timestamps(); // created_at y updated_at para auditoría
+
         });
     }
 

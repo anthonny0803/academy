@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('permissions', function (Blueprint $table) {
-            $table->id(); // clave primaria
-            $table->string('name', 50)->unique(); // nombre del permiso: crear_docentes, ver_notas, etc.
-            $table->string('description', 255)->nullable(); // descripción opcional del permiso
-            $table->timestamps(); // para saber cuándo fue creado/modificado
+            $table->id(); // clave primaria autoincremental
+            $table->string('name', 50)->unique(); // nombre del permiso, ej: crear_docentes, ver_notas
+            $table->string('description', 255)->nullable(); // descripción opcional para entender mejor
+            $table->timestamps(); // created_at y updated_at para control de cambios
+
         });
     }
 

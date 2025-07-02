@@ -16,8 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('section_id');
             $table->unsignedBigInteger('subject_id');
             $table->timestamps();
+
+            // Relaciones con claves foráneas para integridad referencial
             $table->foreign('section_id')->references('id')->on('sections')->onDelete('cascade');
             $table->foreign('subject_id')->references('id')->on('subjects')->onDelete('cascade');
+
+            // Evita que se repita la misma relación
             $table->unique(['section_id', 'subject_id']);
         });
     }
