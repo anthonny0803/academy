@@ -14,13 +14,16 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();  // ID autoincremental como clave primaria
             $table->string('username', 30)->unique();  // Nombre de usuario único, usado para login
+            $table->string('name', 30);  // Nombre del docente
+            $table->string('last_name', 30);  // Apellido del docente
+            $table->string('email', 30)->unique();  // Nombre de usuario único, usado para login
             $table->string('password', 255);  // Contraseña hasheada (bcrypt, Argon2, etc)
             $table->unsignedBigInteger('role_id');  // FK a tabla roles (un usuario tiene un solo rol)
             $table->boolean('status')->default(true);  // Estado activo/inactivo, por defecto activo
             $table->timestamp('last_login')->nullable();  // Último login, nullable
             $table->timestamps();  // created_at y updated_at
 
-            // Llave foránea con restricción para mantener integridad
+            // Llave foránea con restricción de borrado para mantener integridad
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('restrict');
         });
     }
