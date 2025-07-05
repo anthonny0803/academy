@@ -24,7 +24,8 @@ class User extends Authenticatable
         'email',
         'password',
         'status',
-        'last_login'
+        'last_login',
+        'role_id'
     ];
 
     /**
@@ -41,13 +42,13 @@ class User extends Authenticatable
         'last_login' => 'datetime'
     ];
 
-    public function role() {
+    public function role()
+    {
         return $this->belongsTo(Role::class);
     }
 
-    public function hasRole(string $roleName): bool {
-    return $this->role && $this->role->name === $roleName;
-}
-
-
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role && $this->role->name === $roleName;
+    }
 }

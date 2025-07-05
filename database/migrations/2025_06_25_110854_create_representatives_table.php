@@ -16,17 +16,12 @@ return new class extends Migration
 
             $table->string('name', 30);       // Nombre del representante
             $table->string('last_name', 30);  // Apellido del representante
-
-            $table->string('dni', 15)->unique(); // Documento de identidad único (DNI, cédula, etc.)
-
+            $table->string('document', 15)->unique(); // Documento de identidad único (DNI, cédula, etc.)
             $table->string('phone', 15);       // Teléfono de contacto
-
-            $table->string('email', 50)->nullable(); // Email opcional
-
+            $table->string('email', 30); // Email obligatorio
+            $table->date('birth_date');      // Fecha de nacimiento
             $table->string('address', 255);    // Dirección física
-
-            $table->string('relationship', 20)->nullable(); // Relación con el estudiante (ej. padre, madre, tutor)
-
+            $table->string('relationship', 20); // Relación con el estudiante (ej. padre, madre, tutor)
             $table->timestamps();              // created_at y updated_at
 
         });

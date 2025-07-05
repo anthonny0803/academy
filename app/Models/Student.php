@@ -14,12 +14,14 @@ class Student extends Model
         'document',
         'address',
         'phone',
-        'father_name',
+        'relationship',
         'father_last_name',
         'mother_name',
-        'mother_last_name'
+        'mother_last_name',
+        'representative_id'
     ];
 
+    //El estudiante solo tiene un representante
     public function representative()
     {
         return $this->belongsTo(Representative::class);

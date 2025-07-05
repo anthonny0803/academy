@@ -23,9 +23,6 @@ return new class extends Migration
             // Nota obtenida, máximo 99.99
             $table->float('grade', 4, 2);
 
-            // Fecha en que se registró esta nota
-            $table->date('date_recorded');
-
             $table->timestamps(); // created_at y updated_at
 
             // Relaciones
