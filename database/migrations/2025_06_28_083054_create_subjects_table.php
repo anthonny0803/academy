@@ -18,7 +18,6 @@ return new class extends Migration
             $table->text('description')->nullable(); // descripción opcional para más contexto
             $table->boolean('is_active')->default(true); // para activar o desactivar la materia sin borrar
             $table->timestamps(); // created_at y updated_at para auditoría
-            $table->softDeletes(); // para poder "eliminar" sin perder datos (borrado lógico)
 
         });
     }

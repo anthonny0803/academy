@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Grade extends Model
 {
     protected $fillable = [
-        'grade'
+        'grade',
+        'teacher_subject_section_id',
+        'enrollment_id'
     ];
 
     //Las notas pertenecen a una inscripcion

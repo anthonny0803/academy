@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->unsignedBigInteger('section_id');  // ID de la sección (curso/grupo) en la que se inscribe
 
-            $table->string('school_year', 20);  // Año escolar o periodo (ej: "2025-2026")
+            $table->unsignedBigInteger('academic_period_id'); //ID del periodo academico en la que se inscribe
 
             $table->enum('status', ['active', 'withdrawn', 'completed'])->default('active');
             // Estado de la inscripción: activa, retirada o completada
@@ -32,8 +32,11 @@ return new class extends Migration
             $table->foreign('section_id')->references('id')->on('sections')->onDelete('restrict');
             // No se puede borrar sección si tiene inscripciones activas
 
+            $table->foreign('academic_period_id')->references('id')->on('academic_period')->onDelete('restrict');
+            // No se puede borrar sección si tiene inscripciones activas
+
             // Para evitar que el mismo estudiante se inscriba dos veces en la misma sección y año
-            $table->unique(['student_id', 'section_id', 'school_year']);
+            $table->unique(['student_id', 'section_id', 'academic_period_id']);
         });
     }
 

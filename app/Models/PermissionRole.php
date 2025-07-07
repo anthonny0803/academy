@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TeacherSubjectSection extends Model
+class PermissionRole extends Model
 {
     protected $fillable = [
-        'user_id',
-        'subject_id',
-        'section_id'
+        'permission_id',
+        'role_id'
     ];
 }
