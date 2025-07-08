@@ -12,4 +12,8 @@ class Enrollment extends Model
         'academic_period_id',
         'status'
     ];
+
+    public function academicPeriod() {
+    return $this->belongsTo(AcademicPeriod::class);
+}
 }
