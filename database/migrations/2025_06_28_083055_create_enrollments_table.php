@@ -32,7 +32,7 @@ return new class extends Migration
             $table->foreign('section_id')->references('id')->on('sections')->onDelete('restrict');
             // No se puede borrar sección si tiene inscripciones activas
 
-            $table->foreign('academic_period_id')->references('id')->on('academic_period')->onDelete('restrict');
+            $table->foreign('academic_period_id')->references('id')->on('academic_periods')->onDelete('restrict');
             // No se puede borrar sección si tiene inscripciones activas
 
             // Para evitar que el mismo estudiante se inscriba dos veces en la misma sección y año

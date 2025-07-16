@@ -27,9 +27,11 @@ return new class extends Migration
             $table->string('father_last_name', 30)->nullable(); // Apellido padre opcional
             $table->string('mother_name', 30)->nullable();      // Nombre madre opcional
             $table->string('mother_last_name', 30)->nullable(); // Apellido madre opcional
+            $table->unsignedBigInteger('section_id');
             $table->timestamps();     // created_at, updated_at
             $table->timestamp('last_login')->nullable(); // Último acceso
             $table->foreign('representative_id')->references('id')->on('representatives')->onDelete('restrict'); // No borrar representante si tiene estudiantes
+            $table->foreign('section_id')->references('id')->on('sections')->onDelete('restrict');
 
         });
     }

@@ -9,74 +9,56 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-
-    /**
-     * Muestra una lista de todos los usuarios.
-     */
+    // Mostrar lista de Usuarios
     public function index()
     {
-        // Puedes incluir el rol con eager loading
+        // Agregar el rol al Usuario
         $users = User::with('role')->get();
-
         return view('users.index', compact('users'));
     }
 
-    /**
-     * Muestra el formulario para crear un nuevo usuario.
-     */
+    // Mostrar formulario para crear un nuevo Usuario
     public function create()
     {
-        // Traemos los roles para que el admin seleccione uno
+        // Traer Roles para seleccionar
         $roles = Role::all();
-
         return view('users.create', compact('roles'));
     }
 
-    /**
-     * Almacena un nuevo usuario en la base de datos.
-     */
+    // Crear Usuario
     public function store(Request $request)
     {
         // Validaciones básicas
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:30',
             'last_name' => 'required|string|max:30',
-            'username' => 'required|string|max:30|unique:users',
-            'email' => 'required|email|max:30|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'role_id' => 'required|exists:roles,id',
+            'username' => 'required|string|max:30|unique:users,username',
+            'email' => 'required|email|max:30|unique:users,email',
+            'password' => 'required|string|min:6|confirmed', // La contraseña se hashea en el modelo
+            'role_id' => 'required|exists:roles,id'
         ]);
 
-        // Creamos el usuario
-        User::create([
-            'name' => $request->name,
-            'last_name' => $request->last_name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // Hasheamos la contraseña
-            'role_id' => $request->role_id,
-            'status' => 'active',
-        ]);
+        // Actualizar estado del Usuario antes de registrar
+        $validated['status'] = 'active';
 
+        // Registrar Usuario
+        User::create($validated);
         return redirect()->route('users.index')->with('success', 'Usuario creado correctamente.');
     }
 
-    /**
-     * Muestra el formulario para editar un usuario existente.
-     */
+    // Mostrar formulario para actualizar el Usuario
     public function edit(User $user)
     {
+        // Traer Roles para seleccionar
         $roles = Role::all();
-
         return view('users.edit', compact('user', 'roles'));
     }
 
-    /**
-     * Actualiza un usuario en la base de datos.
-     */
+    // Actualizar Usuario
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        // Validaciones básicas
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'username' => 'required|string|max:50|unique:users,username,' . $user->id,
@@ -84,33 +66,25 @@ class UserController extends Controller
             'role_id' => 'required|exists:roles,id',
         ]);
 
-        $data = [
-            'name' => $request->name,
-            'last_name' => $request->last_name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'role_id' => $request->role_id,
-        ];
-
+        // Si hay nueva contraseña de Usuario
         if ($request->filled('password')) {
             $request->validate([
                 'password' => 'string|min:6|confirmed',
             ]);
-            $data['password'] = Hash::make($request->password);
+
+            // Hashear contraseña
+            $validated['password'] = Hash::make($request->password);
         }
 
-        $user->update($data);
-
+        // Actualizar
+        $user->update($validated);
         return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
-    /**
-     * Elimina un usuario de la base de datos.
-     */
+    // Eliminar Usuario
     public function destroy(User $user)
     {
         $user->delete();
-
         return redirect()->route('users.index')->with('success', 'Usuario eliminado.');
     }
 }

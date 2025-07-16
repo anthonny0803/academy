@@ -24,6 +24,8 @@ return new class extends Migration
             $table->float('grade', 4, 2);
 
             $table->timestamps(); // created_at y updated_at
+            $table->date('date_recorded');
+
 
             // Relaciones
             $table->foreign('enrollment_id')->references('id')->on('enrollments')->onDelete('restrict');
