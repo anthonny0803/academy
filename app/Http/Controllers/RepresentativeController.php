@@ -10,7 +10,7 @@ class RepresentativeController extends Controller
     // Mostrar lista de Representantes
     public function index()
     {
-        $representatives = Representative::all();
+        $representatives = Representative::paginate(15);
         return view('representatives.index', compact('representatives'));
     }
 
@@ -37,7 +37,7 @@ class RepresentativeController extends Controller
             'last_name' => 'required|string|max:30',
             'document' => 'required|string|max:15|unique:representatives,document',
             'phone' => 'required|string|max:15',
-            'email' => 'required|string|max:30|unique:representatives,email',
+            'email' => 'required|email|max:30|unique:representatives,email',
             'birth_date' => 'required|date',
             'address' => 'required|string|max:255',
             'relationship' => 'required|string|max:15',
@@ -62,9 +62,9 @@ class RepresentativeController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:30',
             'last_name' => 'required|string|max:30',
-            'document' => 'required|string|max:30|unique:representatives,document,' . $representative->id,
+            'document' => 'required|string|max:15|unique:representatives,document,' . $representative->id,
             'phone' => 'required|string|max:15',
-            'email' => 'required|string|max:30|unique:representatives,email,' . $representative->id,
+            'email' => 'required|email|max:30|unique:representatives,email,' . $representative->id,
             'birth_date' => 'required|date',
             'address' => 'required|string|max:255',
             'relationship' => 'required|string|max:15',
@@ -75,7 +75,7 @@ class RepresentativeController extends Controller
         return redirect()->route('representatives.index')->with('success', 'Representante actualizado correctamente.');
     }
 
-    //Eliminar Representante
+    // Eliminar Representante
     public function destroy(Representative $representative)
     {
         $representative->delete();
