@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('subjects', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 30)->unique();
-            $table->string('description', 255);
-            $table->timestamps();
+            $table->id(); // Identificador único autoincremental de la Asignatura
+            $table->string('name', 100)->unique(); // Nombre de la Asignatura (Ej: Matemática 1, Física 3)
+            $table->string('description')->nullable(); // Descripción de la Asignatura (opcional)
+            $table->timestamps(); // Columnas created_at y updated_at para auditoría
         });
     }
 
