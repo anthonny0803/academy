@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('section_subject', function (Blueprint $table) {
+        Schema::create('section_subject_teacher', function (Blueprint $table) {
             $table->id(); // Identificador único autoincremental para cada Asignación
             // Clave foránea a la Sección
             $table->foreignId('section_id')->constrained('sections')
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('section_subject');
+        Schema::dropIfExists('section_subject_teacher');
     }
 };
