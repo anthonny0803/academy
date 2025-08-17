@@ -19,7 +19,9 @@ class Student extends Model
         'user_id',
         'representative_id',
         'student_code',
+        'document_id',
         'relationship_type',
+        'birth_date',
         'is_active',
     ];
 
@@ -33,6 +35,7 @@ class Student extends Model
     {
         return [
             'is_active' => 'boolean', // Conversión a booleano
+            'birth_date' => 'date', // Conversión a carbon
         ];
     }
 

@@ -17,9 +17,11 @@ class Representative extends Model
      */
     protected $fillable = [
         'user_id',
+        'document_id',
         'phone',
         'address',
         'occupation',
+        'birth_date',
         'is_active',
     ];
 
@@ -33,6 +35,7 @@ class Representative extends Model
     {
         return [
             'is_active' => 'boolean', // Conversión a booleano
+            'birth_date' => 'date', // Conversión a carbon
         ];
     }
 

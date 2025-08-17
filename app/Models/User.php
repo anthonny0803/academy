@@ -20,12 +20,9 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'last_name',
-        'document_id',
-        'username',
         'email',
         'password',
         'sex',
-        'birth_date',
         'is_active',
     ];
 
@@ -50,7 +47,6 @@ class User extends Authenticatable
     {
         return [
             'is_active' => 'boolean', // Conversión a booleano
-            'birth_date' => 'date', // Conversión a carbon
             'password' => 'hashed', // Hash de la contraseña del Usuario
         ];
     }
