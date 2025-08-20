@@ -5,23 +5,29 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6"> {{-- Padding y colores de texto del card --}}
 
-                    <form method="POST" action="{{ route('register') }}">
+                    <form method="POST" action="{{ route('register-client') }}">
                         @csrf
 
                         <div>
-                            <x-input-label for="name" :value="__('Nombre')" />
+                            <x-input-label for="name" :value="__('Nombres')" />
                             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="off" />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
                         <div>
-                            <x-input-label for="last_name" :value="__('Apellido')" />
+                            <x-input-label for="last_name" :value="__('Apellidos')" />
                             <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                         </div>
 
                         <div>
-                            <x-input-label for="email" :value="__('Correo')" />
+                            <x-input-label for="document_id" :value="__('DNI/NIE')" />
+                            <x-text-input id="document_id" class="block mt-1 w-full uppercase" type="text" name="document_id" :value="old('document_id')" pattern="[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}" required autocomplete="off" />
+                            <x-input-error :messages="$errors->get('document_id')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="email" :value="__('Correo (Opcional)')" />
                             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
@@ -53,31 +59,6 @@
                                 type="password"
                                 name="password_confirmation" required autocomplete="new-password" />
                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                        </div>
-
-                        <div>
-                            <x-input-label for="role" :value="__('Rol')" />
-                            <select id="role" name="role" class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                                <option value="">Selecciona un Rol</option>
-
-                                {{-- Si el usuario autenticado es superAdmin --}}
-                                @role('SuperAdmin')
-                                {{-- superAdmin puede crear cualquier rol de empleado/admin --}}
-                                @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['Representante','Estudiante'])->get() as $role)
-                                <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}</option>
-                                @endforeach
-                                @endrole
-
-                                {{-- Si el usuario autenticado es Admin (pero no superAdmin) --}}
-                                @role('Administrador')
-                                {{-- Administrador solo puede crear roles que no sean 'superAdmin' ni 'admin' --}}
-                                @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['SuperAdmin','Administrador','Representante','Estudiante'])->get() as $role)
-                                <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}</option>
-                                @endforeach
-                                @endrole
-
-                            </select>
-                            <x-input-error :messages="$errors->get('role')" class="mt-2" />
                         </div>
 
                         <div class="flex items-center justify-end mt-4">

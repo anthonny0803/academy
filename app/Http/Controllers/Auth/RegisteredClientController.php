@@ -13,14 +13,14 @@ use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
-class RegisteredUserController extends Controller
+class RegisteredClientController extends Controller
 {
     /**
      * Display the registration view.
      */
     public function create(): View
     {
-        return view('auth.register');
+        return view('auth.register-client');
     }
 
     /**
@@ -53,7 +53,6 @@ class RegisteredUserController extends Controller
         $user->assignRole($roleName);
 
         event(new Registered($user));
-        
         return redirect()->route('dashboard')->with('status', '¡Usuario registrado con éxito!');
     }
 }

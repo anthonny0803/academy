@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\RegisteredClientController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
@@ -54,9 +55,15 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 
-    Route::middleware([RoleMiddleware::class . ':superAdmin|admin'])->group(function () {
+    Route::middleware([RoleMiddleware::class . ':SuperAdmin|Administrador'])->group(function () {
         Route::get('register', [RegisteredUserController::class, 'create'])
-            ->name('register'); // La ruta con nombre 'register' ahora apunta a este lugar
+            ->name('register');
         Route::post('register', [RegisteredUserController::class, 'store']);
+    });
+
+    Route::middleware([RoleMiddleware::class . ':SuperAdmin|Administrador'])->group(function () {
+        Route::get('register-client', [RegisteredClientController::class, 'create'])
+            ->name('register-client');
+        Route::post('register-client', [RegisteredClientController::class, 'store']);
     });
 });
