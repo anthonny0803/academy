@@ -1,74 +1,106 @@
-<x-app-layout> {{-- <-- Primer cambio aquí --}}
-    <div class="py-12"> {{-- Padding vertical como en el dashboard --}}
-        <div class="max-w-md mx-auto sm:px-6 lg:px-8"> {{-- Centra y limita el ancho --}}
-            {{-- EL CONTENEDOR DEL CARD: Mismos colores que tu dashboard --}}
+<x-app-layout>
+    <div class="py-12">
+        {{-- Aquí se usa la clase que hace el card más ancho. Tailwind ignora "max-w-9xl", pero el resultado es el que quieres. --}}
+        <div class="mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6"> {{-- Padding y colores de texto del card --}}
-
+                <div class="p-6">
                     <form method="POST" action="{{ route('register-client') }}">
                         @csrf
 
-                        <div>
-                            <x-input-label for="name" :value="__('Nombres')" />
-                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="off" />
-                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                        </div>
+                        {{-- Contenedor de Flexbox para las tres columnas --}}
+                        <div class="flex flex-wrap -mx-2 mb-4">
+                            {{-- Los campos ocupan 1/3 del ancho en pantallas sm y mayores --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="name" :value="__('Nombres')" />
+                                <x-text-input id="name" class="block mt-1 w-full uppercase" type="text" name="name" :value="old('name')" required autofocus autocomplete="off" />
+                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                            </div>
 
-                        <div>
-                            <x-input-label for="last_name" :value="__('Apellidos')" />
-                            <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required autocomplete="off" />
-                            <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
-                        </div>
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="last_name" :value="__('Apellidos')" />
+                                <x-text-input id="last_name" class="block mt-1 w-full uppercase" type="text" name="last_name" :value="old('last_name')" required autocomplete="off" />
+                                <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
+                            </div>
 
-                        <div>
-                            <x-input-label for="document_id" :value="__('DNI/NIE')" />
-                            <x-text-input id="document_id" class="block mt-1 w-full uppercase" type="text" name="document_id" :value="old('document_id')" pattern="[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}" required autocomplete="off" />
-                            <x-input-error :messages="$errors->get('document_id')" class="mt-2" />
-                        </div>
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="document_id" :value="__('DNI/NIE')" />
+                                <x-text-input id="document_id" class="block mt-1 w-full uppercase" type="text" name="document_id" :value="old('document_id')" pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}" required autocomplete="off" />
+                                <x-input-error :messages="$errors->get('document_id')" class="mt-2" />
+                            </div>
 
-                        <div>
-                            <x-input-label for="email" :value="__('Correo (Opcional)')" />
-                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="off" />
-                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                        </div>
 
-                        <div>
-                            <x-input-label for="sex" :value="__('Sexo')" />
-                            {{-- MODIFICADO: Asegúrate de que el select tenga los colores correctos para modo oscuro --}}
-                            <select id="sex" name="sex" class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
-                                <option value="">Selecciona una opción</option>
-                                <option value="Masculino" {{ old('sex') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
-                                <option value="Femenino" {{ old('sex') == 'Femenino' ? 'selected' : '' }}>Femenino</option>
-                                <option value="Otro" {{ old('sex') == 'Otro' ? 'selected' : '' }}>Otro</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('sex')" class="mt-2" />
-                        </div>
 
-                        <div>
-                            <x-input-label for="password" :value="__('Contraseña')" />
-                            <x-text-input id="password" class="block mt-1 w-full"
-                                type="password"
-                                name="password"
-                                required autocomplete="new-password" />
-                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                        </div>
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="email" :value="__('Correo')" />
+                                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="off" />
+                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                            </div>
 
-                        <div>
-                            <x-input-label for="password_confirmation" :value="__('Confirmar contraseña')" />
-                            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
-                            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="phone" :value="__('Teléfono')" />
+                                <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone" :value="old('phone')" pattern="[0-9]{9,13}" required autocomplete="off" />
+                                <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+                            </div>
+
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="occupation" :value="__('Ocupación (Opcional)')" />
+                                <x-text-input id="occupation" class="block mt-1 w-full uppercase" type="text" name="occupation" :value="old('occupation')" autocomplete="off" />
+                                <x-input-error :messages="$errors->get('occupation')" class="mt-2" />
+                            </div>
+
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="sex" :value="__('Sexo')" />
+                                <select id="sex" name="sex" class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                                    <option value="">Selecciona una opción</option>
+                                    <option value="Masculino" {{ old('sex') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
+                                    <option value="Femenino" {{ old('sex') == 'Femenino' ? 'selected' : '' }}>Femenino</option>
+                                    <option value="Otro" {{ old('sex') == 'Otro' ? 'selected' : '' }}>Otro</option>
+                                </select>
+                                <x-input-error :messages="$errors->get('sex')" class="mt-2" />
+                            </div>
+
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="date" :value="__('Fecha de Nacimiento')" />
+
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                                        </svg>
+                                    </div>
+                                    <x-text-input
+                                        id="date"
+                                        datepicker
+                                        datepicker-autohide
+                                        type="text"
+                                        name="date"
+                                        class="block mt-1 w-full ps-10"
+                                        required
+                                        autocomplete="off"
+                                        placeholder="Elige una fecha" />
+                                    <x-input-error :messages="$errors->get('date')" class="mt-2" />
+                                </div>
+                            </div>
+
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="address" :value="__('Domicilio')" />
+                                <textarea
+                                    id="address"
+                                    name="address"
+                                    rows="4"
+                                    class="block mt-1 w-full uppercase text-gray-900 dark:text-gray-300 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                    required>{{ old('address') }}</textarea>
+                                <x-input-error :messages="$errors->get('address')" class="mt-2" />
+                            </div>
+
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
-                            {{-- Este enlace a dashboard probablemente no lo necesites si es un registro admin --}}
                             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('dashboard') }}">
                                 {{ __('Volver al Panel') }}
                             </a>
-
                             <x-primary-button class="ms-4">
-                                {{ __('Crear Usuario') }} {{-- Cambiado de 'Registrar' a 'Crear Usuario' para claridad --}}
+                                {{ __('Registrar Cliente') }}
                             </x-primary-button>
                         </div>
                     </form>
