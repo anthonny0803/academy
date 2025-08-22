@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Carbon\Carbon;
 
 class Representative extends Model
 {
@@ -37,6 +38,12 @@ class Representative extends Model
             'is_active' => 'boolean', // Conversión a booleano
             'birth_date' => 'date', // Conversión a carbon
         ];
+    }
+
+    // Mutator para el formato de fecha
+    public function setBirthDateAttribute($value)
+    {
+        $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
     }
 
     /*

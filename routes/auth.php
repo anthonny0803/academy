@@ -56,12 +56,12 @@ Route::middleware('auth')->group(function () {
         ->name('logout');
 
     Route::middleware([RoleMiddleware::class . ':SuperAdmin|Administrador'])->group(function () {
+        // Rutas para el registro de usuarios
         Route::get('register', [RegisteredUserController::class, 'create'])
             ->name('register');
         Route::post('register', [RegisteredUserController::class, 'store']);
-    });
 
-    Route::middleware([RoleMiddleware::class . ':SuperAdmin|Administrador'])->group(function () {
+        // Rutas para el registro de clientes
         Route::get('register-client', [RegisteredClientController::class, 'create'])
             ->name('register-client');
         Route::post('register-client', [RegisteredClientController::class, 'store']);
