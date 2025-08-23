@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\RegisteredClientController;
+use App\Http\Controllers\Auth\RegisteredStudentController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
@@ -65,5 +66,10 @@ Route::middleware('auth')->group(function () {
         Route::get('register-client', [RegisteredClientController::class, 'create'])
             ->name('register-client');
         Route::post('register-client', [RegisteredClientController::class, 'store']);
+
+        // Rutas para el registro de estudiantes
+        Route::get('register-student/{representative}', [RegisteredStudentController::class, 'create'])
+            ->name('register-student');
+        Route::post('register-student', [RegisteredStudentController::class, 'store']);
     });
 });

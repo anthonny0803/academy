@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Representative;
+use App\Models\Student;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,14 +16,14 @@ use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 
-class RegisteredClientController extends Controller
+class RegisteredStudentController extends Controller
 {
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Representative $representative): View
     {
-        return view('auth.register-client');
+        return view('auth.register-student', ['representative' => $representative]);
     }
 
     /**
