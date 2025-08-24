@@ -91,4 +91,15 @@ class User extends Authenticatable
     {
         return $this->hasOne(Student::class);
     }
+
+    // Metodo para verificar si el usuario tiene otro rol
+    public function isRepresentative()
+    {
+        return $this->representative()->exists();
+    }
+
+    public function isStudent()
+    {
+        return $this->student()->exists();
+    }
 }
