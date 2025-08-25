@@ -1,4 +1,39 @@
 <x-app-layout>
+    {{-- Pasa el mensaje de error de la sesión a una variable de JavaScript --}}
+    <script>
+        // Función para crear y mostrar el modal
+        function showErrorModal(message) {
+            // Crea el HTML del modal en un string
+            const modalHtml = `
+                <div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+                        <div class="flex items-center justify-between pb-3">
+                            <h3 class="text-xl font-semibold text-red-600">¡Error!</h3>
+                            <button onclick="document.getElementById('errorModal').style.display='none';" class="text-gray-500 hover:text-gray-700">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="mt-2 text-gray-800">
+                            <p>${message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Inserta el modal en el cuerpo del documento
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+    </script>
+
+    {{-- Pasa el mensaje de error de la sesión a una variable de JavaScript --}}
+    @if(session('error'))
+    <script>
+        // Muestra el modal si existe un mensaje de error
+        showErrorModal("{{ session('error') }}");
+    </script>
+    @endif
     <div class="py-12">
         {{-- Aquí se usa la clase que hace el card más ancho. Tailwind ignora "max-w-9xl", pero el resultado es el que quieres. --}}
         <div class="mx-auto sm:px-6 lg:px-8">
