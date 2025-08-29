@@ -4,7 +4,7 @@
         <div class="mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <form method="POST" action="{{ route('register-client') }}">
+                    <form method="POST" action="{{ route('students.store') }}">
                         @csrf
 
                         {{-- Contenedor de Flexbox para las tres columnas --}}

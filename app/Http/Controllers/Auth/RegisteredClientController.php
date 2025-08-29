@@ -24,7 +24,7 @@ class RegisteredClientController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register-client');
+        return view('auth.clients.register');
     }
 
     /**
@@ -55,7 +55,7 @@ class RegisteredClientController extends Controller
                 'max:100',
             ],
             'phone' => ['required', 'string', 'regex:/^[0-9]{9,13}$/', 'max:15'],
-            'occupation' => ['string', 'max:50'],
+            'occupation' => ['nullable', 'string', 'max:50'],
             'address' => ['required', 'string'],
             'sex' => ['required', 'string', 'max:15'],
             'birth_date' => ['required', 'date_format:d/m/Y'],
@@ -113,7 +113,7 @@ class RegisteredClientController extends Controller
             });
             
             // 3. Redirige solo si la transacción fue exitosa.
-            return redirect()->route('register-student', ['representative' => $representative->id])->with('status', '¡Representante registrado con éxito!');
+            return redirect()->route('students.create', ['representative' => $representative->id])->with('status', '¡Representante registrado con éxito!');
 
         } catch (Throwable $e) {
             // Captura la excepción y redirige con el mensaje de error.

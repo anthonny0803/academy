@@ -58,18 +58,21 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware([RoleMiddleware::class . ':SuperAdmin|Administrador'])->group(function () {
         // Rutas para el registro de usuarios
-        Route::get('register', [RegisteredUserController::class, 'create'])
-            ->name('register');
-        Route::post('register', [RegisteredUserController::class, 'store']);
+        Route::get('users/register', [RegisteredUserController::class, 'create'])
+            ->name('users.register');
+        Route::post('users/register', [RegisteredUserController::class, 'store'])
+            ->name('users.store');
 
         // Rutas para el registro de clientes
-        Route::get('register-client', [RegisteredClientController::class, 'create'])
-            ->name('register-client');
-        Route::post('register-client', [RegisteredClientController::class, 'store']);
+        Route::get('clients/register', [RegisteredClientController::class, 'create'])
+            ->name('clients.register');
+        Route::post('clients/register', [RegisteredClientController::class, 'store'])
+            ->name('clients.store');
 
         // Rutas para el registro de estudiantes
-        Route::get('register-student/{representative}', [RegisteredStudentController::class, 'create'])
-            ->name('register-student');
-        Route::post('register-student', [RegisteredStudentController::class, 'store']);
+        Route::get('students/{representative}/register', [RegisteredStudentController::class, 'create'])
+            ->name('students.create');
+        Route::post('students/register', [RegisteredStudentController::class, 'store'])
+            ->name('students.store');
     });
 });

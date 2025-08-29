@@ -23,7 +23,7 @@ class RegisteredStudentController extends Controller
      */
     public function create(Representative $representative): View
     {
-        return view('auth.register-student', ['representative' => $representative]);
+        return view('auth.students.register', ['representative' => $representative]);
     }
 
     /**
@@ -72,6 +72,6 @@ class RegisteredStudentController extends Controller
             // Retorna el valor del representante para poder usarlo
             return $representative;
         });
-        return redirect()->route('register-student', ['representative' => $representative->id])->with('status', '¡Representante registrado con éxito!');
+        return redirect()->route('students.register', ['representative' => $representative->id])->with('status', '¡Estudiante registrado con éxito!');
     }
 }

@@ -9,8 +9,6 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-// Ruta de usuario agregada
-Route::resource('users', UserController::class);
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
