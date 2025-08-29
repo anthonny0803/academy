@@ -24,13 +24,13 @@
                         {{-- Contenedor GRID para los cards, directamente después de la descripción del rol --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {{-- Card de Registro de empleados --}}
-                            <a href="{{ route('users.register') }}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                            <a href="{{ route('users.create') }}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Registro de empleados</h5>
                                 <p class="font-normal text-gray-700 dark:text-gray-400">Formulario de registro de empleados para la Academia.</p>
                             </a>
 
                             {{-- Otro Card de ejemplo --}}
-                            <a href="{{ route('clients.register') }}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                            <a href="{{ route('clients.create') }}" class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Registro de clientes</h5>
                                 <p class="font-normal text-gray-700 dark:text-gray-400">Formulario de registro de clientes (Representantes, Estudiantes) para la Academia.</p>
                             </a>

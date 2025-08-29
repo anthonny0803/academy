@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -17,14 +17,14 @@ use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 
-class RegisteredClientController extends Controller
+class ClientController extends Controller
 {
     /**
      * Display the registration view.
      */
     public function create(): View
     {
-        return view('auth.clients.register');
+        return view('clients.create');
     }
 
     /**

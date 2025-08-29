@@ -2,107 +2,58 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     /**
-     * Muestra una lista de los usuarios.
+     * Display the registration view.
      */
-    public function index()
-    {
-        // Obtener una lista de usuarios con 10 registros max
-        $users = User::paginate(10);
-
-        // Retornar la vista 'users.index' y pasarle la colección de usuarios
-        return view('users.index', compact('users'));
-    }
-
-    /**
-     * Muestra un usuario por Id.
-     */
-    public function show(User $user)
-    {
-        return view('users.show', compact('user'));
-    }
-
-    /**
-     * Formulario para crear un usuario.
-     */
-    public function create()
+    public function create(): View
     {
         return view('users.create');
     }
 
     /**
-     * Función para crear el usuario.
+     * Handle an incoming registration request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        // Validaciones básicas
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'document_id' => 'required|string|max:15',
-            'username' => 'required|string|max:30|unique:users,username',
-            'email' => 'required|email|max:100|unique:users,email',
-            'password' => 'required|string|min:6|confirmed', // La contraseña se hashea en el modelo
-            'sex' => 'required|string|in:Masculino,Femenino,Otro',
+        $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'string', 'email', 'max:100', 'unique:'.User::class],
+            'sex' => ['required', 'string', 'max:15'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'string', 'exists:roles,name'],
         ]);
 
-        // Actualizar estado del usuario antes de registrar
-        $validated['is_active'] = true;
-
-        // Registrar
-        User::create($validated);
-        return redirect()->route('users.index')->with('success', 'Usuario creado correctamente.');
-    }
-
-    /**
-     * Formulario para modificar un usuario.
-     */
-    public function edit(User $user)
-    {
-        return view('users.edit', compact('user'));
-    }
-
-    /**
-     * Función para actualizar el usuario.
-     */
-    public function update(Request $request, User $user)
-    {
-        // Validaciones básicas
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
-            'last_name' => 'required|string|max:100',
-            'document_id' => 'required|string|max:15|unique:users,document_id,' . $user->id,
-            'username' => 'required|string|max:30|unique:users,username,' . $user->id,
-            'email' => 'required|email|max:100|unique:users,email,' . $user->id,
-            'sex' => 'required|string|in:Masculino,Femenino,Otro',
-            'is_active' => 'required|boolean',
+        $user = User::create([
+            'name' => strtoupper($request->name),
+            'last_name' => strtoupper($request->last_name),
+            'email' => strtolower($request->email),
+            'sex' => $request->sex,
+            'password' => Hash::make($request->password),
+            'is_active' => true,
         ]);
 
-        // Si hay nueva contraseña de Usuario
-        if ($request->filled('password')) {
-            $rules['password'] = 'string|min:6|confirmed';
-        }
+        // Asignación del rol
+        $roleName = $request->input('role');
+        $user->assignRole($roleName);
 
-        // Actualizar la validación con los datos de password
-        $validated = $request->validate($rules);
-
-            // Actualizar usuario
-            $user->update($validated);
-            return redirect()->route('users.index')->with('success', 'Usuario actualizado correctamente.');
+        event(new Registered($user));
         
-    }
-
-    /**
-     * Función para eliminar el usuario.
-     */
-    public function destroy(User $user)
-    {
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'Usuario eliminado.');
+        return redirect()->route('dashboard')->with('status', '¡Usuario registrado con éxito!');
     }
 }

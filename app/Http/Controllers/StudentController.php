@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -16,14 +16,14 @@ use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 
-class RegisteredStudentController extends Controller
+class StudentController extends Controller
 {
     /**
      * Display the registration view.
      */
     public function create(Representative $representative): View
     {
-        return view('auth.students.register', ['representative' => $representative]);
+        return view('students.create', ['representative' => $representative]);
     }
 
     /**
@@ -72,6 +72,6 @@ class RegisteredStudentController extends Controller
             // Retorna el valor del representante para poder usarlo
             return $representative;
         });
-        return redirect()->route('students.register', ['representative' => $representative->id])->with('status', '¡Estudiante registrado con éxito!');
+        return redirect()->route('students.create', ['representative' => $representative->id])->with('status', '¡Estudiante registrado con éxito!');
     }
 }
