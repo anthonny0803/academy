@@ -10,29 +10,36 @@
 
                         <div>
                             <x-input-label for="name" :value="__('Nombre')" />
-                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="off" />
+                            <x-text-input id="name" class="block mt-1 w-full uppercase" type="text" name="name"
+                                :value="old('name')" required autofocus autocomplete="off" />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="last_name" :value="__('Apellido')" />
-                            <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required autocomplete="off" />
+                            <x-text-input id="last_name" class="block mt-1 w-full uppercase" type="text"
+                                name="last_name" :value="old('last_name')" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="email" :value="__('Correo')" />
-                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="off" />
+                            <x-text-input id="email" class="block mt-1 w-full lowercase" type="email"
+                                name="email" :value="old('email')" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="sex" :value="__('Sexo')" />
                             {{-- MODIFICADO: Asegúrate de que el select tenga los colores correctos para modo oscuro --}}
-                            <select id="sex" name="sex" class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                            <select id="sex" name="sex"
+                                class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                required>
                                 <option value="">Selecciona una opción</option>
-                                <option value="Masculino" {{ old('sex') == 'Masculino' ? 'selected' : '' }}>Masculino</option>
-                                <option value="Femenino" {{ old('sex') == 'Femenino' ? 'selected' : '' }}>Femenino</option>
+                                <option value="Masculino" {{ old('sex') == 'Masculino' ? 'selected' : '' }}>Masculino
+                                </option>
+                                <option value="Femenino" {{ old('sex') == 'Femenino' ? 'selected' : '' }}>Femenino
+                                </option>
                                 <option value="Otro" {{ old('sex') == 'Otro' ? 'selected' : '' }}>Otro</option>
                             </select>
                             <x-input-error :messages="$errors->get('sex')" class="mt-2" />
@@ -40,40 +47,43 @@
 
                         <div>
                             <x-input-label for="password" :value="__('Contraseña')" />
-                            <x-text-input id="password" class="block mt-1 w-full"
-                                type="password"
-                                name="password"
+                            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password"
                                 required autocomplete="new-password" />
                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="password_confirmation" :value="__('Confirmar contraseña')" />
-                            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
+                            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
                                 name="password_confirmation" required autocomplete="new-password" />
                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                         </div>
 
                         <div>
                             <x-input-label for="role" :value="__('Rol')" />
-                            <select id="role" name="role" class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                            <select id="role" name="role"
+                                class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                required>
                                 <option value="">Selecciona un Rol</option>
 
                                 {{-- Si el usuario autenticado es superAdmin --}}
                                 @role('SuperAdmin')
-                                {{-- superAdmin puede crear cualquier rol de empleado/admin --}}
-                                @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['Representante','Estudiante'])->get() as $role)
-                                <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}</option>
-                                @endforeach
+                                    {{-- superAdmin puede crear cualquier rol de empleado/admin --}}
+                                    @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['Representante', 'Estudiante'])->get() as $role)
+                                        <option value="{{ $role->name }}"
+                                            {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}
+                                        </option>
+                                    @endforeach
                                 @endrole
 
                                 {{-- Si el usuario autenticado es Admin (pero no superAdmin) --}}
                                 @role('Administrador')
-                                {{-- Administrador solo puede crear roles que no sean 'superAdmin' ni 'admin' --}}
-                                @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['SuperAdmin','Administrador','Representante','Estudiante'])->get() as $role)
-                                <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}</option>
-                                @endforeach
+                                    {{-- Administrador solo puede crear roles que no sean 'superAdmin' ni 'admin' --}}
+                                    @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante'])->get() as $role)
+                                        <option value="{{ $role->name }}"
+                                            {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}
+                                        </option>
+                                    @endforeach
                                 @endrole
 
                             </select>
@@ -82,7 +92,8 @@
 
                         <div class="flex items-center justify-end mt-4">
                             {{-- Este enlace a dashboard probablemente no lo necesites si es un registro admin --}}
-                            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('dashboard') }}">
+                            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                href="{{ route('dashboard') }}">
                                 {{ __('Volver al Panel') }}
                             </a>
 

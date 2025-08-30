@@ -2,20 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Representative;
-use Illuminate\Validation\Rule;
-use Throwable;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ClientController extends Controller
 {
@@ -37,6 +31,7 @@ class ClientController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
+            
             // La validación de 'document_id' debe ser única para la tabla de representantes
             'document_id' => [
                 'required',
@@ -45,9 +40,6 @@ class ClientController extends Controller
                 'regex:/^[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}$/',
                 'unique:' . Representative::class,
             ],
-            // La validación de 'email' debe ser única en la tabla de usuarios.
-            // Si quieres permitir que un usuario existente se convierta en representante,
-            // debes cambiar esta validación a una verificación manual después.
             'email' => [
                 'required',
                 'string',

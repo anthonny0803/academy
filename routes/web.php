@@ -21,17 +21,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
+    // Rutas de administración de usuarios
     Route::middleware([RoleMiddleware::class . ':SuperAdmin|Administrador'])->group(function () {
+
+        // Rutas del usuario
         Route::controller(UserController::class)->group(function () {
+            Route::get('users/index', 'index')->name('users.index');
             Route::get('users/create', 'create')->name('users.create');
             Route::post('users/create', 'store')->name('users.store');
         });
 
+        // Rutas del cliente
         Route::controller(ClientController::class)->group(function () {
             Route::get('clients/create', 'create')->name('clients.create');
             Route::post('clients/create', 'store')->name('clients.store');
         });
 
+        // Rutas del estudiante
         Route::controller(StudentController::class)->group(function () {
             Route::get('students/{representative}/create', 'create')->name('students.create');
             Route::post('students/create', 'store')->name('students.store');
