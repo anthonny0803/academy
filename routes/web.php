@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
         // Rutas del usuario
         Route::controller(UserController::class)->group(function () {
             Route::get('users/index', 'index')->name('users.index');
+            Route::get('users/{user}/show', 'show')->name('users.show');
             Route::get('users/create', 'create')->name('users.create');
             Route::post('users/create', 'store')->name('users.store');
         });

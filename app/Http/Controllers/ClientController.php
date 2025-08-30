@@ -31,7 +31,7 @@ class ClientController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            
+
             // La validación de 'document_id' debe ser única para la tabla de representantes
             'document_id' => [
                 'required',
@@ -64,7 +64,6 @@ class ClientController extends Controller
                         'name' => strtoupper($request->name),
                         'last_name' => strtoupper($request->last_name),
                         'sex' => $request->sex,
-                        'is_active' => false,
                     ]
                 );
 
@@ -103,10 +102,9 @@ class ClientController extends Controller
                 // Devuelve el objeto representante para que la variable fuera de la transacción lo capture.
                 return $representative;
             });
-            
+
             // 3. Redirige solo si la transacción fue exitosa.
             return redirect()->route('students.create', ['representative' => $representative->id])->with('status', '¡Representante registrado con éxito!');
-
         } catch (Throwable $e) {
             // Captura la excepción y redirige con el mensaje de error.
             return redirect()->back()->withInput()->with('error', $e->getMessage());
