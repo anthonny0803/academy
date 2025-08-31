@@ -30,6 +30,8 @@ Route::middleware('auth')->group(function () {
             Route::get('users/{user}/show', 'show')->name('users.show');
             Route::get('users/create', 'create')->name('users.create');
             Route::post('users/create', 'store')->name('users.store');
+            Route::get('users/{user}/edit', 'edit')->name('users.edit');
+            Route::patch('users/{user}/edit', 'update')->name('users.update');
         });
 
         // Rutas del cliente

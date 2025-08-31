@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -26,7 +28,7 @@ class UserController extends Controller
                     ->orWhere('email', 'like', "%{$search}%");
             });
         }
-        $users = $request->filled('search') ? $query->paginate(8) : collect();
+        $users = $request->filled('search') ? $query->paginate(6) : collect();
 
         return view('users.index', compact('users'));
     }
@@ -83,10 +85,24 @@ class UserController extends Controller
 
     /**
      * Display the edit user view.
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\View\View
      */
     public function edit(User $user): View
     {
-        return view('users.edit', compact('user'));
+        // Filtra los roles según permisos del usuario autenticado
+        $rolesQuery = Role::query();
+        if (Auth::user()->hasRole('SuperAdmin')) {
+            // SuperAdmin puede ver todos los roles menos Representante y Estudiante
+            $rolesQuery->whereNotIn('name', ['Representante', 'Estudiante']);
+        } elseif (Auth::user()->hasRole('Administrador')) {
+            // Admin solo roles “normales”
+            $rolesQuery->whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante']);
+        }
+
+
+        $roles = $rolesQuery->get();
+        return view('users.edit', compact('user', 'roles'));
     }
 
     /**
@@ -118,6 +134,6 @@ class UserController extends Controller
         $roleName = $request->input('role');
         $user->syncRoles([$roleName]);
 
-        return redirect()->route('dashboard')->with('status', '¡Usuario actualizado con éxito!');
+        return redirect()->route('users.show', $user)->with('status', '¡Usuario actualizado con éxito!');
     }
 }
