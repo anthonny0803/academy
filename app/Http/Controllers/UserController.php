@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Illuminate\Validation\Rule;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,6 +29,7 @@ class UserController extends Controller
                     ->orWhere('email', 'like', "%{$search}%");
             });
         }
+
         $users = $request->filled('search') ? $query->paginate(6) : collect();
 
         return view('users.index', compact('users'));
@@ -51,15 +53,13 @@ class UserController extends Controller
 
     /**
      * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:100', 'unique:' . User::class],
+            'email' => ['required', 'string', 'email', 'max:100', Rule::unique('users')],
             'sex' => ['required', 'string', 'max:15'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'string', 'exists:roles,name'],
@@ -74,32 +74,27 @@ class UserController extends Controller
             'is_active' => true,
         ]);
 
-        // Role assignment
+        // Asignar rol
         $roleName = $request->input('role');
         $user->assignRole($roleName);
 
         event(new Registered($user));
 
-        return redirect()->route('dashboard')->with('status', '¡Usuario registrado con éxito!');
+        return redirect()->route('users.show', $user)->with('status', '¡Usuario registrado con éxito!');
     }
 
     /**
      * Display the edit user view.
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\View\View
      */
     public function edit(User $user): View
     {
         // Filtra los roles según permisos del usuario autenticado
         $rolesQuery = Role::query();
         if (Auth::user()->hasRole('SuperAdmin')) {
-            // SuperAdmin puede ver todos los roles menos Representante y Estudiante
             $rolesQuery->whereNotIn('name', ['Representante', 'Estudiante']);
         } elseif (Auth::user()->hasRole('Administrador')) {
-            // Admin solo roles “normales”
             $rolesQuery->whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante']);
         }
-
 
         $roles = $rolesQuery->get();
         return view('users.edit', compact('user', 'roles'));
@@ -107,32 +102,50 @@ class UserController extends Controller
 
     /**
      * Update the specified user.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function update(Request $request, User $user): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:100', 'unique:' . User::class . ',' . $user->id],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:100',
+                Rule::unique('users')->ignore($user->id),
+            ],
             'sex' => ['required', 'string', 'max:15'],
-            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'exists:roles,name'],
+            'roles' => ['array'],
+            'roles.*' => ['string', 'exists:roles,name'],
         ]);
 
+        // Actualizar datos del usuario
         $user->update([
             'name' => strtoupper($request->name),
             'last_name' => strtoupper($request->last_name),
             'email' => strtolower($request->email),
             'sex' => $request->sex,
-            'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
-            'is_active' => true,
         ]);
 
-        // Role assignment
-        $roleName = $request->input('role');
-        $user->syncRoles([$roleName]);
+        // Actualizar roles
+        $rolesFromForm = $request->input('roles', []);
+
+        // Definimos los roles “editables” (empleados)
+        $editableRoles = Role::whereIn('name', $rolesFromForm)->pluck('name')->toArray();
+
+        // Roles existentes que no se pueden tocar (clientes)
+        $nonEditableRoles = $user->roles->whereNotIn('name', ['SuperAdmin', 'Administrador', 'Profesor'])->pluck('name')->toArray();
+
+        // Sincronizamos todos los roles: los editables + los que no se tocan
+        $user->syncRoles(array_merge($editableRoles, $nonEditableRoles));
+
+        // Activar si tiene al menos un rol de empleado
+        $employeeRoles = ['SuperAdmin', 'Administrador', 'Profesor'];
+        $user->is_active = $user->roles->pluck('name')->intersect($employeeRoles)->isNotEmpty();
+
+        $user->save();
+
 
         return redirect()->route('users.show', $user)->with('status', '¡Usuario actualizado con éxito!');
     }

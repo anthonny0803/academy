@@ -56,16 +56,108 @@
                     <div class="mt-6">
                         <a href="{{ url()->previous() }}"
                             class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            {{ __('Volver a la Lista') }}
+                            {{ __('Volver a la Atras') }}
                         </a>
                         <a href="{{ route('dashboard') }}"
                             class="underline text-sm px-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
                             {{ __('Volver al Panel') }}
                         </a>
+                        <button data-dropdown-user="{{ $user->id }}"
+                            class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
+                            Acciones
+                        </button>
+
+                        <div id="dropdown-template-{{ $user->id }}" class="hidden">
+                            <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
+                                @if ($user->hasRole('Profesor'))
+                                    <li>
+                                        <a href="#"
+                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Asignar
+                                            Materias</a>
+                                    </li>
+                                @endif
+                                <li><a href="{{ route('users.edit', $user) }}"
+                                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
+                                </li>
+                                <li>
+                                    <form method="POST" action="#">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600">
+                                            Eliminar
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll("[data-dropdown-user]").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const userId = btn.dataset.dropdownUser;
+                    let existing = document.getElementById("dropdownMenu-" + userId);
+
+                    // Si ya existe abierto → lo cerramos
+                    if (existing && !existing.classList.contains("hidden")) {
+                        existing.remove();
+                        return;
+                    }
+
+                    // Cerrar otros
+                    document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
+
+                    // Clonar plantilla
+                    const tpl = document.getElementById("dropdown-template-" + userId);
+                    const clone = tpl.cloneNode(true);
+                    clone.id = "dropdownMenu-" + userId;
+                    clone.classList.remove("hidden");
+                    clone.classList.add(
+                        "dropdown-clone", "fixed", "z-50", "w-40",
+                        "bg-white", "dark:bg-gray-800", "border", "border-gray-200",
+                        "dark:border-gray-700", "rounded", "shadow-lg"
+                    );
+
+                    // Calcular posición del botón
+                    const rect = btn.getBoundingClientRect();
+                    const menuHeight =
+                        160; // altura aproximada del menú (ajusta según tu contenido)
+                    const espacioAbajo = window.innerHeight - rect.bottom;
+                    const espacioArriba = rect.top;
+
+                    if (espacioAbajo >= menuHeight) {
+                        // Cabe hacia abajo
+                        clone.style.top = rect.bottom + "px";
+                    } else if (espacioArriba >= menuHeight) {
+                        // Cabe hacia arriba
+                        clone.style.top = (rect.top - menuHeight) + "px";
+                    } else {
+                        // Ajuste de emergencia: que ocupe lo que pueda abajo
+                        clone.style.top = rect.bottom + "px";
+                        clone.style.maxHeight = espacioAbajo + "px";
+                        clone.style.overflowY = "auto";
+                    }
+
+                    clone.style.left = rect.left + "px";
+
+                    document.body.appendChild(clone);
+                });
+            });
+
+            // Cerrar al hacer clic fuera
+            document.addEventListener("click", e => {
+                if (!e.target.closest("[data-dropdown-user]") &&
+                    !e.target.closest(".dropdown-clone")) {
+                    document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
+                }
+            });
+        });
+    </script>
 </x-app-layout>
