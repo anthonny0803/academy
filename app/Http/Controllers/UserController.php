@@ -48,7 +48,20 @@ class UserController extends Controller
      */
     public function create(): View
     {
-        return view('users.create');
+        $user = Auth::user();
+
+        if ($user->id === 1) {
+            // El desarrollador puede crear casi todos
+            $roles = Role::whereNotIn('name', ['Representante', 'Estudiante'])->get();
+        } elseif ($user->hasRole('SuperAdmin')) {
+            $roles = Role::whereNotIn('name', ['SuperAdmin', 'Representante', 'Estudiante'])->get();
+        } elseif ($user->hasRole('Administrador')) {
+            $roles = Role::whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante'])->get();
+        } else {
+            $roles = collect(); // vacío, por si acaso
+        }
+
+        return view('users.create', compact('roles'));
     }
 
     /**
@@ -120,7 +133,7 @@ class UserController extends Controller
             'roles.*' => ['string', 'exists:roles,name'],
         ]);
 
-        // Actualizar datos del usuario
+        // Update user data
         $user->update([
             'name' => strtoupper($request->name),
             'last_name' => strtoupper($request->last_name),
@@ -128,7 +141,7 @@ class UserController extends Controller
             'sex' => $request->sex,
         ]);
 
-        // Actualizar roles
+        // Update roles
         $rolesFromForm = $request->input('roles', []);
 
         // Definimos los roles “editables” (empleados)
@@ -140,7 +153,7 @@ class UserController extends Controller
         // Sincronizamos todos los roles: los editables + los que no se tocan
         $user->syncRoles(array_merge($editableRoles, $nonEditableRoles));
 
-        // Activar si tiene al menos un rol de empleado
+        // Activate if has at least one employee role
         $employeeRoles = ['SuperAdmin', 'Administrador', 'Profesor'];
         $user->is_active = $user->roles->pluck('name')->intersect($employeeRoles)->isNotEmpty();
 
@@ -148,5 +161,37 @@ class UserController extends Controller
 
 
         return redirect()->route('users.show', $user)->with('status', '¡Usuario actualizado con éxito!');
+    }
+
+    /**
+     * Remove the specified user.
+     */
+    public function destroy(User $user): RedirectResponse
+    {
+        // Only allow SuperAdmin to delete users
+        if (Auth::user()->id !== 1) {
+            return redirect()->route('users.index')->with('error', 'No tienes autorización para realizar esta acción.');
+        }
+
+        // Prevent deletion of self
+        if (Auth::user()->id === $user->id) {
+            return redirect()->route('users.index')->with('error', 'No puedes eliminar tu propio usuario.');
+        }
+
+        if ($user->representative && $user->representative->students()->exists()) {
+            return redirect()->route('users.index')
+                ->with('error', 'No puedes eliminar este usuario porque su representante tiene estudiantes asociados.');
+        }
+
+        // 🔹 Eliminar representante si existe y no tiene estudiantes
+        if ($user->representative) {
+            $user->representative()->delete();
+        }
+
+        // 🔹 Ahora sí, eliminar usuario
+        $user->delete();
+
+        return redirect()->route('users.index')
+            ->with('status', '¡Usuario eliminado con éxito!');
     }
 }

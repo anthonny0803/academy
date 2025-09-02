@@ -66,25 +66,12 @@
                                 required>
                                 <option value="">Selecciona un Rol</option>
 
-                                {{-- Si el usuario autenticado es superAdmin --}}
-                                @role('SuperAdmin')
-                                    {{-- superAdmin puede crear cualquier rol de empleado/admin --}}
-                                    @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['Representante', 'Estudiante'])->get() as $role)
-                                        <option value="{{ $role->name }}"
-                                            {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}
-                                        </option>
-                                    @endforeach
-                                @endrole
-
-                                {{-- Si el usuario autenticado es Admin (pero no superAdmin) --}}
-                                @role('Administrador')
-                                    {{-- Administrador solo puede crear roles que no sean 'superAdmin' ni 'admin' --}}
-                                    @foreach (Spatie\Permission\Models\Role::whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante'])->get() as $role)
-                                        <option value="{{ $role->name }}"
-                                            {{ old('role') == $role->name ? 'selected' : '' }}>{{ ucfirst($role->name) }}
-                                        </option>
-                                    @endforeach
-                                @endrole
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role->name }}"
+                                        {{ old('role') == $role->name ? 'selected' : '' }}>
+                                        {{ ucfirst($role->name) }}
+                                    </option>
+                                @endforeach
 
                             </select>
                             <x-input-error :messages="$errors->get('role')" class="mt-2" />

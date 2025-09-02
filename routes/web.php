@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
             Route::post('users/create', 'store')->name('users.store');
             Route::get('users/{user}/edit', 'edit')->name('users.edit');
             Route::patch('users/{user}/edit', 'update')->name('users.update');
+            Route::delete('users/{user}/delete', 'destroy')->name('users.destroy');
         });
 
         // Rutas del cliente

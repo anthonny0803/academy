@@ -75,7 +75,8 @@
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
                                                     </li>
                                                     <li>
-                                                        <form method="POST" action="#">
+                                                        <form method="POST"
+                                                            action="{{ route('users.destroy', $user) }}">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"

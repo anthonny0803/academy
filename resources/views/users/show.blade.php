@@ -38,7 +38,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Estado del
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Estado de
                             Empleado</label>
                         <div class="mt-1">
                             @if ($user->is_active === true)
@@ -80,7 +80,7 @@
                                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
                                 </li>
                                 <li>
-                                    <form method="POST" action="#">
+                                    <form method="POST" action="{{ route('users.destroy', $user) }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
