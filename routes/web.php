@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
             Route::get('users/{user}/edit', 'edit')->name('users.edit');
             Route::patch('users/{user}/edit', 'update')->name('users.update');
             Route::delete('users/{user}/delete', 'destroy')->name('users.destroy');
+            Route::patch('/users/{user}/toggle', 'toggleActivation')->name('users.toggle');
         });
 
         // Rutas del cliente

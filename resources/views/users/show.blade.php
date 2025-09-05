@@ -38,18 +38,26 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Estado de
-                            Empleado</label>
-                        <div class="mt-1">
-                            @if ($user->is_active === true)
-                                <span
-                                    class="inline-block bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100 text-xs px-2 py-1 rounded mr-1">
-                                    Activo
-                                </span>
-                            @else
-                                <span
-                                    class="inline-block bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-100 text-xs px-2 py-1 rounded mr-1">Inactivo</span>
-                            @endif
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
+                            Estado de Empleado
+                        </label>
+                        <div class="mt-1 flex items-center space-x-2">
+                            <form method="POST" action="{{ route('users.toggle', $user) }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                    class="relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer 
+                       {{ $user->is_active ? 'bg-blue-600' : 'bg-gray-400' }}">
+                                    <span
+                                        class="inline-block h-4 w-4 transform rounded-full bg-white transition
+                           {{ $user->is_active ? 'translate-x-6' : 'translate-x-1' }}">
+                                    </span>
+                                </button>
+                            </form>
+                            <span
+                                class="inline-block {{ $user->is_active ? 'bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100 text-xs px-2 py-1 rounded mr-1' : 'bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-100 text-xs px-2 py-1 rounded mr-1' }}">
+                                {{ $user->is_active ? 'Activo' : 'Inactivo' }}
+                            </span>
                         </div>
                     </div>
 
@@ -92,6 +100,7 @@
                             </ul>
                         </div>
                     </div>
+
 
                 </div>
             </div>

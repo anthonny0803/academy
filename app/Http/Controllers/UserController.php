@@ -99,8 +99,23 @@ class UserController extends Controller
     /**
      * Display the edit user view.
      */
-    public function edit(User $user): View
+    public function edit(User $user): View|RedirectResponse
     {
+        // Prevent editing of the developer user
+        if ($user->id === 1) {
+            return redirect()->route('users.index')->with('error', 'No tienes autorización para editar este usuario.');
+        }
+
+        // Prevent editing between same roles
+        if (Auth::user()->hasRole('SuperAdmin') && Auth::user()->id !== 1 && $user->hasRole('SuperAdmin')) {
+            return redirect()->route('users.index')->with('error', 'No tienes autorización para editar este usuario.');
+        }
+
+        // Prevent editing of lower roles
+        if (Auth::user()->hasRole('Administrador') && ($user->hasRole('Administrador') || $user->hasRole('SuperAdmin'))) {
+            return redirect()->route('users.index')->with('error', 'No tienes autorización para editar este usuario.');
+        }
+
         // Filtra los roles según permisos del usuario autenticado
         $rolesQuery = Role::query();
         if (Auth::user()->hasRole('SuperAdmin')) {
@@ -168,8 +183,8 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
-        // Only allow SuperAdmin to delete users
-        if (Auth::user()->id !== 1) {
+        // Only allow Developer and SuperAdmin to delete users
+        if (Auth::user()->id !== 1 || !Auth::user()->hasRole('SuperAdmin')) {
             return redirect()->route('users.index')->with('error', 'No tienes autorización para realizar esta acción.');
         }
 
@@ -178,20 +193,71 @@ class UserController extends Controller
             return redirect()->route('users.index')->with('error', 'No puedes eliminar tu propio usuario.');
         }
 
+        // If the user has a Representative role and has students, prevent deletion
         if ($user->representative && $user->representative->students()->exists()) {
             return redirect()->route('users.index')
                 ->with('error', 'No puedes eliminar este usuario porque su representante tiene estudiantes asociados.');
         }
 
-        // 🔹 Eliminar representante si existe y no tiene estudiantes
-        if ($user->representative) {
+        //  If the user is a Representative without students, delete the representative record first
+        if ($user->representative && !$user->representative->students()->exists()) {
             $user->representative()->delete();
         }
 
-        // 🔹 Ahora sí, eliminar usuario
+        // Delete the user
         $user->delete();
 
         return redirect()->route('users.index')
             ->with('status', '¡Usuario eliminado con éxito!');
+    }
+
+    /**
+     * Toggle the activation status of the specified user.
+     */
+    public function toggleActivation(User $user): RedirectResponse
+    {
+        // Prevent changing status of Developer
+        if ($user->id === 1) {
+            return $this->denied();
+        }
+
+        // Cannot change own status
+        if (Auth::user()->id === $user->id) {
+            return $this->denied();
+        }
+
+        // SuperAdmin cannot change other SuperAdmins except Developer
+        if (Auth::user()->hasRole('SuperAdmin') && Auth::user()->id !== 1 && $user->hasRole('SuperAdmin')) {
+            return $this->denied();
+        }
+
+        // Administrador cannot change higher or same roles
+        if (Auth::user()->hasRole('Administrador') && $user->hasRole(['Administrador', 'SuperAdmin'])) {
+            return $this->denied();
+        }
+
+        // If user passes all checks, toggle status
+        return $this->doToggle($user);
+    }
+
+    /**
+     * Helper method to toggle user activation status
+     */
+    private function doToggle(User $user): RedirectResponse
+    {
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $statusMessage = $user->is_active ? 'activado' : 'desactivado';
+
+        return redirect()->route('users.show', $user)->with('status', "¡Usuario {$statusMessage} con éxito!");
+    }
+
+    /**
+     * Helper method to handle unauthorized actions
+     */
+    private function denied(): RedirectResponse
+    {
+        return redirect()->route('users.index')->with('error', 'No tienes autorización para realizar esta acción.');
     }
 }

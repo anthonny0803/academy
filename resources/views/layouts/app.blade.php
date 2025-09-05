@@ -22,18 +22,53 @@
 
         <!-- Page Heading -->
         @isset($header)
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                {{ $header }}
-            </div>
-        </header>
+            <header class="bg-white shadow">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    {{ $header }}
+                </div>
+            </header>
         @endisset
 
         <!-- Page Content -->
-        <main>
+        <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             {{ $slot }}
         </main>
     </div>
+
+    {{-- Alert Modal para mensajes de sesión --}}
+    @php
+        $showModal = session('status') || session('error');
+    @endphp
+
+    <x-modal name="alertModal" :show="$showModal" maxWidth="md">
+        {{-- Contenedor del contenido que controla el tamaño y el centrado --}}
+        <div class="p-6 text-center">
+            @if (session('status'))
+                <h2 class="text-lg font-semibold text-green-700 mb-2">{{ session('status') }}</h2>
+            @endif
+
+            @if (session('error'))
+                <h2 class="text-lg font-semibold text-red-700 mb-2">{{ session('error') }}</h2>
+            @endif
+
+            <button x-on:click="$dispatch('close-modal', 'alertModal')"
+                class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Cerrar
+            </button>
+        </div>
+    </x-modal>
+
+    {{-- Ajuste del fondo semitransparente más transparente --}}
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .bg-gray-500.opacity-75 {
+            background-color: rgba(107, 114, 128, 0.3);
+            /* mucho menos opaco */
+        }
+    </style>
 </body>
 
 </html>
