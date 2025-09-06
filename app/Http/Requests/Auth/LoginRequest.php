@@ -49,6 +49,14 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // If the user is not active, log them out and throw an error
+        if (! Auth::user()->is_active) {
+            Auth::logout(); // Close the session if the user is inactive
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta está inactiva, contacta con el administrador.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

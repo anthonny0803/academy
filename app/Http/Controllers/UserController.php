@@ -40,7 +40,17 @@ class UserController extends Controller
      */
     public function show(User $user): View
     {
-        return view('users.show', compact('user'));
+        $currentUser = Auth::user();
+
+        // Definimos qué acciones se pueden mostrar
+        $canDelete = ($currentUser->id === 1 || $currentUser->hasRole('SuperAdmin'))
+            && $currentUser->id !== $user->id;
+
+        $canEdit = ($currentUser->id === 1
+            || $currentUser->hasRole('SuperAdmin')
+            || $currentUser->id === $user->id); // ejemplo: el usuario puede editarse a sí mismo
+
+        return view('users.show', compact('user', 'canDelete', 'canEdit'));
     }
 
     /**
@@ -183,30 +193,55 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
+        $currentUser = Auth::user(); // The current authenticated user
+        $userIsRepresentative = $user->hasRole('Representante'); // Verify if the user has a Representative role
+
+        // Prevent deletion of Developer
+        if ($user->id === 1) {
+            return redirect()->route('users.index')->with('error', 'No puedes eliminar este usuario.');
+        }
+
         // Only allow Developer and SuperAdmin to delete users
-        if (Auth::user()->id !== 1 || !Auth::user()->hasRole('SuperAdmin')) {
+        if ($currentUser->id !== 1 && !$currentUser->hasRole('SuperAdmin')) {
             return redirect()->route('users.index')->with('error', 'No tienes autorización para realizar esta acción.');
         }
 
+        // Check if the user is active
+        if ($user->is_active) {
+            return redirect()->route('users.index')->with('error', 'No puedes eliminar un usuario activo.');
+        }
+
         // Prevent deletion of self
-        if (Auth::user()->id === $user->id) {
+        if ($currentUser->id === $user->id) {
             return redirect()->route('users.index')->with('error', 'No puedes eliminar tu propio usuario.');
         }
 
+        // Prevent deletion of a SuperAdmin by another SuperAdmin except Developer
+        if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $user->hasRole('SuperAdmin')) {
+            return redirect()->route('users.index')->with('error', 'No tienes autorización para eliminar este usuario.');
+        }
+
+        // If the user has a Representative role, and is active, prevent deletion
+        if ($userIsRepresentative && $user->is_active) {
+            return redirect()->route('users.index')
+                ->with('error', 'No puedes eliminar este usuario porque su rol de representante está activo.');
+        }
+
         // If the user has a Representative role and has students, prevent deletion
-        if ($user->representative && $user->representative->students()->exists()) {
+        if ($userIsRepresentative && $user->representative?->students()->exists()) {
             return redirect()->route('users.index')
                 ->with('error', 'No puedes eliminar este usuario porque su representante tiene estudiantes asociados.');
         }
 
         //  If the user is a Representative without students, delete the representative record first
-        if ($user->representative && !$user->representative->students()->exists()) {
+        if ($userIsRepresentative && !$user->representative?->students()->exists()) {
             $user->representative()->delete();
         }
 
-        // Delete the user
+        // Delete the user if all checks passed
         $user->delete();
 
+        // Redirect with success message
         return redirect()->route('users.index')
             ->with('status', '¡Usuario eliminado con éxito!');
     }
