@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use App\Services\RoleAssignmentService;
+use App\Services\UserService;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,17 +20,17 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = User::with('roles'); // eager load de roles para evitar N+1
+        $users = collect(); // Collection empty by default
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
+            $search = $request->input('search');
+            $users = User::with('roles')
+                ->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                })
+                ->paginate(6);
         }
-
-        $users = $request->filled('search') ? $query->paginate(6) : collect();
 
         return view('users.index', compact('users'));
     }
@@ -40,36 +40,15 @@ class UserController extends Controller
      */
     public function show(User $user): View
     {
-        $currentUser = Auth::user();
-
-        // Definimos qué acciones se pueden mostrar
-        $canDelete = ($currentUser->id === 1 || $currentUser->hasRole('SuperAdmin'))
-            && $currentUser->id !== $user->id;
-
-        $canEdit = ($currentUser->id === 1
-            || $currentUser->hasRole('SuperAdmin')
-            || $currentUser->id === $user->id); // ejemplo: el usuario puede editarse a sí mismo
-
-        return view('users.show', compact('user', 'canDelete', 'canEdit'));
+        return view('users.show', compact('user'));
     }
 
     /**
-     * Display the creation view.
+     * Display the creation view with assignable roles.
      */
-    public function create(): View
+    public function create(RoleAssignmentService $roleAssignmentService)
     {
-        $user = Auth::user();
-
-        if ($user->id === 1) {
-            // El desarrollador puede crear casi todos
-            $roles = Role::whereNotIn('name', ['Representante', 'Estudiante'])->get();
-        } elseif ($user->hasRole('SuperAdmin')) {
-            $roles = Role::whereNotIn('name', ['SuperAdmin', 'Representante', 'Estudiante'])->get();
-        } elseif ($user->hasRole('Administrador')) {
-            $roles = Role::whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante'])->get();
-        } else {
-            $roles = collect(); // vacío, por si acaso
-        }
+        $roles = $roleAssignmentService->getAssignableRoles(Auth::user());
 
         return view('users.create', compact('roles'));
     }
@@ -77,33 +56,18 @@ class UserController extends Controller
     /**
      * Handle an incoming registration request.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(StoreUserRequest $request, UserService $userService)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'string', 'email', 'max:100', Rule::unique('users')],
-            'sex' => ['required', 'string', 'max:15'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', 'exists:roles,name'],
-        ]);
+        try {
+            $user = $userService->createUser($request->validated());
 
-        $user = User::create([
-            'name' => strtoupper($request->name),
-            'last_name' => strtoupper($request->last_name),
-            'email' => strtolower($request->email),
-            'sex' => $request->sex,
-            'password' => Hash::make($request->password),
-            'is_active' => true,
-        ]);
-
-        // Asignar rol
-        $roleName = $request->input('role');
-        $user->assignRole($roleName);
-
-        event(new Registered($user));
-
-        return redirect()->route('users.show', $user)->with('status', '¡Usuario registrado con éxito!');
+            return redirect()->route('users.show', $user)
+                ->with('status', '¡Usuario registrado con éxito!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Hubo un error al registrar el usuario.');
+        }
     }
 
     /**
@@ -113,7 +77,7 @@ class UserController extends Controller
     {
         // Prevent editing of the developer user
         if ($user->id === 1) {
-            return redirect()->route('users.index')->with('error', 'No tienes autorización para editar este usuario.');
+            return redirect()->route('users.index')->with('error', 'No se puede editar este usuario.');
         }
 
         // Prevent editing between same roles
@@ -253,7 +217,7 @@ class UserController extends Controller
     {
         // Prevent changing status of Developer
         if ($user->id === 1) {
-            return $this->denied();
+            return redirect()->route('users.index')->with('error', 'No se puede cambiar el estado de este usuario.');
         }
 
         // Cannot change own status
