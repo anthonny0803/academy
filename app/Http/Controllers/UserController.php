@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Services\RoleAssignmentService;
-use App\Services\UserService;
+use App\Services\StoreUserService;
 use App\Http\Requests\StoreUserRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
@@ -16,12 +16,26 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     /**
+     * Get the currently authenticated user.
+     */
+    protected function currentUser(): User
+    {
+        return Auth::user();
+    }
+
+    /**
      * Display the listing view.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
-        $users = collect(); // Collection empty by default
+        // If the current user cannot view users, redirect with error
+        if (!$this->currentUser()->can('viewAny', User::class)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No tienes autorización para ver usuarios.');
+        }
 
+        // Search functionality
+        $users = collect(); // Collection empty by default
         if ($request->filled('search')) {
             $search = $request->input('search');
             $users = User::with('roles')
@@ -38,8 +52,14 @@ class UserController extends Controller
     /**
      * Display the specified user.
      */
-    public function show(User $user): View
+    public function show(User $user): View|RedirectResponse
     {
+        // If the current user cannot view the target user, redirect with error
+        if (!$this->currentUser()->can('view', $user)) {
+            return redirect()->route('users.index')
+                ->with('error', 'No tienes autorización para ver este usuario.');
+        }
+
         return view('users.show', compact('user'));
     }
 
@@ -48,6 +68,11 @@ class UserController extends Controller
      */
     public function create(RoleAssignmentService $roleAssignmentService)
     {
+        // If the current user cannot create users, redirect with error
+        if (!$this->currentUser()->can('create', User::class)) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No tienes autorización para crear usuarios.');
+        }
         $roles = $roleAssignmentService->getAssignableRoles(Auth::user());
 
         return view('users.create', compact('roles'));
@@ -56,10 +81,10 @@ class UserController extends Controller
     /**
      * Handle an incoming registration request.
      */
-    public function store(StoreUserRequest $request, UserService $userService)
+    public function store(StoreUserRequest $request, StoreUserService $storeService)
     {
         try {
-            $user = $userService->createUser($request->validated());
+            $user = $storeService->handle($request->validated());
 
             return redirect()->route('users.show', $user)
                 ->with('status', '¡Usuario registrado con éxito!');
@@ -73,32 +98,17 @@ class UserController extends Controller
     /**
      * Display the edit user view.
      */
-    public function edit(User $user): View|RedirectResponse
+    public function edit(User $user, RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
-        // Prevent editing of the developer user
-        if ($user->id === 1) {
-            return redirect()->route('users.index')->with('error', 'No se puede editar este usuario.');
+        // If the current user cannot edit the target user, redirect with error
+        if (!$this->currentUser()->can('edit', $user)) {
+            return redirect()->route('users.index')
+                ->with('error', 'No tienes autorización para modificar este usuario.');
         }
 
-        // Prevent editing between same roles
-        if (Auth::user()->hasRole('SuperAdmin') && Auth::user()->id !== 1 && $user->hasRole('SuperAdmin')) {
-            return redirect()->route('users.index')->with('error', 'No tienes autorización para editar este usuario.');
-        }
+        // Get assignable roles based on current user's role
+        $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
 
-        // Prevent editing of lower roles
-        if (Auth::user()->hasRole('Administrador') && ($user->hasRole('Administrador') || $user->hasRole('SuperAdmin'))) {
-            return redirect()->route('users.index')->with('error', 'No tienes autorización para editar este usuario.');
-        }
-
-        // Filtra los roles según permisos del usuario autenticado
-        $rolesQuery = Role::query();
-        if (Auth::user()->hasRole('SuperAdmin')) {
-            $rolesQuery->whereNotIn('name', ['Representante', 'Estudiante']);
-        } elseif (Auth::user()->hasRole('Administrador')) {
-            $rolesQuery->whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante']);
-        }
-
-        $roles = $rolesQuery->get();
         return view('users.edit', compact('user', 'roles'));
     }
 
@@ -155,55 +165,21 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user): RedirectResponse
+    public function destroy(User $targetUser): RedirectResponse
     {
-        $currentUser = Auth::user(); // The current authenticated user
-        $userIsRepresentative = $user->hasRole('Representante'); // Verify if the user has a Representative role
-
-        // Prevent deletion of Developer
-        if ($user->id === 1) {
-            return redirect()->route('users.index')->with('error', 'No puedes eliminar este usuario.');
-        }
-
-        // Only allow Developer and SuperAdmin to delete users
-        if ($currentUser->id !== 1 && !$currentUser->hasRole('SuperAdmin')) {
-            return redirect()->route('users.index')->with('error', 'No tienes autorización para realizar esta acción.');
-        }
-
-        // Check if the user is active
-        if ($user->is_active) {
-            return redirect()->route('users.index')->with('error', 'No puedes eliminar un usuario activo.');
-        }
-
-        // Prevent deletion of self
-        if ($currentUser->id === $user->id) {
-            return redirect()->route('users.index')->with('error', 'No puedes eliminar tu propio usuario.');
-        }
-
-        // Prevent deletion of a SuperAdmin by another SuperAdmin except Developer
-        if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $user->hasRole('SuperAdmin')) {
-            return redirect()->route('users.index')->with('error', 'No tienes autorización para eliminar este usuario.');
-        }
-
-        // If the user has a Representative role, and is active, prevent deletion
-        if ($userIsRepresentative && $user->is_active) {
+        // If the current user cannot delete the target user, redirect with error
+        if (!$this->currentUser()->can('delete', $targetUser)) {
             return redirect()->route('users.index')
-                ->with('error', 'No puedes eliminar este usuario porque su rol de representante está activo.');
+                ->with('error', 'No tienes autorización para eliminar este usuario.');
         }
 
-        // If the user has a Representative role and has students, prevent deletion
-        if ($userIsRepresentative && $user->representative?->students()->exists()) {
-            return redirect()->route('users.index')
-                ->with('error', 'No puedes eliminar este usuario porque su representante tiene estudiantes asociados.');
-        }
-
-        //  If the user is a Representative without students, delete the representative record first
-        if ($userIsRepresentative && !$user->representative?->students()->exists()) {
-            $user->representative()->delete();
+        //  If the user passed all policy checks, delete the representative record first
+        if ($this->currentUser() && !$targetUser->representative?->students()->exists()) {
+            $targetUser->representative()->delete();
         }
 
         // Delete the user if all checks passed
-        $user->delete();
+        $targetUser->delete();
 
         // Redirect with success message
         return redirect()->route('users.index')

@@ -6,9 +6,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Auth\Events\Registered;
 
-class UserService
+class StoreUserService
 {
-    public function createUser(array $data): User
+    public function handle(array $data): User
     {
         return DB::transaction(function () use ($data) {
             $user = User::create([
