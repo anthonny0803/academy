@@ -76,38 +76,38 @@ class UserPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $currentUser, User $targetUser): bool
+    public function delete(User $currentUser, User $targetUser): Response
     {
         // Only Developer and SuperAdmin can delete users
-        if (!$currentUser->hasRole('SuperAdmin') || $currentUser->id !== 1) {
-            return false;
+        if (!$currentUser->hasRole('SuperAdmin') || $currentUser->id === 1) {
+            return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
         // Prevent deletion of the developer user
         if ($targetUser->id === 1) {
-            return false;
+            return Response::deny('No puedes eliminar al usuario desarrollador.');
         }
 
         // Prevent deletion of active users
         if ($targetUser->is_active) {
-            return false;
+            return Response::deny('No puedes eliminar a un usuario activo.');
         }
 
         // Prevent deletion of a SuperAdmin by another SuperAdmin except Developer
         if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $targetUser->hasRole('SuperAdmin')) {
-            return false;
+            return Response::deny('No puedes eliminar a este usuario.');
         }
 
         // Prevent deletion of self
         if ($currentUser->id === $targetUser->id) {
-            return false;
+            return Response::deny('No puedes eliminar a tu usuario.');
         }
 
         // If the user has a Representative role and has students, prevent deletion
         if ($currentUser && $targetUser->representative?->students()->exists()) {
-            return false;
+            return Response::deny('No puedes eliminar a un usuario que tiene estudiantes.');
         }
 
-        return true;
+        return Response::allow();
     }
 }

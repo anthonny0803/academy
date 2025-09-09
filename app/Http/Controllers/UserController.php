@@ -7,14 +7,20 @@ use Spatie\Permission\Models\Role;
 use App\Services\RoleAssignmentService;
 use App\Services\StoreUserService;
 use App\Http\Requests\StoreUserRequest;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 
+
+
 class UserController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Get the currently authenticated user.
      */
@@ -165,25 +171,24 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $targetUser): RedirectResponse
+    public function destroy(User $user): RedirectResponse
     {
-        // If the current user cannot delete the target user, redirect with error
-        if (!$this->currentUser()->can('delete', $targetUser)) {
+        try {
+            $this->authorize('delete', $user);
+
+            // If the user has a representative profile, delete it first
+            if ($user->representative?->exists()) {
+                $user->representative()->delete();
+            }
+
+            $user->delete();
+
             return redirect()->route('users.index')
-                ->with('error', 'No tienes autorización para eliminar este usuario.');
+                ->with('status', '¡Usuario eliminado con éxito!');
+        } catch (AuthorizationException $e) {
+            return redirect()->route('users.index')
+                ->with('error', $e->getMessage()); // Catch and display the authorization error message
         }
-
-        //  If the user passed all policy checks, delete the representative record first
-        if ($this->currentUser() && !$targetUser->representative?->students()->exists()) {
-            $targetUser->representative()->delete();
-        }
-
-        // Delete the user if all checks passed
-        $targetUser->delete();
-
-        // Redirect with success message
-        return redirect()->route('users.index')
-            ->with('status', '¡Usuario eliminado con éxito!');
     }
 
     /**
