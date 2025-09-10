@@ -4,11 +4,12 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
 
+                    {{-- Form --}}
                     <form method="POST" action="{{ route('users.update', $user) }}">
                         @csrf
                         @method('PATCH')
 
-                        {{-- Nombre --}}
+                        {{-- Personal information --}}
                         <div>
                             <x-input-label for="name" :value="__('Nombre')" />
                             <x-text-input id="name" class="block mt-1 w-full uppercase" type="text" name="name"
@@ -16,7 +17,6 @@
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        {{-- Apellido --}}
                         <div class="mt-4">
                             <x-input-label for="last_name" :value="__('Apellido')" />
                             <x-text-input id="last_name" class="block mt-1 w-full uppercase" type="text"
@@ -24,7 +24,6 @@
                             <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                         </div>
 
-                        {{-- Email --}}
                         <div class="mt-4">
                             <x-input-label for="email" :value="__('Correo')" />
                             <x-text-input id="email" class="block mt-1 w-full lowercase" type="email"
@@ -32,7 +31,6 @@
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
 
-                        {{-- Sexo --}}
                         <div class="mt-4">
                             <x-input-label for="sex" :value="__('Sexo')" />
                             <select id="sex" name="sex"
@@ -48,7 +46,7 @@
                             <x-input-error :messages="$errors->get('sex')" class="mt-2" />
                         </div>
 
-                        {{-- Roles --}}
+                        {{-- Assignable roles --}}
                         <div class="mt-4 text-white">
                             <x-input-label :value="__('Roles')" />
                             <div class="mt-2 space-y-1">
@@ -57,14 +55,14 @@
                                         <input type="checkbox" name="roles[]" value="{{ $role->name }}"
                                             {{ $user->hasRole($role->name) ? 'checked' : '' }}
                                             class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                                        <span>{{ ucfirst($role->name) }}</span>
+                                        <span>{{ $role->name }}</span>
                                     </label>
                                 @endforeach
                             </div>
                             <x-input-error :messages="$errors->get('roles')" class="mt-2" />
                         </div>
 
-                        {{-- Botones --}}
+                        {{-- Action Buttons --}}
                         <div class="flex items-center justify-end mt-6">
                             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                                 href="{{ url()->previous() }}">
@@ -80,6 +78,8 @@
                             </x-primary-button>
                         </div>
                     </form>
+                    {{-- End Form --}}
+
                 </div>
             </div>
         </div>

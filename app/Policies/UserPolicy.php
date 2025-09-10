@@ -10,67 +10,73 @@ class UserPolicy
     /**
      * Determine whether the user can view any models.
      */
-    public function viewAny(User $currentUser): bool
+    public function viewAny(User $currentUser): Response
     {
         // If the current user is not an authenticated user with view permissions
         if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
-            return false;
+            return Response::deny('No tienes autorización para ver el módulo de usuarios.');
         }
 
-        return true;
+        return Response::allow();
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $currentUser, User $targetUser): bool
+    public function view(User $currentUser, User $targetUser): Response
     {
-        // If the current user is not an authenticated user with view permissions
+        // If the current user cannot view the target user, redirect with error
         if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
-            return false;
-        }
-        // Prevent viewing of the developer user by others
-        if ($targetUser->id === 1 && $currentUser->id !== 1) {
-            return false;
+            return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
-        return true;
+        // Prevent viewing of the developer user by others
+        if ($targetUser->id === 1 && $currentUser->id !== 1) {
+            return Response::deny('No tienes autorización para ver este usuario.');
+        }
+
+        // Prevent viewing of lower roles
+        if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('SuperAdmin'))) {
+            return Response::deny('No tienes autorización para ver este usuario.');
+        }
+
+        return Response::allow();
     }
 
     /**
      * Determine whether the user can create models.
      */
-    public function create(User $currentUser): bool
+    public function create(User $currentUser): Response
     {
         // If the current user is not an authenticated user with create permissions
         if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
-            return false;
+            return Response::deny('No tienes autorización para crear usuarios.');
         }
 
-        return true;
+        return Response::allow();
     }
 
     /**
      * Determine whether the user can edit the model.
      */
-    public function edit(User $currentUser, User $targetUser): bool
+    public function edit(User $currentUser, User $targetUser): Response
     {
         // Prevent editing of the developer user
         if ($targetUser->id === 1) {
-            return false;
+            return Response::deny('No tienes autorización para modificar este usuario.');
         }
 
         // Prevent editing between same roles except for developer
         if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $targetUser->hasRole('SuperAdmin')) {
-            return false;
+            return Response::deny('No tienes autorización para modificar usuarios con tu rol.');
         }
 
         // Prevent editing of lower roles
         if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('Administrador') || $targetUser->hasRole('SuperAdmin'))) {
-            return false;
+            return Response::deny('No tienes autorización para modificar usuarios con tu rol o roles superiores.');
         }
 
-        return true;
+        return Response::allow();
     }
 
     /**
@@ -79,7 +85,7 @@ class UserPolicy
     public function delete(User $currentUser, User $targetUser): Response
     {
         // Only Developer and SuperAdmin can delete users
-        if (!$currentUser->hasRole('SuperAdmin') || $currentUser->id === 1) {
+        if (!$currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
