@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\Auth;
 
 class UserActivationService
 {
+    /**
+     * Toggle the activation status of a user.
+     *
+     * @param User $user
+     * @return string
+     * @throws \Exception
+     */
     public function toggle(User $user): string
     {
         $currentUser = Auth::user();

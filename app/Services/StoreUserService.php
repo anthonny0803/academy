@@ -8,6 +8,12 @@ use Illuminate\Auth\Events\Registered;
 
 class StoreUserService
 {
+    /**
+     * Handle the user creation process within a database transaction.
+     *
+     * @param array $data
+     * @return User
+     */
     public function handle(array $data): User
     {
         return DB::transaction(function () use ($data) {

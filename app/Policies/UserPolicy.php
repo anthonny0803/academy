@@ -9,6 +9,9 @@ class UserPolicy
 {
     /**
      * Determine whether the user can view any models.
+     *
+     * @param User $currentUser
+     * @return Response
      */
     public function viewAny(User $currentUser): Response
     {
@@ -22,6 +25,10 @@ class UserPolicy
 
     /**
      * Determine whether the user can view the model.
+     *
+     * @param User $currentUser
+     * @param User $targetUser
+     * @return Response
      */
     public function view(User $currentUser, User $targetUser): Response
     {
@@ -45,6 +52,9 @@ class UserPolicy
 
     /**
      * Determine whether the user can create models.
+     *
+     * @param User $currentUser
+     * @return Response
      */
     public function create(User $currentUser): Response
     {
@@ -58,6 +68,9 @@ class UserPolicy
 
     /**
      * Determine whether the user can edit the model.
+     * @param User $currentUser
+     * @param User $targetUser
+     * @return Response
      */
     public function edit(User $currentUser, User $targetUser): Response
     {
@@ -81,6 +94,9 @@ class UserPolicy
 
     /**
      * Determine whether the user can delete the model.
+     * @param User $currentUser
+     * @param User $targetUser
+     * @return Response
      */
     public function delete(User $currentUser, User $targetUser): Response
     {

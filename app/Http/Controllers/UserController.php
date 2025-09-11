@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use App\Services\RoleAssignmentService;
 use App\Services\StoreUserService;
 use App\Services\UpdateUserService;
@@ -16,14 +17,14 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 
-
-
 class UserController extends Controller
 {
     use AuthorizesRequests;
 
     /**
      * Get the currently authenticated user.
+     *
+     * @return User
      */
     protected function currentUser(): User
     {
@@ -31,169 +32,174 @@ class UserController extends Controller
     }
 
     /**
-     * Display the listing view.
+     * Display a listing of the users.
+     *
+     * @param Request $request
+     * @return View|RedirectResponse
      */
     public function index(Request $request): View|RedirectResponse
     {
         try {
-            // Authorization check
             $this->authorize('viewAny', User::class);
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
 
-            // Search functionality
-            $users = collect(); // Collection empty by default
-            if ($request->filled('search')) {
-                $search = $request->input('search');
-                $users = User::with('roles')
-                    ->where(function ($query) use ($search) {
-                        $query->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%");
-                    })->paginate(6);
+        $roles = Role::all();
+        $users = collect();
+        $search = trim($request->input('search', '')); // ✅ Agrega trim() aquí
+
+        if ($search !== '') {
+            $query = User::with('roles')
+                ->where(fn($q) => $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%"));
+
+            // Filtros opcionales de status y rol
+            if ($request->filled('status') && $request->input('status') !== 'Todos') {
+                $isActive = $request->input('status') === 'Activo' ? 1 : 0;
+                $query->where('is_active', $isActive);
             }
-            return view('users.index', compact('users'));
+
+            if ($request->filled('role') && $request->input('role') !== 'Todos') {
+                $role = $request->input('role');
+                $query->whereHas('roles', fn($q) => $q->where('name', $role));
+            }
+
+            $users = $query->paginate(6);
         }
 
-        // If the user is not authorized, redirect with error 
-        catch (AuthorizationException $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
-        }
+        // Si $search es '' la variable $users nunca cambia, sigue siendo una colección vacía.
+
+
+
+        return view('users.index', compact('users', 'roles'));
     }
 
     /**
      * Display the specified user.
+     *
+     * @param User $user
+     * @return View|RedirectResponse
      */
     public function show(User $user): View|RedirectResponse
     {
         try {
-            // Authorization check
             $this->authorize('view', $user);
-
-            // Show the user
-            return view('users.show', compact('user'));
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
 
-        // If the user is not authorized, redirect with error
-        catch (AuthorizationException $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
-        }
+        return view('users.show', compact('user'));
     }
 
     /**
-     * Display the creation view with assignable roles.
+     * Show the form for creating a new user.
+     *
+     * @param RoleAssignmentService $roleAssignmentService
+     * @return View|RedirectResponse
      */
     public function create(RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
         try {
-            // Authorization check
             $this->authorize('create', User::class);
-
-            // Get assignable roles based on current user's role
-            $roles = $roleAssignmentService->getAssignableRoles(Auth::user());
-
-            // Show the creation view
-            return view('users.create', compact('roles'));
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
 
-        // If the user is not authorized, redirect with error
-        catch (AuthorizationException $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
-        }
+        $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
+
+        return view('users.create', compact('roles'));
     }
 
     /**
-     * Handle an incoming registration request.
+     * Store a newly created user in storage.
+     *
+     * @param StoreUserRequest $request
+     * @param StoreUserService $storeService
+     * @return RedirectResponse
      */
     public function store(StoreUserRequest $request, StoreUserService $storeService): RedirectResponse
     {
         try {
-            // Use the StoreUserService to create and return a new user instance
             $user = $storeService->handle($request->validated());
-
-            // On success, redirect to the user's detail page with success message
             return redirect()->route('users.show', $user)
                 ->with('status', '¡Usuario registrado con éxito!');
-        }
-
-        // Case of any error, redirect back with error message
-        catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
                 ->with('error', 'Hubo un error al registrar el usuario.');
         }
     }
 
     /**
-     * Display the edit user view.
+     * Show the form for editing the specified user.
+     *
+     * @param User $user
+     * @param RoleAssignmentService $roleAssignmentService
+     * @return View|RedirectResponse
      */
     public function edit(User $user, RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
         try {
-            // Authorization check
             $this->authorize('edit', $user);
-
-
-            // Get assignable roles based on current user's role
-            $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
-
-            // Show the edit view
-            return view('users.edit', compact('user', 'roles'));
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
 
-        // If the user is not authorized, redirect with error
-        catch (AuthorizationException $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
-        }
+        $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
+
+        return view('users.edit', compact('user', 'roles'));
     }
 
     /**
-     * Update the specified user.
+     * Update the specified user in storage.
+     *
+     * @param UpdateUserRequest $request
+     * @param UpdateUserService $updateService
+     * @param User $user
+     * @return RedirectResponse
      */
     public function update(UpdateUserRequest $request, UpdateUserService $updateService, User $user): RedirectResponse
     {
         try {
             $user = $updateService->handle($user, $request->validated());
-
             return redirect()->route('users.show', $user)
                 ->with('status', '¡Usuario actualizado con éxito!');
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
+            return redirect()->back()->withInput()
                 ->with('error', 'Hubo un error al actualizar el usuario.');
         }
     }
 
     /**
-     * Remove the specified user.
+     * Remove the specified user from storage.
+     *
+     * @param User $user
+     * @return RedirectResponse
      */
     public function destroy(User $user): RedirectResponse
     {
         try {
-            // Authorization check
             $this->authorize('delete', $user);
-
-            // If the user has a representative profile, delete it first
-            if ($user->representative?->exists()) {
-                $user->representative()->delete();
-            }
-
-            // Delete the user
-            $user->delete();
-            return redirect()->route('users.index')
-                ->with('status', '¡Usuario eliminado con éxito!');
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
 
-        // If the user is not authorized, redirect with error
-        catch (AuthorizationException $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
+        if ($user->representative?->exists()) {
+            $user->representative()->delete();
         }
+
+        $user->delete();
+
+        return redirect()->route('users.index')
+            ->with('status', '¡Usuario eliminado con éxito!');
     }
 
     /**
      * Toggle the activation status of the specified user.
+     *
+     * @param User $user
+     * @param UserActivationService $activationService
+     * @return RedirectResponse
      */
     public function toggleActivation(User $user, UserActivationService $activationService): RedirectResponse
     {
@@ -202,8 +208,7 @@ class UserController extends Controller
             return redirect()->route('users.show', $user)
                 ->with('status', "¡Usuario {$status} con éxito!");
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 }
