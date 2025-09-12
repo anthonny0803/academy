@@ -4,11 +4,11 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
 
-                    <h1 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Lista de Usuarios</h1>
+                    <h1 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Lista de Representantes</h1>
                     <div class="mb-4">
 
                         {{-- Search form --}}
-                        <form method="GET" action="{{ route('users.index') }}" class="flex gap-2">
+                        <form method="GET" action="{{ route('representatives.index') }}" class="flex gap-2">
                             <input type="text" name="search" placeholder="Buscar..." value="{{ request('search') }}"
                                 class="block w-80 rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 p-2"
                                 autocomplete="off" style="text-transform:uppercase;">
@@ -21,18 +21,6 @@
                                 </option>
                                 <option value="Inactivo" {{ request('status') === 'Inactivo' ? 'selected' : '' }}>
                                     Inactivo</option>
-                            </select>
-
-                            {{-- Role filter --}}
-                            <select name="role"
-                                class="block rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2">
-                                <option value="">Todos los roles</option>
-                                @foreach ($roles as $role)
-                                    <option value="{{ $role->name }}"
-                                        {{ request('role') === $role->name ? 'selected' : '' }}>
-                                        {{ $role->name }}
-                                    </option>
-                                @endforeach
                             </select>
 
                             <button type="submit"
@@ -60,15 +48,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($users as $user)
+                                @forelse ($representatives as $representative)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                        <td class="py-2 px-4 border-b">{{ $user->name }}</td>
-                                        <td class="py-2 px-4 border-b">{{ $user->last_name }}</td>
-                                        <td class="py-2 px-4 border-b">{{ $user->email }}</td>
-                                        <td class="py-2 px-4 border-b">{{ $user->sex }}</td>
+                                        {{-- Mostrar nombre y correo vía usuario relacionado --}}
+                                        <td class="py-2 px-4 border-b">{{ $representative->user?->name ?? '-' }}</td>
+                                        <td class="py-2 px-4 border-b">{{ $representative->user?->last_name ?? '-' }}
+                                        </td>
+                                        <td class="py-2 px-4 border-b">{{ $representative->user?->email ?? '-' }}</td>
+                                        <td class="py-2 px-4 border-b">{{ $representative->user?->sex ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">
-                                            @if ($user->roles->isNotEmpty())
-                                                @foreach ($user->roles as $role)
+                                            {{-- Mostrar roles del representante (vía usuario relacionado) --}}
+                                            @if ($representative->user && $representative->user->roles->isNotEmpty())
+                                                @foreach ($representative->user->roles as $role)
                                                     <span
                                                         class="inline-block bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 text-xs px-2 py-1 rounded mr-1">
                                                         {{ $role->name }}
@@ -79,30 +70,22 @@
                                             @endif
                                         </td>
                                         <td class="py-2 px-4 border-b">
-                                            <button data-dropdown-user="{{ $user->id }}"
+                                            <button data-dropdown-representative="{{ $representative->id }}"
                                                 class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
                                                 Acciones
                                             </button>
 
                                             {{-- Dropdown actions --}}
-                                            <div id="dropdown-template-{{ $user->id }}" class="hidden">
+                                            <div id="dropdown-template-{{ $representative->id }}" class="hidden">
                                                 <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                                                    @if ($user->hasRole('Profesor'))
-                                                        <li>
-                                                            <a href="#"
-                                                                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Asignar
-                                                                Materias</a>
-                                                        </li>
-                                                    @endif
-                                                    <li><a href="{{ route('users.show', $user) }}"
+                                                    <li><a href="{{ route('representatives.show', $representative) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Ver</a>
                                                     </li>
-                                                    <li><a href="{{ route('users.edit', $user) }}"
+                                                    <li><a href="#"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
                                                     </li>
                                                     <li>
-                                                        <form method="POST"
-                                                            action="{{ route('users.destroy', $user) }}">
+                                                        <form method="POST" action="#">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"
@@ -132,9 +115,9 @@
                     </div>
 
                     {{-- Pagination --}}
-                    @if ($users->count() > 0)
+                    @if ($representatives->count() > 0)
                         <div class="mt-4">
-                            {{ $users->appends(request()->except('page'))->links() }}
+                            {{ $representatives->appends(request()->except('page'))->links() }}
                         </div>
                     @endif
 
@@ -146,10 +129,10 @@
     {{-- Script for dropdowns --}}
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll("[data-dropdown-user]").forEach(btn => {
+            document.querySelectorAll("[data-dropdown-representative]").forEach(btn => {
                 btn.addEventListener("click", () => {
-                    const userId = btn.dataset.dropdownUser;
-                    let existing = document.getElementById("dropdownMenu-" + userId);
+                    const representativeId = btn.dataset.dropdownRepresentative;
+                    let existing = document.getElementById("dropdownMenu-" + representativeId);
 
                     // If it already exists and is open, close it
                     if (existing && !existing.classList.contains("hidden")) {
@@ -161,9 +144,9 @@
                     document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
 
                     // Clone template
-                    const tpl = document.getElementById("dropdown-template-" + userId);
+                    const tpl = document.getElementById("dropdown-template-" + representativeId);
                     const clone = tpl.cloneNode(true);
-                    clone.id = "dropdownMenu-" + userId;
+                    clone.id = "dropdownMenu-" + representativeId;
                     clone.classList.remove("hidden");
                     clone.classList.add(
                         "dropdown-clone", "fixed", "z-50", "w-40",
@@ -173,8 +156,7 @@
 
                     // Calculate button position
                     const rect = btn.getBoundingClientRect();
-                    const menuHeight =
-                        160;
+                    const menuHeight = 160;
                     const espacioAbajo = window.innerHeight - rect.bottom;
                     const espacioArriba = rect.top;
 
@@ -196,7 +178,7 @@
 
             // Close dropdown when clicking outside
             document.addEventListener("click", e => {
-                if (!e.target.closest("[data-dropdown-user]") &&
+                if (!e.target.closest("[data-dropdown-representative]") &&
                     !e.target.closest(".dropdown-clone")) {
                     document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
                 }

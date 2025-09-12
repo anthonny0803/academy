@@ -16,21 +16,18 @@
                                 :value="$user->name" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
-
                         <div class="mt-4">
                             <x-input-label for="last_name" :value="__('Apellido')" />
                             <x-text-input id="last_name" class="block mt-1 w-full uppercase" type="text"
                                 name="last_name" :value="$user->last_name" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                         </div>
-
                         <div class="mt-4">
                             <x-input-label for="email" :value="__('Correo')" />
                             <x-text-input id="email" class="block mt-1 w-full lowercase" type="email"
                                 name="email" :value="$user->email" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
-
                         <div class="mt-4">
                             <x-input-label for="sex" :value="__('Sexo')" />
                             <select id="sex" name="sex"

@@ -4,21 +4,104 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Representative;
+use Spatie\Permission\Models\Role;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use Illuminate\Support\Facades\Auth;
 
-class ClientController extends Controller
+class RepresentativeController extends Controller
 {
+    use AuthorizesRequests;
     /**
-     * Display the registration view.
+     * Get the currently authenticated user.
+     *
+     * @return User
      */
-    public function create(): View
+    protected function currentUser(): User
     {
-        return view('clients.create');
+        return Auth::user();
+    }
+
+    /**
+     * Display a listing of the representatives.
+     *
+     * @param Request $request
+     * @return View|RedirectResponse
+     */
+    public function index(Request $request): View|RedirectResponse
+    {
+        try {
+            $this->authorize('viewAny', Representative::class);
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        $representatives = collect(); // Initialize an empty collection for representatives
+        $search = trim($request->input('search', '')); // Trim whitespace from search input
+
+        if ($search !== '') {
+            $query = Representative::with(['user.roles'])
+                ->whereHas('user', function ($q) use ($search, $request) {
+                    $q->role('Representante')
+                        ->where(function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+
+                    // Filter by status if provided
+                    if ($request->filled('status') && $request->input('status') !== 'Todos') {
+                        $isActive = $request->input('status') === 'Activo' ? 1 : 0;
+                        $q->where('is_active', $isActive);
+                    }
+                })
+
+                ->join('users', 'representatives.user_id', '=', 'users.id') // User join
+                ->orderBy('users.name', 'asc') // Order by user name ascending
+                ->select('representatives.*'); // Select representatives columns
+
+            $representatives = $query->paginate(6); // Paginate results, 6 per page
+        }
+
+        return view('representatives.index', compact('representatives'));
+    }
+
+    /**
+     * Display the specified representative.
+     *
+     * @param Representative $representative
+     * @return View|RedirectResponse
+     */
+    public function show(Representative $representative): View|RedirectResponse
+    {
+        try {
+            $this->authorize('view', $representative);
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return view('representatives.show', compact('representative'));
+    }
+
+    /**
+     * Show the form for creating a new representative.
+     *
+     * @return View|RedirectResponse
+     */
+    public function create(): View|RedirectResponse
+    {
+        try {
+            $this->authorize('create', User::class);
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return view('representatives.create');
     }
 
     /**

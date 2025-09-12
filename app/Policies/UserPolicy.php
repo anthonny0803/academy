@@ -74,9 +74,20 @@ class UserPolicy
      */
     public function edit(User $currentUser, User $targetUser): Response
     {
+
+        // Only Developer, SuperAdmin and Administrador can edit users
+        if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
+            return Response::deny('No tienes autorización para realizar esta acción.');
+        }
+
         // Prevent editing of the developer user
         if ($targetUser->id === 1) {
-            return Response::deny('No tienes autorización para modificar este usuario.');
+            return Response::deny('No se puede modificar este usuario.');
+        }
+
+        // Prevent editing of self
+        if ($currentUser->id === $targetUser->id) {
+            return Response::deny('No puedes modificar tu usuario.');
         }
 
         // Prevent editing between same roles except for developer
@@ -107,22 +118,22 @@ class UserPolicy
 
         // Prevent deletion of the developer user
         if ($targetUser->id === 1) {
-            return Response::deny('No puedes eliminar al usuario desarrollador.');
-        }
-
-        // Prevent deletion of active users
-        if ($targetUser->is_active) {
-            return Response::deny('No puedes eliminar a un usuario activo.');
+            return Response::deny('No puedes eliminar este usuario.');
         }
 
         // Prevent deletion of a SuperAdmin by another SuperAdmin except Developer
         if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $targetUser->hasRole('SuperAdmin')) {
-            return Response::deny('No puedes eliminar a este usuario.');
+            return Response::deny('No puedes eliminar usuarios con tu rol.');
+        }
+
+        // Prevent deletion of active users
+        if ($targetUser->is_active) {
+            return Response::deny('No puedes eliminar un usuario activo.');
         }
 
         // Prevent deletion of self
         if ($currentUser->id === $targetUser->id) {
-            return Response::deny('No puedes eliminar a tu usuario.');
+            return Response::deny('No puedes eliminar tu usuario.');
         }
 
         // If the user has a Representative role and has students, prevent deletion

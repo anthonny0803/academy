@@ -45,32 +45,31 @@ class UserController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
 
-        $roles = Role::all();
-        $users = collect();
-        $search = trim($request->input('search', '')); // ✅ Agrega trim() aquí
+        $users = collect(); // Initialize an empty collection for users
+        $roles = Role::all(); // Fetch all roles for the filter dropdown
+        $search = trim($request->input('search', '')); // Trim whitespace from search input
 
+        // If there's a search term, filter users accordingly
         if ($search !== '') {
             $query = User::with('roles')
                 ->where(fn($q) => $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%"));
+                    ->orWhere('last_name', 'like', "%{$search}%"));
 
-            // Filtros opcionales de status y rol
+            // Filter by status if provided
             if ($request->filled('status') && $request->input('status') !== 'Todos') {
                 $isActive = $request->input('status') === 'Activo' ? 1 : 0;
                 $query->where('is_active', $isActive);
             }
 
+            // Filter by role if provided
             if ($request->filled('role') && $request->input('role') !== 'Todos') {
                 $role = $request->input('role');
                 $query->whereHas('roles', fn($q) => $q->where('name', $role));
             }
 
-            $users = $query->paginate(6);
+            $query->orderBy('name', 'asc'); // Order by name ascending
+            $users = $query->paginate(6); // Paginate results, 6 per page
         }
-
-        // Si $search es '' la variable $users nunca cambia, sigue siendo una colección vacía.
-
-
 
         return view('users.index', compact('users', 'roles'));
     }
