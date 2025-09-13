@@ -4,25 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Representative;
-use Spatie\Permission\Models\Role;
 use App\Services\StoreRepresentativeService;
 use App\Services\UpdateRepresentativeService;
 use App\Http\Requests\StoreRepresentativeRequest;
 use App\Http\Requests\UpdateRepresentativeRequest;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
-
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
-use Throwable;
 use Illuminate\Support\Facades\Auth;
 
 class RepresentativeController extends Controller
 {
     use AuthorizesRequests;
+
     /**
      * Get the currently authenticated user.
      *
@@ -125,7 +121,7 @@ class RepresentativeController extends Controller
             $representative = $storeService->handle($request->validated());
 
             return redirect()->route('students.create', ['representative' => $representative->id])
-                ->with('status', '¡Representante registrado con éxito!');
+                ->with('status', '¡Representante registrado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());

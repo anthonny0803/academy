@@ -41,14 +41,15 @@
     @endphp
 
     <x-modal name="alertModal" :show="$showModal" maxWidth="md">
-        {{-- Contenedor del contenido que controla el tamaño y el centrado --}}
         <div class="p-6 text-center">
             @if (session('status'))
-                <h2 class="text-lg font-semibold text-green-700 mb-2">{{ session('status') }}</h2>
+                <h3 class="text-xl font-semibold text-green-600 mb-2">¡Éxito!</h3>
+                <p class="text-gray-800">{{ session('status') }}</p>
             @endif
 
             @if (session('error'))
-                <h2 class="text-lg font-semibold text-red-700 mb-2">{{ session('error') }}</h2>
+                <h3 class="text-xl font-semibold text-red-600 mb-2">¡Error!</h3>
+                <p class="text-gray-800">{{ session('error') }}</p>
             @endif
 
             <button x-on:click="$dispatch('close-modal', 'alertModal')"
@@ -57,6 +58,7 @@
             </button>
         </div>
     </x-modal>
+
 
     {{-- Ajuste del fondo semitransparente más transparente --}}
     <style>

@@ -16,8 +16,14 @@ class StudentController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(Representative $representative): View
+    public function create(Representative $representative): View|RedirectResponse
     {
+        // Verifica que el user asociado tenga el rol 'Representante'
+        if (!$representative->user->hasRole('Representante')) {
+            return redirect()->back()
+                ->with('error', 'El usuario seleccionado no es un representante válido.');
+        }
+
         return view('students.create', ['representative' => $representative]);
     }
 

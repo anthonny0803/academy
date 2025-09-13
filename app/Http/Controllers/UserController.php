@@ -123,7 +123,7 @@ class UserController extends Controller
         try {
             $user = $storeService->handle($request->validated());
             return redirect()->route('users.show', $user)
-                ->with('status', '¡Usuario registrado con éxito!');
+                ->with('status', '¡Usuario registrado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', 'Hubo un error al registrar el usuario.');
@@ -163,7 +163,7 @@ class UserController extends Controller
         try {
             $user = $updateService->handle($user, $request->validated());
             return redirect()->route('users.show', $user)
-                ->with('status', '¡Usuario actualizado con éxito!');
+                ->with('status', '¡Usuario actualizado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', 'Hubo un error al actualizar el usuario.');
@@ -191,7 +191,7 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')
-            ->with('status', '¡Usuario eliminado con éxito!');
+            ->with('status', '¡Usuario eliminado correctamente!');
     }
 
     /**
@@ -206,7 +206,7 @@ class UserController extends Controller
         try {
             $status = $activationService->toggle($user);
             return redirect()->route('users.show', $user)
-                ->with('status', "¡Usuario {$status} con éxito!");
+                ->with('status', "¡Usuario {$status} correctamente!");
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

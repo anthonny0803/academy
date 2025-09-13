@@ -58,9 +58,6 @@ class StoreRepresentativeService
                 'is_active' => true,
             ]);
 
-            // Dispara el evento de usuario registrado.
-            event(new Registered($user));
-
             // Devuelve el objeto representante para que la variable fuera de la transacción lo capture.
             return $representative;
         });
