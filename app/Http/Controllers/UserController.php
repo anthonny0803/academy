@@ -47,7 +47,7 @@ class UserController extends Controller
 
         $users = collect(); // Initialize an empty collection for users
         $roles = Role::all(); // Fetch all roles for the filter dropdown
-        $search = trim($request->input('search', '')); // Trim whitespace from search input
+        $search = trim($request->input('search', '')); // Trim whitespace to prevent empty searches
 
         // If there's a search term, filter users accordingly
         if ($search !== '') {
@@ -55,7 +55,7 @@ class UserController extends Controller
                 ->where(fn($q) => $q->where('name', 'like', "%{$search}%")
                     ->orWhere('last_name', 'like', "%{$search}%"));
 
-            // Filter by status if provided
+            // Filter by user status if provided
             if ($request->filled('status') && $request->input('status') !== 'Todos') {
                 $isActive = $request->input('status') === 'Activo' ? 1 : 0;
                 $query->where('is_active', $isActive);
@@ -105,6 +105,7 @@ class UserController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
 
+        // Get roles that the current user can assign
         $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
 
         return view('users.create', compact('roles'));
