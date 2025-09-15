@@ -15,8 +15,8 @@
                     </p>
                     <hr class="my-6 border-gray-200 dark:border-gray-700">
 
-                    {{-- Render content for SuperAdmin and Administrador --}}
-                    @role('SuperAdmin|Administrador')
+                    {{-- Render content for Supervisor and Administrador --}}
+                    @role('Supervisor|Administrador')
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
                             {{-- Users card --}}
@@ -66,7 +66,7 @@
                             </a>
                         </div>
                     @endrole
-                    {{-- End of SuperAdmin and Administrador render content --}}
+                    {{-- End of Supervisor and Administrador render content --}}
 
                 </div>
             </div>

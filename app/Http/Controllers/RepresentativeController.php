@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Representative;
 use App\Services\StoreRepresentativeService;
 use App\Services\UpdateRepresentativeService;
+use App\Services\RepresentativeActivationService;
 use App\Http\Requests\StoreRepresentativeRequest;
 use App\Http\Requests\UpdateRepresentativeRequest;
 use Illuminate\Http\RedirectResponse;
@@ -99,7 +100,7 @@ class RepresentativeController extends Controller
     public function create(): View|RedirectResponse
     {
         try {
-            $this->authorize('create', User::class);
+            $this->authorize('create', Representative::class);
         } catch (AuthorizationException $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -125,6 +126,65 @@ class RepresentativeController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Show the form for editing the specified representative.
+     *
+     * @param Representative $representative
+     * @return View|RedirectResponse
+     */
+    public function edit(Representative $representative): View|RedirectResponse
+    {
+        try {
+            $this->authorize('edit', $representative);
+        } catch (AuthorizationException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return view('representatives.edit', compact('representative'));
+    }
+
+    /**
+     * Update the specified representative in storage.
+     *
+     * @param UpdateRepresentativeRequest $request
+     * @param UpdateRepresentativeService $updateService
+     * @param Representative $representative
+     * @return RedirectResponse
+     */    public function update(UpdateRepresentativeRequest $request, UpdateRepresentativeService $updateService, Representative $representative): RedirectResponse
+    {
+        try {
+            $representative = $updateService->handle($representative, $request->validated());
+            return redirect()->route('representatives.show', $representative)
+                ->with('status', '¡Representante actualizado correctamente!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
+                ->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Toggle the activation status of the specified representative.
+     *
+     * @param Representative $representative
+     * @param RepresentativeActivationService $activationService
+     * @return RedirectResponse
+     */
+    public function toggleActivation(Representative $representative, RepresentativeActivationService $activationService): RedirectResponse
+    {
+        try {
+            // Delegate permission and toggle logic to the service
+            $representative = $activationService->changeStatus($representative);
+
+            // Return success message based on new status
+            $status = $representative->is_active ? 'activado' : 'desactivado';
+
+            return redirect()->route('representatives.show', $representative)
+                ->with('status', "¡Representante {$status} correctamente!");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 }

@@ -81,7 +81,11 @@
                                                     <li><a href="{{ route('representatives.show', $representative) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Ver</a>
                                                     </li>
-                                                    <li><a href="#"
+                                                    <li><a href="{{ route('students.create', $representative->id) }}"
+                                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Asignar
+                                                            Estudiante</a>
+                                                    </li>
+                                                    <li><a href="{{ route('representatives.edit', $representative) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
                                                     </li>
                                                     <li>

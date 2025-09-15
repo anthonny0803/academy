@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Auth;
 class UserActivationService
 {
     /**
-     * Toggle the activation status of a user.
+     * Check the authorization before changing user status.
      *
      * @param User $user
-     * @return string
+     * @return User
      * @throws \Exception
      */
-    public function toggle(User $user): string
+    public function changeStatus(User $user): User
     {
         $currentUser = Auth::user();
 
@@ -28,20 +28,19 @@ class UserActivationService
             throw new \Exception('No tienes autorización para cambiar el estado de tu usuario.');
         }
 
-        // SuperAdmin cannot change the status of other SuperAdmins except Developer
-        if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $user->hasRole('SuperAdmin')) {
+        // Supervisor cannot change the status of other Supervisors except Developer
+        if ($currentUser->hasRole('Supervisor') && $currentUser->id !== 1 && $user->hasRole('Supervisor')) {
             throw new \Exception('No tienes autorización para cambiar el estado de este usuario.');
         }
 
         // Administrador cannot change higher or same roles
-        if ($currentUser->hasRole('Administrador') && $user->hasRole(['Administrador', 'SuperAdmin'])) {
+        if ($currentUser->hasRole('Administrador') && $user->hasRole(['Administrador', 'Supervisor'])) {
             throw new \Exception('No tienes autorización para cambiar el estado de usuarios con mismo tu rol o superiores.');
         }
 
-        // Toggle status
-        $user->is_active = !$user->is_active;
-        $user->save();
+        // Toggle activation status
+        $user->activation(!$user->is_active);
 
-        return $user->is_active ? 'activado' : 'desactivado';
+        return $user;
     }
 }

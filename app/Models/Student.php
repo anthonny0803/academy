@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
 
 class Student extends Model
 {
-    use HasFactory; // Habilita el uso de factories para pruebas y seeders
+    use HasFactory, Activatable; // Habilita el uso de factories para pruebas y seeders
 
     /**
      * Attributes that are mass assignable.
@@ -82,7 +83,7 @@ class Student extends Model
     {
         return $this->hasMany(Enrollment::class);
     }
-    
+
     /**
      * Get the grades for the student across all their enrollments and subjects.
      * Obtiene todas las calificaciones de este Estudiante (relación uno a muchos a través de inscripciones).
@@ -100,5 +101,4 @@ class Student extends Model
             'id' // La clave local en el modelo intermedio (Enrollment)
         );
     }
-
 }

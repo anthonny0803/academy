@@ -24,7 +24,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // User management routes
-    Route::middleware([RoleMiddleware::class . ':SuperAdmin|Administrador'])->group(function () {
+    Route::middleware([RoleMiddleware::class . ':Supervisor|Administrador'])->group(function () {
 
         // User routes
         Route::controller(UserController::class)->group(function () {
@@ -44,6 +44,9 @@ Route::middleware('auth')->group(function () {
             Route::get('representatives/{representative}/show', 'show')->name('representatives.show');
             Route::get('representatives/create', 'create')->name('representatives.create');
             Route::post('representatives/create', 'store')->name('representatives.store');
+            Route::get('representatives/{representative}/edit', 'edit')->name('representatives.edit');
+            Route::patch('representatives/{representative}/edit', 'update')->name('representatives.update');
+            Route::patch('/representatives/{representative}/toggle', 'toggleActivation')->name('representatives.toggle');
         });
 
         // Student routes

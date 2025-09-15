@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Activatable;
 use Spatie\Permission\Traits\HasRoles; // Importar el trait de Spatie para roles
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,7 +13,7 @@ use Illuminate\Notifications\Notifiable;
  */
 class User extends Authenticatable
 {
-    use HasRoles, Notifiable, HasFactory;
+    use HasRoles, Notifiable, HasFactory, Activatable;
 
     /**
      * Attributes that are mass assignable.
@@ -55,8 +56,7 @@ class User extends Authenticatable
     }
 
     /*
-     * Definición de Relaciones del Modelo
-     * Un User es la entidad central y puede tener un perfil de:
+     * Definitions of relationships with other models:
      * - Profesor
      * - Representante
      * - Estudiante
@@ -64,7 +64,6 @@ class User extends Authenticatable
 
     /**
      * Get the teacher profile associated with the user.
-     * Obtiene el perfil de Profesor asociado a este Usuario (relación uno a uno).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -75,7 +74,6 @@ class User extends Authenticatable
 
     /**
      * Get the representative profile associated with the user.
-     * Obtiene el perfil de Representante asociado a este Usuario (relación uno a uno).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -86,7 +84,6 @@ class User extends Authenticatable
 
     /**
      * Get the student profile associated with the user.
-     * Obtiene el perfil de Estudiante asociado a este Usuario (relación uno a uno).
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
@@ -95,13 +92,22 @@ class User extends Authenticatable
         return $this->hasOne(Student::class);
     }
 
-    // Metodo para verificar si el usuario tiene otro rol
-    public function isRepresentative()
+    /**
+     * Check if the user has a representative role.
+     *
+     * @return bool
+     */
+    public function isRepresentative(): bool
     {
         return $this->representative()->exists();
     }
 
-    public function isStudent()
+    /**
+     * Check if the user has a student role.
+     *
+     * @return bool
+     */
+    public function isStudent(): bool
     {
         return $this->student()->exists();
     }

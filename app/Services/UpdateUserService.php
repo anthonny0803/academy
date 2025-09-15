@@ -33,7 +33,7 @@ class UpdateUserService
 
                 // Keep non-editable roles intact
                 $nonEditableRoles = $user->roles
-                    ->whereNotIn('name', ['SuperAdmin', 'Administrador', 'Profesor'])
+                    ->whereNotIn('name', ['Supervisor', 'Administrador', 'Profesor'])
                     ->pluck('name')
                     ->toArray();
 
@@ -41,7 +41,7 @@ class UpdateUserService
             }
 
             // Update activation status based on roles
-            $employeeRoles = ['SuperAdmin', 'Administrador', 'Profesor'];
+            $employeeRoles = ['Supervisor', 'Administrador', 'Profesor'];
             $user->is_active = $user->roles->pluck('name')->intersect($employeeRoles)->isNotEmpty();
 
             $user->save();

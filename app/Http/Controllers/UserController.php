@@ -204,7 +204,12 @@ class UserController extends Controller
     public function toggleActivation(User $user, UserActivationService $activationService): RedirectResponse
     {
         try {
-            $status = $activationService->toggle($user);
+            // Delegate permission and toggle logic to the service
+            $user = $activationService->changeStatus($user);
+
+            // Return success message based on new status
+            $status = $user->is_active ? 'activado' : 'desactivado';
+
             return redirect()->route('users.show', $user)
                 ->with('status', "¡Usuario {$status} correctamente!");
         } catch (\Exception $e) {

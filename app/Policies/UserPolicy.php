@@ -16,7 +16,7 @@ class UserPolicy
     public function viewAny(User $currentUser): Response
     {
         // If the current user is not an authenticated user with view permissions
-        if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
+        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
             return Response::deny('No tienes autorización para ver el módulo de usuarios.');
         }
 
@@ -33,7 +33,7 @@ class UserPolicy
     public function view(User $currentUser, User $targetUser): Response
     {
         // If the current user cannot view the target user, redirect with error
-        if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
+        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
@@ -43,7 +43,7 @@ class UserPolicy
         }
 
         // Prevent viewing of lower roles
-        if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('SuperAdmin'))) {
+        if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('Supervisor'))) {
             return Response::deny('No tienes autorización para ver este usuario.');
         }
 
@@ -59,7 +59,7 @@ class UserPolicy
     public function create(User $currentUser): Response
     {
         // If the current user is not an authenticated user with create permissions
-        if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
+        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
             return Response::deny('No tienes autorización para crear usuarios.');
         }
 
@@ -75,8 +75,8 @@ class UserPolicy
     public function edit(User $currentUser, User $targetUser): Response
     {
 
-        // Only Developer, SuperAdmin and Administrador can edit users
-        if (!$currentUser->hasRole(['SuperAdmin', 'Administrador']) && $currentUser->id !== 1) {
+        // Only Developer, Supervisor and Administrador can edit users
+        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
@@ -91,12 +91,12 @@ class UserPolicy
         }
 
         // Prevent editing between same roles except for developer
-        if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $targetUser->hasRole('SuperAdmin')) {
+        if ($currentUser->hasRole('Supervisor') && $currentUser->id !== 1 && $targetUser->hasRole('Supervisor')) {
             return Response::deny('No tienes autorización para modificar usuarios con tu rol.');
         }
 
         // Prevent editing of lower roles
-        if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('Administrador') || $targetUser->hasRole('SuperAdmin'))) {
+        if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('Administrador') || $targetUser->hasRole('Supervisor'))) {
             return Response::deny('No tienes autorización para modificar usuarios con tu rol o roles superiores.');
         }
 
@@ -111,8 +111,8 @@ class UserPolicy
      */
     public function delete(User $currentUser, User $targetUser): Response
     {
-        // Only Developer and SuperAdmin can delete users
-        if (!$currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1) {
+        // Only Developer and Supervisor can delete users
+        if (!$currentUser->hasRole('Supervisor') && $currentUser->id !== 1) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
@@ -121,8 +121,8 @@ class UserPolicy
             return Response::deny('No puedes eliminar este usuario.');
         }
 
-        // Prevent deletion of a SuperAdmin by another SuperAdmin except Developer
-        if ($currentUser->hasRole('SuperAdmin') && $currentUser->id !== 1 && $targetUser->hasRole('SuperAdmin')) {
+        // Prevent deletion of a Supervisor by another Supervisor except Developer
+        if ($currentUser->hasRole('Supervisor') && $currentUser->id !== 1 && $targetUser->hasRole('Supervisor')) {
             return Response::deny('No puedes eliminar usuarios con tu rol.');
         }
 

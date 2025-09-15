@@ -17,7 +17,7 @@ class RepresentativePolicy
     public function viewAny(User $currentUser): Response
     {
         // If the current user is not an authenticated user with view permissions
-        return $currentUser->hasRole(['SuperAdmin', 'Administrador']) || $currentUser->id === 1
+        return $currentUser->hasRole(['Supervisor', 'Administrador']) || $currentUser->id === 1
             ? Response::allow()
             : Response::deny('No tienes autorización para ver el módulo de representantes.');
     }
@@ -25,13 +25,12 @@ class RepresentativePolicy
     /**
      * Determine whether the user can view a specific representative.
      */
-    public function view(User $currentUser, Representative $representative): Response
+    public function view(User $currentUser): Response
     {
-        // The current user can view all representatives except the developer user
-        return ($currentUser->hasRole(['SuperAdmin', 'Administrador']) && $representative->user_id !== 1)
-            || $currentUser->id === 1
+        // Only Supervisor and Administrador roles can view representatives.
+        return $currentUser->hasRole(['Supervisor', 'Administrador'])
             ? Response::allow()
-            : Response::deny('No tienes autorización para ver este representante.');
+            : Response::deny('No tienes autorización para ver representantes.');
     }
 
     /**
@@ -41,9 +40,22 @@ class RepresentativePolicy
      */
     public function create(User $currentUser): Response
     {
-        return $currentUser->hasRole(['SuperAdmin', 'Administrador'])
+        return $currentUser->hasRole(['Supervisor'])
             ? Response::allow()
             : Response::deny('No tienes autorización para crear representantes.');
+    }
+
+    /**
+     * Determine whether the user can edit the representative.
+     * @param User $currentUser
+     * @param Representative $representative
+     * @return Response
+     */
+    public function edit(User $currentUser, Representative $representative): Response
+    {
+        return $currentUser->hasRole(['Supervisor', 'Administrador'])
+            ? Response::allow()
+            : Response::deny('No tienes autorización para editar este representante.');
     }
 
     /**
@@ -52,11 +64,19 @@ class RepresentativePolicy
      * @param Representative $representative
      * @return Response
      */
-    public function edit(User $currentUser, Representative $representative): Response
+    public function update(User $currentUser, Representative $representative): Response
     {
-        return $currentUser->hasRole(['SuperAdmin', 'Administrador'])
-            ? Response::allow()
-            : Response::deny('No tienes autorización para editar este representante.');
+        // Check role permission first.
+        if (!$currentUser->hasRole(['Supervisor', 'Administrador'])) {
+            return Response::deny('No tienes autorización para editar representantes.');
+        }
+
+        // Block sensitive data from de employee.
+        if ($representative->user->hasRole(['Supervisor', 'Administrador', 'Profesor'])) {
+            return Response::deny('No se pueden modificar campos sensibles de empleados.');
+        }
+
+        return Response::allow();
     }
 
     /**
@@ -67,7 +87,7 @@ class RepresentativePolicy
      */
     public function delete(User $currentUser, Representative $representative): Response
     {
-        return $currentUser->hasRole(['SuperAdmin'])
+        return $currentUser->hasRole(['Supervisor'])
             ? Response::allow()
             : Response::deny('No tienes autorización para eliminar representantes.');
     }

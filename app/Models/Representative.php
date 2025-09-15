@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
 
 class Representative extends Model
 {
-    use HasFactory; // Habilita el uso de factories para pruebas y seeders
+    use HasFactory, Activatable;
 
     /**
      * Attributes that are mass assignable.

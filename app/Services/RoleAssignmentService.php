@@ -18,12 +18,12 @@ class RoleAssignmentService
             return Role::whereNotIn('name', ['Representante', 'Estudiante'])->get();
         }
 
-        if ($user->hasRole('SuperAdmin')) {
-            return Role::whereNotIn('name', ['SuperAdmin', 'Representante', 'Estudiante'])->get();
+        if ($user->hasRole('Supervisor')) {
+            return Role::whereNotIn('name', ['Supervisor', 'Representante', 'Estudiante'])->get();
         }
 
         if ($user->hasRole('Administrador')) {
-            return Role::whereNotIn('name', ['SuperAdmin', 'Administrador', 'Representante', 'Estudiante'])->get();
+            return Role::whereNotIn('name', ['Supervisor', 'Administrador', 'Representante', 'Estudiante'])->get();
         }
 
         return collect();
