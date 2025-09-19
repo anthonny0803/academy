@@ -51,7 +51,7 @@ class RepresentativePolicy
      * @param Representative $representative
      * @return Response
      */
-    public function edit(User $currentUser, Representative $representative): Response
+    public function edit(User $currentUser): Response
     {
         return $currentUser->hasRole(['Supervisor', 'Administrador'])
             ? Response::allow()

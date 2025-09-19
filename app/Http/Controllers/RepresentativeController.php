@@ -153,13 +153,21 @@ class RepresentativeController extends Controller
      * @param UpdateRepresentativeService $updateService
      * @param Representative $representative
      * @return RedirectResponse
-     */    public function update(UpdateRepresentativeRequest $request, UpdateRepresentativeService $updateService, Representative $representative): RedirectResponse
+     */
+    public function update(UpdateRepresentativeRequest $request, UpdateRepresentativeService $updateService, Representative $representative): RedirectResponse
     {
         try {
-            $representative = $updateService->handle($representative, $request->validated());
-            return redirect()->route('representatives.show', $representative)
+            $result = $updateService->handle($representative, $request->validated());
+
+            if ($result['warning']) {
+                return redirect()->route('representatives.show', $result['representative'])
+                    ->with('warning', '¡Representante actualizado! Se han ignorado algunos campos sensibles de empleados.');
+            }
+
+            return redirect()->route('representatives.show', $result['representative'])
                 ->with('status', '¡Representante actualizado correctamente!');
         } catch (\Exception $e) {
+            // Si hay un error, se redirige con un mensaje de error.
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
         }

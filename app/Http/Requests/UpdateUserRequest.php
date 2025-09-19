@@ -18,13 +18,26 @@ class UpdateUserRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     *
+     * This ensures that the 'roles' array does not contain empty strings,
+     * which can happen if all checkboxes are unchecked.
+     */
+    protected function prepareForValidation(): void
+    {
+        $roles = $this->input('roles', []);
+        $this->merge([
+            'roles' => array_filter($roles, fn($r) => !empty($r)),
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
-        // Get the user being updated from the route
         $user = $this->route('user');
 
         return [

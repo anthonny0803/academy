@@ -20,7 +20,7 @@
     <div class="min-h-screen bg-gray-100">
         @include('layouts.navigation')
 
-        <!-- Page Heading -->
+        {{-- Page Heading --}}
         @isset($header)
             <header class="bg-white shadow">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -29,15 +29,15 @@
             </header>
         @endisset
 
-        <!-- Page Content -->
+        {{-- Page Content --}}
         <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             {{ $slot }}
         </main>
     </div>
 
-    {{-- Alert Modal para mensajes de sesión --}}
+    {{-- Alert modal for sessions --}}
     @php
-        $showModal = session('status') || session('error');
+        $showModal = session('status') || session('error') || session('warning');
     @endphp
 
     <x-modal name="alertModal" :show="$showModal" maxWidth="md">
@@ -52,6 +52,11 @@
                 <p class="text-gray-800">{{ session('error') }}</p>
             @endif
 
+            @if (session('warning'))
+                <h3 class="text-xl font-semibold text-yellow-600 mb-2">¡Advertencia!</h3>
+                <p class="text-gray-800">{{ session('warning') }}</p>
+            @endif
+
             <button x-on:click="$dispatch('close-modal', 'alertModal')"
                 class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 Cerrar
@@ -60,7 +65,7 @@
     </x-modal>
 
 
-    {{-- Ajuste del fondo semitransparente más transparente --}}
+    {{-- Set background --}}
     <style>
         [x-cloak] {
             display: none !important;

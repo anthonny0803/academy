@@ -46,6 +46,10 @@
                         {{-- Assignable roles --}}
                         <div class="mt-4 text-white">
                             <x-input-label :value="__('Roles')" />
+
+                            {{-- Hidden input to allow unchecking all roles --}}
+                            <input type="hidden" name="roles[]" value="">
+
                             <div class="mt-2 space-y-1">
                                 @foreach ($roles as $role)
                                     <label class="flex items-center space-x-2">
@@ -56,6 +60,7 @@
                                     </label>
                                 @endforeach
                             </div>
+
                             <x-input-error :messages="$errors->get('roles')" class="mt-2" />
                         </div>
 
