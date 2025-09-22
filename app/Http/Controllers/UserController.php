@@ -11,112 +11,66 @@ use App\Services\UserActivationService;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\AuthorizesRedirect;
 
 class UserController extends Controller
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, AuthorizesRedirect;
 
-    /**
-     * Get the currently authenticated user.
-     *
-     * @return User
-     */
     protected function currentUser(): User
     {
         return Auth::user();
     }
 
     /**
-     * Display a listing of the users.
-     *
-     * @param Request $request
-     * @return View|RedirectResponse
+     * Display a listing of users.
+     * Applies optional search, status, and role filters.
      */
     public function index(Request $request): View|RedirectResponse
     {
-        try {
-            $this->authorize('viewAny', User::class);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        return $this->authorizeOrRedirect('viewAny', User::class, function () use ($request) {
+            $roles  = Role::all();
+            $search = trim((string) $request->input('search', ''));
+            $status = $request->input('status');
+            $role   = $request->input('role');
 
-        $users = collect(); // Initialize an empty collection for users
-        $roles = Role::all(); // Fetch all roles for the filter dropdown
-        $search = trim($request->input('search', '')); // Trim whitespace to prevent empty searches
+            // Only display if exists a search value.
+            $query = User::searchWithFilters($search, $status, $role);
+            $users = $query ? $query->paginate(6) : collect();
 
-        // If there's a search term, filter users accordingly
-        if ($search !== '') {
-            $query = User::with('roles')
-                ->where(fn($q) => $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%"));
-
-            // Filter by user status if provided
-            if ($request->filled('status') && $request->input('status') !== 'Todos') {
-                $isActive = $request->input('status') === 'Activo' ? 1 : 0;
-                $query->where('is_active', $isActive);
-            }
-
-            // Filter by role if provided
-            if ($request->filled('role') && $request->input('role') !== 'Todos') {
-                $role = $request->input('role');
-                $query->whereHas('roles', fn($q) => $q->where('name', $role));
-            }
-
-            $query->orderBy('name', 'asc'); // Order by name ascending
-            $users = $query->paginate(6); // Paginate results, 6 per page
-        }
-
-        return view('users.index', compact('users', 'roles'));
+            return view('users.index', compact('users', 'roles'));
+        });
     }
 
     /**
-     * Display the specified user.
-     *
-     * @param User $user
-     * @return View|RedirectResponse
+     * Display a single user.
      */
     public function show(User $user): View|RedirectResponse
     {
-        try {
-            $this->authorize('view', $user);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-
-        return view('users.show', compact('user'));
+        return $this->authorizeOrRedirect('view', $user, function () use ($user) {
+            return view('users.show', compact('user'));
+        });
     }
 
     /**
-     * Show the form for creating a new user.
-     *
-     * @param RoleAssignmentService $roleAssignmentService
-     * @return View|RedirectResponse
+     * Show the form to create a new user.
+     * Only roles assignable by the current user are provided.
      */
     public function create(RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
-        try {
-            $this->authorize('create', User::class);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-
-        // Get roles that the current user can assign
-        $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
-
-        return view('users.create', compact('roles'));
+        return $this->authorizeOrRedirect('create', User::class, function () use ($roleAssignmentService) {
+            $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
+            return view('users.create', compact('roles'));
+        });
     }
 
     /**
-     * Store a newly created user in storage.
-     *
-     * @param StoreUserRequest $request
-     * @param StoreUserService $storeService
-     * @return RedirectResponse
+     * Store a new user.
+     * Delegates creation logic to the StoreUserService.
      */
     public function store(StoreUserRequest $request, StoreUserService $storeService): RedirectResponse
     {
@@ -131,32 +85,20 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified user.
-     *
-     * @param User $user
-     * @param RoleAssignmentService $roleAssignmentService
-     * @return View|RedirectResponse
+     * Show the form to edit an existing user.
+     * Only roles assignable by the current user are provided.
      */
     public function edit(User $user, RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
-        try {
-            $this->authorize('edit', $user);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-
-        $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
-
-        return view('users.edit', compact('user', 'roles'));
+        return $this->authorizeOrRedirect('edit', $user, function () use ($user, $roleAssignmentService) {
+            $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
+            return view('users.edit', compact('user', 'roles'));
+        });
     }
 
     /**
-     * Update the specified user in storage.
-     *
-     * @param UpdateUserRequest $request
-     * @param UpdateUserService $updateService
-     * @param User $user
-     * @return RedirectResponse
+     * Update an existing user.
+     * Delegates update logic to the UpdateUserService.
      */
     public function update(UpdateUserRequest $request, UpdateUserService $updateService, User $user): RedirectResponse
     {
@@ -171,45 +113,29 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user from storage.
-     *
-     * @param User $user
-     * @return RedirectResponse
+     * Delete a user along with their representative, if any.
      */
     public function destroy(User $user): RedirectResponse
     {
-        try {
-            $this->authorize('delete', $user);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-
-        if ($user->representative?->exists()) {
-            $user->representative()->delete();
-        }
-
-        $user->delete();
-
-        return redirect()->route('users.index')
-            ->with('status', '¡Usuario eliminado correctamente!');
+        return $this->authorizeOrRedirect('delete', $user, function () use ($user) {
+            if ($user->representative?->exists()) {
+                $user->representative()->delete();
+            }
+            $user->delete();
+            return redirect()->route('users.index')
+                ->with('status', '¡Usuario eliminado correctamente!');
+        });
     }
 
     /**
-     * Toggle the activation status of the specified user.
-     *
-     * @param User $user
-     * @param UserActivationService $activationService
-     * @return RedirectResponse
+     * Toggle the activation status of a user.
+     * Delegates status change to UserActivationService.
      */
     public function toggleActivation(User $user, UserActivationService $activationService): RedirectResponse
     {
         try {
-            // Delegate permission and toggle logic to the service
             $user = $activationService->changeStatus($user);
-
-            // Return success message based on new status
             $status = $user->is_active ? 'activado' : 'desactivado';
-
             return redirect()->route('users.show', $user)
                 ->with('status', "¡Usuario {$status} correctamente!");
         } catch (\Exception $e) {

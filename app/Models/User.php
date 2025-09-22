@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Activatable;
-use Spatie\Permission\Traits\HasRoles; // Importar el trait de Spatie para roles
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -17,7 +17,6 @@ class User extends Authenticatable
 
     /**
      * Attributes that are mass assignable.
-     * Atributos que pueden ser asignados masivamente.
      *
      * @var array<int, string>
      */
@@ -32,7 +31,6 @@ class User extends Authenticatable
 
     /**
      * Attributes that should be hidden for serialization.
-     * Atributos que deben ser ocultados cuando el modelo es serializado a arrays/JSON.
      *
      * @var array<int, string>
      */
@@ -43,19 +41,60 @@ class User extends Authenticatable
 
     /**
      * Get the attributes that should be cast.
-     * Define cómo ciertos atributos deben ser convertidos a tipos de datos nativos de PHP.
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'is_active' => 'boolean', // Conversión a booleano
-            'password' => 'hashed', // Hash de la contraseña del Usuario
+            'is_active' => 'boolean',
+            'password' => 'hashed',
         ];
     }
 
-    /*
+    /**
+     * Build a user query filtered by search term, status, and role.
+     *
+     * This method returns a query builder if a search term is provided,
+     * applying optional filters for status (Activo/Inactivo) and role.
+     * 
+     * If no search term is given, returns null to prevent exposing all users.
+     *
+     * @param string|null $term   Search term for name or last name.
+     * @param string|null $status Status filter ('Activo', 'Inactivo', or 'Todos').
+     * @param string|null $role   Role name filter (or 'Todos').
+     * @return \Illuminate\Database\Eloquent\Builder|null
+     */
+    public static function searchWithFilters(?string $term, ?string $status, ?string $role)
+    {
+        $term = trim((string)$term);
+
+        if ($term === '') {
+            return null; // Return an empty builder.
+        }
+
+        $query = self::with('roles')
+            ->where(
+                fn($q) =>
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhere('last_name', 'like', "%{$term}%")
+            );
+
+        // Filter by status if aply.
+        if ($status !== null && $status !== '' && $status !== 'Todos') {
+            $isActive = $status === 'Activo' ? 1 : 0;
+            $query->where('is_active', $isActive);
+        }
+
+        // Filter by role if aply.
+        if ($role !== null && $role !== '' && $role !== 'Todos') {
+            $query->whereHas('roles', fn($q) => $q->where('name', $role));
+        }
+
+        return $query->orderBy('name', 'asc');
+    }
+
+    /**
      * Definitions of relationships with other models:
      * - Profesor
      * - Representante

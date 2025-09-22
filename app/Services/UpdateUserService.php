@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\User;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 
 class UpdateUserService
@@ -19,7 +18,6 @@ class UpdateUserService
     {
         return DB::transaction(function () use ($user, $data) {
 
-            // Actualizar la información básica del usuario
             $user->update([
                 'name'      => strtoupper($data['name']),
                 'last_name' => strtoupper($data['last_name']),
@@ -27,15 +25,23 @@ class UpdateUserService
                 'sex'       => $data['sex'],
             ]);
 
-            // Roles enviados desde el formulario; es un array vacío si no se seleccionó ninguno
+            // Sent roles from the form.
             $submittedRoles = $data['roles'] ?? [];
 
-            // Sincronizar roles: asigna los roles seleccionados y remueve los no seleccionados
-            $user->syncRoles($submittedRoles);
+            // Client roles.
+            $clientRoles = ['Representante', 'Estudiante'];
 
-            // Actualizar el estado de activación
-            // Si el usuario tiene al menos un rol, se activa. Si no tiene roles, se desactiva.
-            $user->is_active = !empty($submittedRoles);
+            // Get client roles to preserve.
+            $rolesToPreserve = $user->getRoleNames()->intersect($clientRoles)->toArray();
+
+            // Combine roles
+            $rolesToSync = array_merge($submittedRoles, $rolesToPreserve);
+
+            $user->syncRoles($rolesToSync);
+
+            // If user has an employee role is active (as employee), else deactive.
+            $employeeRoles = ['Supervisor', 'Administrador', 'Profesor'];
+            $user->is_active = $user->hasAnyRole($employeeRoles);
 
             $user->save();
 

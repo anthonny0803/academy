@@ -11,114 +11,64 @@ use App\Http\Requests\StoreRepresentativeRequest;
 use App\Http\Requests\UpdateRepresentativeRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use App\Traits\AuthorizesRedirect;
 
 class RepresentativeController extends Controller
 {
-    use AuthorizesRequests;
+    use AuthorizesRequests, AuthorizesRedirect;
 
-    /**
-     * Get the currently authenticated user.
-     *
-     * @return User
-     */
     protected function currentUser(): User
     {
         return Auth::user();
     }
 
     /**
-     * Display a listing of the representatives.
-     *
-     * @param Request $request
-     * @return View|RedirectResponse
+     * Display a listing of representatives.
+     * Applies optional search and status filters.
      */
     public function index(Request $request): View|RedirectResponse
     {
-        try {
-            $this->authorize('viewAny', Representative::class);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        return $this->authorizeOrRedirect('viewAny', Representative::class, function () use ($request) {
+            $search = trim($request->input('search', ''));
+            $status = $request->input('status');
 
-        $representatives = collect(); // Initialize an empty collection for representatives
-        $search = trim($request->input('search', '')); // Trim whitespace to prevent empty searches
+            // Only display if exists a search value.
+            $query = Representative::searchWithFilters($search, $status);
+            $representatives = $query ? $query->paginate(6) : collect();
 
-        // If there's a search term, filter representatives accordingly
-        if ($search !== '') {
-            $query = Representative::with(['user.roles'])
-                ->whereHas('user', function ($q) use ($search) {
-                    $q->role('Representante')
-                        ->where(function ($q2) use ($search) {
-                            $q2->where('name', 'like', "%{$search}%")
-                                ->orWhere('last_name', 'like', "%{$search}%");
-                        });
-                });
-
-            // Filter by representative status if provided
-            if ($request->filled('status') && $request->input('status') !== 'Todos') {
-                $isActive = $request->input('status') === 'Activo' ? 1 : 0;
-                $query->where('representatives.is_active', $isActive);
-            }
-
-            // Join with users table to order by user name
-            $query->join('users', 'representatives.user_id', '=', 'users.id')
-                ->orderBy('users.name', 'asc')
-                ->select('representatives.*');
-
-            $representatives = $query->paginate(6); // Paginate results, 6 per page
-        }
-
-        return view('representatives.index', compact('representatives'));
+            return view('representatives.index', compact('representatives'));
+        });
     }
 
     /**
-     * Display the specified representative.
-     *
-     * @param Representative $representative
-     * @return View|RedirectResponse
+     * Display a single representative.
      */
     public function show(Representative $representative): View|RedirectResponse
     {
-        try {
-            $this->authorize('view', $representative);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-
-        return view('representatives.show', compact('representative'));
+        return $this->authorizeOrRedirect('view', $representative, function () use ($representative) {
+            return view('representatives.show', compact('representative'));
+        });
     }
 
     /**
      * Show the form for creating a new representative.
-     *
-     * @return View|RedirectResponse
      */
     public function create(): View|RedirectResponse
     {
-        try {
-            $this->authorize('create', Representative::class);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-
-        return view('representatives.create');
+        return $this->authorizeOrRedirect('create', Representative::class, function () {
+            return view('representatives.create');
+        });
     }
 
     /**
-     * Store a newly created representative in storage.
-     *
-     * @param StoreRepresentativeRequest $request
-     * @param StoreRepresentativeService $storeService
-     * @return RedirectResponse
+     * Store a new representative.
      */
     public function store(StoreRepresentativeRequest $request, StoreRepresentativeService $storeService): RedirectResponse
     {
         try {
-            // Validación ya hecha por StoreRepresentativeRequest
             $representative = $storeService->handle($request->validated());
 
             return redirect()->route('students.create', ['representative' => $representative->id])
@@ -130,63 +80,41 @@ class RepresentativeController extends Controller
     }
 
     /**
-     * Show the form for editing the specified representative.
-     *
-     * @param Representative $representative
-     * @return View|RedirectResponse
+     * Show the form for editing an existing representative.
      */
     public function edit(Representative $representative): View|RedirectResponse
     {
-        try {
-            $this->authorize('edit', $representative);
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-
-        return view('representatives.edit', compact('representative'));
+        return $this->authorizeOrRedirect('edit', $representative, function () use ($representative) {
+            return view('representatives.edit', compact('representative'));
+        });
     }
 
     /**
-     * Update the specified representative in storage.
-     *
-     * @param UpdateRepresentativeRequest $request
-     * @param UpdateRepresentativeService $updateService
-     * @param Representative $representative
-     * @return RedirectResponse
+     * Update an existing representative.
      */
     public function update(UpdateRepresentativeRequest $request, UpdateRepresentativeService $updateService, Representative $representative): RedirectResponse
     {
         try {
             $result = $updateService->handle($representative, $request->validated());
 
-            if ($result['warning']) {
-                return redirect()->route('representatives.show', $result['representative'])
-                    ->with('warning', '¡Representante actualizado! Se han ignorado algunos campos sensibles de empleados.');
-            }
+            $route = redirect()->route('representatives.show', $result['representative']);
 
-            return redirect()->route('representatives.show', $result['representative'])
-                ->with('status', '¡Representante actualizado correctamente!');
+            return $result['warning']
+                ? $route->with('warning', '¡Representante actualizado! Se han ignorado algunos campos sensibles de empleados.')
+                : $route->with('status', '¡Representante actualizado correctamente!');
         } catch (\Exception $e) {
-            // Si hay un error, se redirige con un mensaje de error.
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
         }
     }
 
     /**
-     * Toggle the activation status of the specified representative.
-     *
-     * @param Representative $representative
-     * @param RepresentativeActivationService $activationService
-     * @return RedirectResponse
+     * Toggle the activation status of a representative.
      */
     public function toggleActivation(Representative $representative, RepresentativeActivationService $activationService): RedirectResponse
     {
         try {
-            // Delegate permission and toggle logic to the service
             $representative = $activationService->changeStatus($representative);
-
-            // Return success message based on new status
             $status = $representative->is_active ? 'activado' : 'desactivado';
 
             return redirect()->route('representatives.show', $representative)
