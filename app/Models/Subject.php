@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Subject extends Model
@@ -19,6 +20,25 @@ class Subject extends Model
         'name',
         'description',
     ];
+
+    /**
+     * Scope to filter subjects by search term.
+     *
+     * @param Builder $query
+     * @param string|null $term
+     * @return Builder
+     */
+    public function scopeSearch(Builder $query, ?string $term): Builder
+    {
+        $term = trim((string) $term);
+
+        if ($term === '') {
+            return $query; // Return unmodified query if no search term
+        }
+
+        return $query->where('name', 'like', "%{$term}%")
+            ->orWhere('description', 'like', "%{$term}%");
+    }
 
     /*
      * Definición de Relaciones del Modelo

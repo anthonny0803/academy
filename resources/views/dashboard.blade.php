@@ -17,10 +17,10 @@
 
                     {{-- Render content for Supervisor and Administrador --}}
                     @role('Supervisor|Administrador')
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                             {{-- Users card --}}
-                            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
                                 onclick="openModal('usersModal')">
                                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
                                     empleados</h5>
@@ -29,17 +29,16 @@
                             </div>
 
                             {{-- Representatives card --}}
-                            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
                                 onclick="openModal('representativesModal')">
                                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
                                     representantes</h5>
                                 <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
-                                    representantes de
-                                    la Academia.</p>
+                                    representantes de la Academia.</p>
                             </div>
 
                             {{-- Students card --}}
-                            <div class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
                                 onclick="openModal('studentsModal')">
                                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
                                     estudiantes</h5>
@@ -47,25 +46,39 @@
                                     de la Academia.</p>
                             </div>
 
-                            {{-- Un tercer Card de ejemplo --}}
+                            {{-- Subjects card --}}
+                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                onclick="openModal('subjectsModal')">
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
+                                    asignaturas</h5>
+                                <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de asignaturas.
+                                </p>
+                                </a>
+                            </div>
+
+                            {{-- Configuración del Sistema --}}
                             <a href="#"
-                                class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                                     Configuración del Sistema</h5>
                                 <p class="font-normal text-gray-700 dark:text-gray-400">Acceder a las opciones de
                                     configuración global.</p>
                             </a>
 
-                            {{-- Puedes añadir más cards aquí --}}
+                            {{-- Informes y Estadísticas --}}
                             <a href="#"
-                                class="block p-6 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Informes y
+                                class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                    Informes y
                                     Estadísticas</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Visualizar datos y reportes de la
+                                <p class="font-normal text-gray-700 dark:text-gray-400">Visualizar datos y reportes de
+                                    la
                                     academia.</p>
                             </a>
+
                         </div>
                     @endrole
+
                     {{-- End of Supervisor and Administrador render content --}}
 
                 </div>
@@ -111,9 +124,24 @@
             <div class="space-y-3">
                 <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
                     Registrar</a>
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y Gestionar</a>
+                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y
+                    Gestionar</a>
             </div>
             <button onclick="closeModal('studentsModal')" class="mt-6 text-red-500">Cerrar</button>
+        </div>
+    </div>
+
+    {{-- Subjects Modal --}}
+    <div id="subjectsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+            <h3 class="text-xl font-bold mb-6">Asignaturas</h3>
+            <div class="space-y-3">
+                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
+                    Registrar</a>
+                <a href="{{ route('subjects.index') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
+                    Buscar y Gestionar</a>
+            </div>
+            <button onclick="closeModal('subjectsModal')" class="mt-6 text-red-500">Cerrar</button>
         </div>
     </div>
 

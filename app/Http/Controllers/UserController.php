@@ -7,7 +7,6 @@ use Spatie\Permission\Models\Role;
 use App\Services\RoleAssignmentService;
 use App\Services\StoreUserService;
 use App\Services\UpdateUserService;
-use App\Services\UserActivationService;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -131,15 +130,14 @@ class UserController extends Controller
      * Toggle the activation status of a user.
      * Delegates status change to UserActivationService.
      */
-    public function toggleActivation(User $user, UserActivationService $activationService): RedirectResponse
+    public function toggleActivation(User $user): RedirectResponse
     {
-        try {
-            $user = $activationService->changeStatus($user);
+        return $this->authorizeOrRedirect('toggle', $user, function () use ($user) {
+            $user->activation(!$user->is_active); // Toggle usando el trait
             $status = $user->is_active ? 'activado' : 'desactivado';
+
             return redirect()->route('users.show', $user)
                 ->with('status', "¡Usuario {$status} correctamente!");
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        });
     }
 }

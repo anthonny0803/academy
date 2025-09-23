@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RepresentativeController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -53,6 +54,15 @@ Route::middleware('auth')->group(function () {
         Route::controller(StudentController::class)->group(function () {
             Route::get('students/{representative}/create', 'create')->name('students.create');
             Route::post('students/create', 'store')->name('students.store');
+        });
+
+        // Subject routes
+        Route::controller(SubjectController::class)->group(function () {
+            Route::get('subjects/index', 'index')->name('subjects.index');
+            Route::get('subjects/create', 'create')->name('subjects.create');
+            Route::post('subjects/create', 'store')->name('subjects.store');
+            Route::get('subjects/{subject}/edit', 'edit')->name('subjects.edit');
+            Route::delete('subjects/{subject}/delete', 'destroy')->name('subjects.destroy');
         });
     });
 });

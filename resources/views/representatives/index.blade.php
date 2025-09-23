@@ -104,7 +104,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="py-2 px-4 text-center text-gray-500">
+                                        <td colspan="6" class="py-2 px-4 text-center text-gray-300">
                                             @if (request()->filled('search'))
                                                 No se encontraron resultados
                                             @else

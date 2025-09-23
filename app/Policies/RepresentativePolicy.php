@@ -91,4 +91,23 @@ class RepresentativePolicy
             ? Response::allow()
             : Response::deny('No tienes autorización para eliminar representantes.');
     }
+
+    /**
+     * Determine whether the user can toggle the activation status of a representative.
+     *
+     * @param User $currentUser
+     * @param Representative $representative
+     * @return \Illuminate\Auth\Access\Response
+     */
+    public function toggle(User $currentUser, Representative $representative): Response
+    {
+        // Only Supervisor can change a representative status.
+        if (!$currentUser->hasRole('Supervisor')) {
+            return Response::deny(
+                'No tienes autorización para cambiar el estado de los representantes.'
+            );
+        }
+
+        return Response::allow();
+    }
 }

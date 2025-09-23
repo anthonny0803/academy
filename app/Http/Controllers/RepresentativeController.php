@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Representative;
 use App\Services\StoreRepresentativeService;
 use App\Services\UpdateRepresentativeService;
-use App\Services\RepresentativeActivationService;
 use App\Http\Requests\StoreRepresentativeRequest;
 use App\Http\Requests\UpdateRepresentativeRequest;
 use Illuminate\Http\RedirectResponse;
@@ -111,16 +110,14 @@ class RepresentativeController extends Controller
     /**
      * Toggle the activation status of a representative.
      */
-    public function toggleActivation(Representative $representative, RepresentativeActivationService $activationService): RedirectResponse
+    public function toggleActivation(Representative $representative): RedirectResponse
     {
-        try {
-            $representative = $activationService->changeStatus($representative);
+        return $this->authorizeOrRedirect('toggle', $representative, function () use ($representative) {
+            $representative->activation(!$representative->is_active);
             $status = $representative->is_active ? 'activado' : 'desactivado';
 
             return redirect()->route('representatives.show', $representative)
                 ->with('status', "¡Representante {$status} correctamente!");
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
+        });
     }
 }

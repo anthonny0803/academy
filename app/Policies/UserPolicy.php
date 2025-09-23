@@ -143,4 +143,35 @@ class UserPolicy
 
         return Response::allow();
     }
+
+    /**
+     * Determine whether the user can toggle the activation status of the model.
+     * @param User $currentUser
+     * @param User $targetUser
+     * @return Response
+     */
+    public function toggle(User $currentUser, User $targetUser): Response
+    {
+        // Prevent changing status of Developer
+        if ($targetUser->id === 1) {
+            return Response::deny('No se puede cambiar el estado de este usuario.');
+        }
+
+        // Cannot change own status
+        if ($currentUser->id === $targetUser->id) {
+            return Response::deny('No tienes autorización para cambiar el estado de tu usuario.');
+        }
+
+        // Supervisor cannot change the status of other Supervisors except Developer
+        if ($currentUser->hasRole('Supervisor') && $currentUser->id !== 1 && $targetUser->hasRole('Supervisor')) {
+            return Response::deny('No tienes autorización para cambiar el estado de este usuario.');
+        }
+
+        // Administrador cannot change higher or same roles
+        if ($currentUser->hasRole('Administrador') && $targetUser->hasRole(['Administrador', 'Supervisor'])) {
+            return Response::deny('No tienes autorización para cambiar el estado de usuarios con mismo tu rol o superiores.');
+        }
+
+        return Response::allow();
+    }
 }
