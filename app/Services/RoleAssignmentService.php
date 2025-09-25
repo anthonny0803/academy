@@ -6,12 +6,6 @@ use Spatie\Permission\Models\Role;
 
 class RoleAssignmentService
 {
-    /**
-     * Get assignable roles based on the current user's role.
-     *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Support\Collection
-     */
     public function getAssignableRoles($user)
     {
         if ($user->id === 1) {

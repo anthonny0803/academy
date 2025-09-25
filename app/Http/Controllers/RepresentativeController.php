@@ -24,10 +24,6 @@ class RepresentativeController extends Controller
         return Auth::user();
     }
 
-    /**
-     * Display a listing of representatives.
-     * Applies optional search and status filters.
-     */
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', Representative::class, function () use ($request) {
@@ -36,15 +32,12 @@ class RepresentativeController extends Controller
 
             // Only display if exists a search value.
             $query = Representative::searchWithFilters($search, $status);
-            $representatives = $query ? $query->paginate(6) : collect();
+            $representatives = $query ? $query->paginate(5) : collect();
 
             return view('representatives.index', compact('representatives'));
         });
     }
 
-    /**
-     * Display a single representative.
-     */
     public function show(Representative $representative): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('view', $representative, function () use ($representative) {
@@ -52,9 +45,6 @@ class RepresentativeController extends Controller
         });
     }
 
-    /**
-     * Show the form for creating a new representative.
-     */
     public function create(): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('create', Representative::class, function () {
@@ -62,9 +52,6 @@ class RepresentativeController extends Controller
         });
     }
 
-    /**
-     * Store a new representative.
-     */
     public function store(StoreRepresentativeRequest $request, StoreRepresentativeService $storeService): RedirectResponse
     {
         try {
@@ -78,9 +65,6 @@ class RepresentativeController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing an existing representative.
-     */
     public function edit(Representative $representative): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('edit', $representative, function () use ($representative) {
@@ -88,9 +72,6 @@ class RepresentativeController extends Controller
         });
     }
 
-    /**
-     * Update an existing representative.
-     */
     public function update(UpdateRepresentativeRequest $request, UpdateRepresentativeService $updateService, Representative $representative): RedirectResponse
     {
         try {
@@ -107,9 +88,6 @@ class RepresentativeController extends Controller
         }
     }
 
-    /**
-     * Toggle the activation status of a representative.
-     */
     public function toggleActivation(Representative $representative): RedirectResponse
     {
         return $this->authorizeOrRedirect('toggle', $representative, function () use ($representative) {

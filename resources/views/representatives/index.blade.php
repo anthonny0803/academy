@@ -5,15 +5,17 @@
                 <div class="p-6">
 
                     <h1 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Lista de Representantes</h1>
-                    <div class="mb-4">
 
-                        {{-- Search form --}}
-                        <form method="GET" action="{{ route('representatives.index') }}" class="flex gap-2">
+                    <!-- Contenedor del formulario y botón -->
+                    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+
+                        <!-- Formulario de búsqueda -->
+                        <form method="GET" action="{{ route('representatives.index') }}"
+                            class="flex gap-2 flex-wrap items-center">
                             <input type="text" name="search" placeholder="Buscar..." value="{{ request('search') }}"
                                 class="block w-80 rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 p-2"
                                 autocomplete="off" style="text-transform:uppercase;">
 
-                            {{-- Status filter --}}
                             <select name="status"
                                 class="block rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2">
                                 <option value="">Todos los estados</option>
@@ -24,16 +26,25 @@
                             </select>
 
                             <button type="submit"
-                                class="bg-indigo-600 text-white rounded-md px-4 py-2 hover:bg-indigo-700">Buscar</button>
-                            <a class="underline px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-                                href="{{ route('dashboard') }}">
-                                {{ __('Volver al Panel') }}
+                                class="bg-indigo-600 text-white rounded-md px-4 py-2 hover:bg-indigo-700">
+                                Buscar
+                            </button>
+
+                            <a href="{{ route('dashboard') }}"
+                                class="underline px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
+                                Volver al Panel
                             </a>
                         </form>
-                        {{-- End form --}}
+
+                        <!-- Botón para registrar representante alineado a la derecha -->
+                        <a href="{{ route('representatives.create') }}"
+                            class="bg-green-600 text-white rounded-md px-4 py-2 hover:bg-green-700">
+                            Registrar representante
+                        </a>
+
                     </div>
 
-                    {{-- Table --}}
+                    <!-- Tabla de representantes -->
                     <div class="overflow-x-auto">
                         <table
                             class="min-w-full text-white bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
@@ -50,14 +61,12 @@
                             <tbody>
                                 @forelse ($representatives as $representative)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                        {{-- Mostrar nombre y correo vía usuario relacionado --}}
                                         <td class="py-2 px-4 border-b">{{ $representative->user?->name ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">{{ $representative->user?->last_name ?? '-' }}
                                         </td>
                                         <td class="py-2 px-4 border-b">{{ $representative->user?->email ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">{{ $representative->user?->sex ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">
-                                            {{-- Mostrar roles del representante (vía usuario relacionado) --}}
                                             @if ($representative->user && $representative->user->roles->isNotEmpty())
                                                 @foreach ($representative->user->roles as $role)
                                                     <span
@@ -75,16 +84,15 @@
                                                 Acciones
                                             </button>
 
-                                            {{-- Dropdown actions --}}
+                                            <!-- Dropdown actions -->
                                             <div id="dropdown-template-{{ $representative->id }}" class="hidden">
                                                 <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
                                                     <li><a href="{{ route('representatives.show', $representative) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Ver</a>
                                                     </li>
-                                                    <li><a href="{{ route('students.create', $representative->id) }}"
+                                                    <li><a href="{{ route('representatives.students.create', $representative) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Asignar
-                                                            Estudiante</a>
-                                                    </li>
+                                                            Estudiante</a></li>
                                                     <li><a href="{{ route('representatives.edit', $representative) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
                                                     </li>
@@ -93,9 +101,7 @@
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit"
-                                                                class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600">
-                                                                Eliminar
-                                                            </button>
+                                                                class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600">Eliminar</button>
                                                         </form>
                                                     </li>
                                                 </ul>
@@ -115,10 +121,9 @@
                                 @endforelse
                             </tbody>
                         </table>
-                        {{-- End table --}}
                     </div>
 
-                    {{-- Pagination --}}
+                    <!-- Paginación -->
                     @if ($representatives->count() > 0)
                         <div class="mt-4">
                             {{ $representatives->appends(request()->except('page'))->links() }}
@@ -130,7 +135,7 @@
         </div>
     </div>
 
-    {{-- Script for dropdowns --}}
+    <!-- Script para dropdowns -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll("[data-dropdown-representative]").forEach(btn => {
@@ -138,16 +143,13 @@
                     const representativeId = btn.dataset.dropdownRepresentative;
                     let existing = document.getElementById("dropdownMenu-" + representativeId);
 
-                    // If it already exists and is open, close it
                     if (existing && !existing.classList.contains("hidden")) {
                         existing.remove();
                         return;
                     }
 
-                    // Close any other open dropdowns
                     document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
 
-                    // Clone template
                     const tpl = document.getElementById("dropdown-template-" + representativeId);
                     const clone = tpl.cloneNode(true);
                     clone.id = "dropdownMenu-" + representativeId;
@@ -158,7 +160,6 @@
                         "dark:border-gray-700", "rounded", "shadow-lg"
                     );
 
-                    // Calculate button position
                     const rect = btn.getBoundingClientRect();
                     const menuHeight = 160;
                     const espacioAbajo = window.innerHeight - rect.bottom;
@@ -175,12 +176,10 @@
                     }
 
                     clone.style.left = rect.left + "px";
-
                     document.body.appendChild(clone);
                 });
             });
 
-            // Close dropdown when clicking outside
             document.addEventListener("click", e => {
                 if (!e.target.closest("[data-dropdown-representative]") &&
                     !e.target.closest(".dropdown-clone")) {

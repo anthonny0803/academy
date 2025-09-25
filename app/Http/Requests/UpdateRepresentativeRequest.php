@@ -7,30 +7,16 @@ use Illuminate\Validation\Rule;
 
 class UpdateRepresentativeRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        // Get the representative first.
         $representative = $this->route('representative');
-
-        // Verify if the representative is an employee.
         $isEmployee = $representative->user->hasRole(['Supervisor', 'Administrador', 'Profesor']);
 
-        // Validation rules.
         $validationRules = [
             'phone'       => ['required', 'string', 'regex:/^[0-9]{9,13}$/', 'max:15'],
             'occupation'  => ['nullable', 'string', 'max:50'],
@@ -45,7 +31,6 @@ class UpdateRepresentativeRequest extends FormRequest
             ],
         ];
 
-        // If the representative is not an employee, allow updating sensitive fields.
         if ($isEmployee) {
             $validationRules['name'] = ['nullable', 'string', 'max:100'];
             $validationRules['last_name'] = ['nullable', 'string', 'max:100'];

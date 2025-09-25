@@ -25,10 +25,6 @@ class UserController extends Controller
         return Auth::user();
     }
 
-    /**
-     * Display a listing of users.
-     * Applies optional search, status, and role filters.
-     */
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', User::class, function () use ($request) {
@@ -39,15 +35,12 @@ class UserController extends Controller
 
             // Only display if exists a search value.
             $query = User::searchWithFilters($search, $status, $role);
-            $users = $query ? $query->paginate(6) : collect();
+            $users = $query ? $query->paginate(5) : collect();
 
             return view('users.index', compact('users', 'roles'));
         });
     }
 
-    /**
-     * Display a single user.
-     */
     public function show(User $user): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('view', $user, function () use ($user) {
@@ -55,10 +48,6 @@ class UserController extends Controller
         });
     }
 
-    /**
-     * Show the form to create a new user.
-     * Only roles assignable by the current user are provided.
-     */
     public function create(RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('create', User::class, function () use ($roleAssignmentService) {
@@ -67,10 +56,6 @@ class UserController extends Controller
         });
     }
 
-    /**
-     * Store a new user.
-     * Delegates creation logic to the StoreUserService.
-     */
     public function store(StoreUserRequest $request, StoreUserService $storeService): RedirectResponse
     {
         try {
@@ -79,14 +64,10 @@ class UserController extends Controller
                 ->with('status', '¡Usuario registrado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
-                ->with('error', 'Hubo un error al registrar el usuario.');
+                ->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * Show the form to edit an existing user.
-     * Only roles assignable by the current user are provided.
-     */
     public function edit(User $user, RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('edit', $user, function () use ($user, $roleAssignmentService) {
@@ -95,10 +76,6 @@ class UserController extends Controller
         });
     }
 
-    /**
-     * Update an existing user.
-     * Delegates update logic to the UpdateUserService.
-     */
     public function update(UpdateUserRequest $request, UpdateUserService $updateService, User $user): RedirectResponse
     {
         try {
@@ -107,13 +84,10 @@ class UserController extends Controller
                 ->with('status', '¡Usuario actualizado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
-                ->with('error', 'Hubo un error al actualizar el usuario.');
+                ->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * Delete a user along with their representative, if any.
-     */
     public function destroy(User $user): RedirectResponse
     {
         return $this->authorizeOrRedirect('delete', $user, function () use ($user) {
@@ -126,10 +100,6 @@ class UserController extends Controller
         });
     }
 
-    /**
-     * Toggle the activation status of a user.
-     * Delegates status change to UserActivationService.
-     */
     public function toggleActivation(User $user): RedirectResponse
     {
         return $this->authorizeOrRedirect('toggle', $user, function () use ($user) {

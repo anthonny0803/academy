@@ -85,7 +85,7 @@
 
                         <div id="dropdown-template-{{ $representative->id }}" class="hidden">
                             <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                                <li><a href="{{ route('students.create', $representative->id) }}"
+                                <li><a href="{{ route('representatives.students.create', $representative->id) }}"
                                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Asignar
                                         Estudiante</a>
                                 </li>

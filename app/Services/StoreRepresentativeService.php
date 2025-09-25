@@ -9,17 +9,9 @@ use Illuminate\Auth\Events\Registered;
 
 class StoreRepresentativeService
 {
-    /**
-     * Handle the representative creation process within a database transaction.
-     *
-     * @param array $data
-     * @return Representative
-     */
     public function handle(array $data): Representative
     {
         return DB::transaction(function () use ($data) {
-            // Usa 'firstOrCreate' para encontrar un usuario existente o crear uno nuevo
-            // basado en el email.
             $user = User::firstOrCreate(
                 ['email' => strtolower($data['email'])],
                 [
@@ -29,7 +21,6 @@ class StoreRepresentativeService
                 ]
             );
 
-            // Si el usuario ya existe, actualizamos su nombre y apellido.
             if (!$user->wasRecentlyCreated) {
                 $user->update([
                     'name' => strtoupper($data['name']),
@@ -38,16 +29,11 @@ class StoreRepresentativeService
                 ]);
             }
 
-            // Verifica si el usuario ya tiene el rol de representante.
             if ($user->hasRole('Representante')) {
-                // Lanza una excepción para que la transacción falle y el catch la capture.
                 throw new \Exception('Este usuario ya es un representante.');
             }
 
-            // Asigna el rol 'Representante' al usuario si no lo tiene
             $user->assignRole('Representante');
-
-            // Crea y guarda el registro del representante.
             $representative = Representative::create([
                 'user_id' => $user->id,
                 'document_id' => strtoupper($data['document_id']),
@@ -58,7 +44,6 @@ class StoreRepresentativeService
                 'is_active' => true,
             ]);
 
-            // Devuelve el objeto representante para que la variable fuera de la transacción lo capture.
             return $representative;
         });
     }

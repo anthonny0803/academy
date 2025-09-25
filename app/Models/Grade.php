@@ -7,14 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Grade extends Model
 {
-    use HasFactory; // Habilita el uso de factories para pruebas y seeders
+    use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     * Atributos que pueden ser asignados masivamente.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'subject_id',
         'enrollment_id',
@@ -24,45 +18,25 @@ class Grade extends Model
         'comments',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     * Define cómo ciertos atributos deben ser convertidos a tipos de datos nativos de PHP.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'grade_date' => 'date', // Conversión a booleano
-            'score' => 'decimal:2',  // Asegura que 'score' se trate como un decimal
+            'grade_date' => 'date',
+            'score' => 'decimal:2',
         ];
     }
 
-    /*
-     * Definición de Relaciones del Modelo
+    /**
+     * Definitions of relationships with other models:
      */
 
-    /**
-     * Get the subject that the grade belongs to.
-     * Obtiene la Asignatura a la que pertenece esta Calificación (muchos a uno).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function subject()
     {
-        // Una Calificación pertenece a una Asignatura
         return $this->belongsTo(Subject::class);
     }
 
-    /**
-     * Get the enrollment that the grade belongs to.
-     * Obtiene la Inscripción a la que pertenece esta Calificación (relación uno a muchos).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function enrollment()
     {
-        // Una Calificación pertenece a una Inscripción
         return $this->belongsTo(Enrollment::class);
     }
 }

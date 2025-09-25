@@ -5,15 +5,16 @@
                 <div class="p-6">
 
                     <h1 class="text-2xl font-bold mb-4 text-white dark:text-white">Lista de Usuarios</h1>
-                    <div class="mb-4">
 
-                        {{-- Search form --}}
-                        <form method="GET" action="{{ route('users.index') }}" class="flex gap-2 flex-wrap">
+                    <!-- Contenedor del formulario y botón -->
+                    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+
+                        <!-- Formulario de búsqueda -->
+                        <form method="GET" action="{{ route('users.index') }}" class="flex gap-2 flex-wrap items-center">
                             <input type="text" name="search" placeholder="Buscar..." value="{{ request('search') }}"
                                 class="block w-80 rounded-md border-gray-300 dark:border-gray-700 bg-gray-800 dark:bg-gray-900 text-white p-2"
                                 autocomplete="off" style="text-transform:uppercase;">
 
-                            {{-- Status filter --}}
                             <select name="status"
                                 class="block rounded-md border-gray-300 dark:border-gray-700 bg-gray-800 dark:bg-gray-900 text-white p-2">
                                 <option value="">Todos los estados</option>
@@ -23,7 +24,6 @@
                                     Inactivo</option>
                             </select>
 
-                            {{-- Role filter --}}
                             <select name="role"
                                 class="block rounded-md border-gray-300 dark:border-gray-700 bg-gray-800 dark:bg-gray-900 text-white p-2">
                                 <option value="">Todos los roles</option>
@@ -36,15 +36,25 @@
                             </select>
 
                             <button type="submit"
-                                class="bg-indigo-600 text-white rounded-md px-4 py-2 hover:bg-indigo-700">Buscar</button>
+                                class="bg-indigo-600 text-white rounded-md px-4 py-2 hover:bg-indigo-700">
+                                Buscar
+                            </button>
+
                             <a href="{{ route('dashboard') }}"
                                 class="underline px-4 py-2 text-sm text-white hover:text-gray-300 rounded-md">
                                 Volver al Panel
                             </a>
                         </form>
+
+                        <!-- Botón de crear usuario alineado a la derecha -->
+                        <a href="{{ route('users.create') }}"
+                            class="bg-green-600 text-white rounded-md px-4 py-2 hover:bg-green-700">
+                            Registrar usuario
+                        </a>
+
                     </div>
 
-                    {{-- Table --}}
+                    <!-- Tabla de usuarios -->
                     <div class="overflow-x-auto">
                         <table
                             class="min-w-full text-white bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
@@ -83,7 +93,7 @@
                                                 Acciones
                                             </button>
 
-                                            {{-- Dropdown actions --}}
+                                            <!-- Dropdown actions -->
                                             <div id="dropdown-template-{{ $user->id }}" class="hidden">
                                                 <ul class="py-1 text-sm text-gray-200">
                                                     @if ($user->hasRole('Profesor'))
@@ -127,7 +137,7 @@
                         </table>
                     </div>
 
-                    {{-- Pagination --}}
+                    <!-- Paginación -->
                     @if ($users->count() > 0)
                         <div class="mt-4 text-white">
                             {{ $users->appends(request()->except('page'))->links() }}
@@ -139,7 +149,7 @@
         </div>
     </div>
 
-    {{-- Script for dropdowns --}}
+    <!-- Script para dropdowns -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll("[data-dropdown-user]").forEach(btn => {
@@ -191,5 +201,4 @@
             });
         });
     </script>
-
 </x-app-layout>
