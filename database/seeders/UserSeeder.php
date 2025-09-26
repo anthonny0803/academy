@@ -24,7 +24,8 @@ class UserSeeder extends Seeder
                 'is_active' => true,
             ]
         );
-        $adminUser->assignRole('superAdmin'); // Asigna el rol de admin manualmente
+        $adminUser->is_developer = true;
+        $adminUser->assignRole('Supervisor'); // Asigna el rol de admin manualmente
 
         // 2. Crea 10 usuarios de prueba genéricos sin un rol específico.
         User::factory()->count(10)->create();

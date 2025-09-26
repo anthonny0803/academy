@@ -61,6 +61,6 @@ class StudentController extends Controller
 
             return $representative;
         });
-        return redirect()->route('students.create', ['representative' => $representative->id])->with('status', '¡Estudiante registrado con éxito!');
+        return redirect()->route('students.create', ['representative' => $representative->id])->with('success', '¡Estudiante registrado con éxito!');
     }
 }

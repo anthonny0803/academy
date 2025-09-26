@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password')->nullable(); // Contraseña del Usuario (Para inicio de sesión de empleado)
             $table->string('sex'); // Sexo del Usuario para auditoría
             $table->boolean('is_active')->default(true); // Estado del Usuario
+            $table->boolean('is_developer')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
@@ -37,7 +38,6 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->integer('last_activity')->index();
         });
-
     }
 
     /**

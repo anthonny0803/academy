@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\Activatable;
+use App\Enums\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -63,9 +64,7 @@ class User extends Authenticatable
         return $query->orderBy('name', 'asc');
     }
 
-    /**
-     * Definitions of relationships with other models:
-     */
+    // Relationships:
 
     public function teacher()
     {
@@ -82,13 +81,47 @@ class User extends Authenticatable
         return $this->hasOne(Student::class);
     }
 
+    // Roles:
+
+    public function isDeveloper(): bool
+    {
+        return $this->is_developer;
+    }
+
+    public function isSupervisor(): bool
+    {
+        return $this->hasRole(Role::Supervisor->value);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(Role::Admin->value);
+    }
+
+    public function isTeacher(): bool
+    {
+        return $this->hasRole(Role::Teacher->value);
+    }
+
     public function isRepresentative(): bool
     {
-        return $this->representative()->exists();
+        return $this->hasRole(Role::Representative->value);
     }
 
     public function isStudent(): bool
     {
-        return $this->student()->exists();
+        return $this->hasRole(Role::Student->value);
+    }
+
+    // Associated users:
+
+    public function hasStudents(): bool
+    {
+        return $this->students()->exists();
+    }
+
+    public function hasRepresentative(): bool
+    {
+        return $this->representative()->exists();
     }
 }

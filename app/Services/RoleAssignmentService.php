@@ -8,16 +8,12 @@ class RoleAssignmentService
 {
     public function getAssignableRoles($user)
     {
-        if ($user->id === 1) {
-            return Role::whereNotIn('name', ['Representante', 'Estudiante'])->get();
+        if ($user->isDeveloper()) {
+            return Role::whereNotIn('name', ['Profesor', 'Representante', 'Estudiante'])->get();
         }
 
-        if ($user->hasRole('Supervisor')) {
-            return Role::whereNotIn('name', ['Supervisor', 'Representante', 'Estudiante'])->get();
-        }
-
-        if ($user->hasRole('Administrador')) {
-            return Role::whereNotIn('name', ['Supervisor', 'Administrador', 'Representante', 'Estudiante'])->get();
+        if ($user->isSupervisor()) {
+            return Role::whereNotIn('name', ['Supervisor', 'Profesor', 'Representante', 'Estudiante'])->get();
         }
 
         return collect();

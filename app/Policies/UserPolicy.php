@@ -9,7 +9,7 @@ class UserPolicy
 {
     public function viewAny(User $currentUser): Response
     {
-        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
+        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
             return Response::deny('No tienes autorización para ver el módulo de usuarios.');
         }
 
@@ -18,15 +18,15 @@ class UserPolicy
 
     public function view(User $currentUser, User $targetUser): Response
     {
-        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
+        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
-        if ($targetUser->id === 1 && $currentUser->id !== 1) {
+        if ($targetUser->isDeveloper() && !$currentUser->isDeveloper()) {
             return Response::deny('No tienes autorización para ver este usuario.');
         }
 
-        if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('Supervisor'))) {
+        if ($currentUser->isAdmin() && $targetUser->isSupervisor()) {
             return Response::deny('No tienes autorización para ver este usuario.');
         }
 
@@ -35,7 +35,7 @@ class UserPolicy
 
     public function create(User $currentUser): Response
     {
-        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
+        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
             return Response::deny('No tienes autorización para crear usuarios.');
         }
 
@@ -44,11 +44,11 @@ class UserPolicy
 
     public function edit(User $currentUser, User $targetUser): Response
     {
-        if (!$currentUser->hasRole(['Supervisor', 'Administrador']) && $currentUser->id !== 1) {
+        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
-        if ($targetUser->id === 1) {
+        if ($targetUser->isDeveloper()) {
             return Response::deny('No se puede modificar este usuario.');
         }
 
@@ -56,11 +56,11 @@ class UserPolicy
             return Response::deny('No puedes modificar tu usuario.');
         }
 
-        if ($currentUser->hasRole('Supervisor') && $currentUser->id !== 1 && $targetUser->hasRole('Supervisor')) {
+        if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No tienes autorización para modificar usuarios con tu rol.');
         }
 
-        if ($currentUser->hasRole('Administrador') && ($targetUser->hasRole('Administrador') || $targetUser->hasRole('Supervisor'))) {
+        if ($currentUser->isAdmin() && ($targetUser->isAdmin() || $targetUser->isSupervisor())) {
             return Response::deny('No tienes autorización para modificar usuarios con tu rol o roles superiores.');
         }
 
@@ -69,15 +69,15 @@ class UserPolicy
 
     public function delete(User $currentUser, User $targetUser): Response
     {
-        if (!$currentUser->hasRole('Supervisor') && $currentUser->id !== 1) {
+        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
-        if ($targetUser->id === 1) {
+        if ($targetUser->isDeveloper()) {
             return Response::deny('No puedes eliminar este usuario.');
         }
 
-        if ($currentUser->hasRole('Supervisor') && $currentUser->id !== 1 && $targetUser->hasRole('Supervisor')) {
+        if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No puedes eliminar usuarios con tu rol.');
         }
 
@@ -89,7 +89,7 @@ class UserPolicy
             return Response::deny('No puedes eliminar tu usuario.');
         }
 
-        if ($currentUser && $targetUser->representative?->students()->exists()) {
+        if ($targetUser->isRepresentative() && $targetUser->hasStudents()) {
             return Response::deny('No puedes eliminar a un usuario que tiene estudiantes.');
         }
 
@@ -98,7 +98,7 @@ class UserPolicy
 
     public function toggle(User $currentUser, User $targetUser): Response
     {
-        if ($targetUser->id === 1) {
+        if ($targetUser->isDeveloper()) {
             return Response::deny('No se puede cambiar el estado de este usuario.');
         }
 
@@ -106,11 +106,11 @@ class UserPolicy
             return Response::deny('No tienes autorización para cambiar el estado de tu usuario.');
         }
 
-        if ($currentUser->hasRole('Supervisor') && $currentUser->id !== 1 && $targetUser->hasRole('Supervisor')) {
+        if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No tienes autorización para cambiar el estado de este usuario.');
         }
 
-        if ($currentUser->hasRole('Administrador') && $targetUser->hasRole(['Administrador', 'Supervisor'])) {
+        if ($currentUser->isAdmin() && ($targetUser->isAdmin() || $targetUser->isSupervisor())) {
             return Response::deny('No tienes autorización para cambiar el estado de usuarios con mismo tu rol o superiores.');
         }
 

@@ -61,7 +61,7 @@ class UserController extends Controller
         try {
             $user = $storeService->handle($request->validated());
             return redirect()->route('users.show', $user)
-                ->with('status', '¡Usuario registrado correctamente!');
+                ->with('success', '¡Usuario registrado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
@@ -81,7 +81,7 @@ class UserController extends Controller
         try {
             $user = $updateService->handle($user, $request->validated());
             return redirect()->route('users.show', $user)
-                ->with('status', '¡Usuario actualizado correctamente!');
+                ->with('success', '¡Usuario actualizado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
@@ -91,12 +91,12 @@ class UserController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         return $this->authorizeOrRedirect('delete', $user, function () use ($user) {
-            if ($user->representative?->exists()) {
+            if ($user->isRepresentative() && !$user->hasStudents()) {
                 $user->representative()->delete();
             }
             $user->delete();
             return redirect()->route('users.index')
-                ->with('status', '¡Usuario eliminado correctamente!');
+                ->with('success', '¡Usuario eliminado correctamente!');
         });
     }
 
@@ -107,7 +107,7 @@ class UserController extends Controller
             $status = $user->is_active ? 'activado' : 'desactivado';
 
             return redirect()->route('users.show', $user)
-                ->with('status', "¡Usuario {$status} correctamente!");
+                ->with('success', "¡Usuario {$status} correctamente!");
         });
     }
 }

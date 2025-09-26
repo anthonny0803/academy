@@ -22,9 +22,19 @@
                             {{-- Users card --}}
                             <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
                                 onclick="openModal('usersModal')">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
-                                    empleados</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de empleados de
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                    Modulo de usuarios</h5>
+                                <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de usuarios de
+                                    la Academia.</p>
+                            </div>
+
+                            {{-- Teachers card (Nuevo módulo) --}}
+                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                onclick="openModal('teachersModal')">
+                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                    Modulo de profesores</h5>
+                                <p class="font-normal text-gray-700 dark:text-gray-400">Menú para la Gestión de profesores
+                                    de
                                     la Academia.</p>
                             </div>
 
@@ -53,7 +63,6 @@
                                     asignaturas</h5>
                                 <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de asignaturas.
                                 </p>
-                                </a>
                             </div>
 
                             {{-- Configuración del Sistema --}}
@@ -87,61 +96,72 @@
     </div>
 
     {{-- Users Modal --}}
-    <div id="usersModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
-            <h3 class="text-xl font-bold mb-6">Empleados</h3>
+    <div id="usersModal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+            <h3 class="text-xl font-bold mb-6">Usuarios</h3>
             <div class="space-y-3">
                 <a href="{{ route('users.create') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
                     Registrar</a>
                 <a href="{{ route('users.index') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
                     Buscar y Gestionar</a>
             </div>
-            <button onclick="closeModal('usersModal')" class="mt-6 text-red-500">Cerrar</button>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
+        </div>
+    </div>
+
+    {{-- Teachers Modal --}}
+    <div id="teachersModal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+            <h3 class="text-xl font-bold mb-6">Profesores</h3>
+            <div class="space-y-3">
+                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕ Registrar</a>
+                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y Gestionar</a>
+            </div>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
         </div>
     </div>
 
     {{-- Representatives Modal --}}
     <div id="representativesModal"
-        class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
             <h3 class="text-xl font-bold mb-6">Representantes</h3>
             <div class="space-y-3">
                 <a href="{{ route('representatives.create') }}"
-                    class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
-                    Registrar</a>
+                    class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕ Registrar</a>
                 <a href="{{ route('representatives.index') }}"
-                    class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
-                    Buscar y Gestionar</a>
+                    class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y Gestionar</a>
             </div>
-            <button onclick="closeModal('representativesModal')" class="mt-6 text-red-500">Cerrar</button>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
         </div>
     </div>
 
     {{-- Students Modal --}}
-    <div id="studentsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+    <div id="studentsModal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
             <h3 class="text-xl font-bold mb-6">Estudiantes</h3>
             <div class="space-y-3">
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
-                    Registrar</a>
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y
-                    Gestionar</a>
+                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕ Registrar</a>
+                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y Gestionar</a>
             </div>
-            <button onclick="closeModal('studentsModal')" class="mt-6 text-red-500">Cerrar</button>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
         </div>
     </div>
 
     {{-- Subjects Modal --}}
-    <div id="subjectsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+    <div id="subjectsModal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
             <h3 class="text-xl font-bold mb-6">Asignaturas</h3>
             <div class="space-y-3">
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
-                    Registrar</a>
+                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕ Registrar</a>
                 <a href="{{ route('subjects.index') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
                     Buscar y Gestionar</a>
             </div>
-            <button onclick="closeModal('subjectsModal')" class="mt-6 text-red-500">Cerrar</button>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
         </div>
     </div>
 
@@ -151,8 +171,20 @@
             document.getElementById(id).classList.remove('hidden');
         }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
+        // Cerrar modal al hacer click en el botón
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.target.closest('.modal').classList.add('hidden');
+            });
+        });
+
+        // Cerrar modal al hacer click fuera del contenido
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
     </script>
 </x-app-layout>

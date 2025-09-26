@@ -9,7 +9,7 @@ class SubjectPolicy
 {
     public function viewAny(User $currentUser): Response
     {
-        return $currentUser->hasRole(['Supervisor']) || $currentUser->id === 1
+        return $currentUser->isSupervisor() || $currentUser->isDeveloper()
             ? Response::allow()
             : Response::deny('No tienes autorización para ver el módulo de asignaturas.');
     }

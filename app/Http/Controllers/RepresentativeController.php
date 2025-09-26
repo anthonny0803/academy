@@ -58,7 +58,7 @@ class RepresentativeController extends Controller
             $representative = $storeService->handle($request->validated());
 
             return redirect()->route('students.create', ['representative' => $representative->id])
-                ->with('status', '¡Representante registrado correctamente!');
+                ->with('success', '¡Representante registrado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
@@ -81,7 +81,7 @@ class RepresentativeController extends Controller
 
             return $result['warning']
                 ? $route->with('warning', '¡Representante actualizado! Se han ignorado algunos campos sensibles de empleados.')
-                : $route->with('status', '¡Representante actualizado correctamente!');
+                : $route->with('success', '¡Representante actualizado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
@@ -95,7 +95,7 @@ class RepresentativeController extends Controller
             $status = $representative->is_active ? 'activado' : 'desactivado';
 
             return redirect()->route('representatives.show', $representative)
-                ->with('status', "¡Representante {$status} correctamente!");
+                ->with('success', "¡Representante {$status} correctamente!");
         });
     }
 }

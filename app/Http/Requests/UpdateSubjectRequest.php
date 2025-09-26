@@ -17,7 +17,7 @@ class UpdateSubjectRequest extends FormRequest
         $subject = $this->route('subject');
 
         return [
-            'name' => ['required', 'string', 'max:100', Rule::unique('subjects')->ignore($subject->id),],
+            'name' => ['required', 'string', 'max:100', Rule::unique('subjects')->ignore($subject->id)],
             'description' => ['required', 'string', 'max:255'],
         ];
     }

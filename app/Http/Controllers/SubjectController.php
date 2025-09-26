@@ -36,27 +36,34 @@ class SubjectController extends Controller
         });
     }
 
-    public function store(StoreSubjectRequest $request, StoreSubjectService $storeService)
+    public function store(StoreSubjectRequest $request, StoreSubjectService $storeService): RedirectResponse
     {
         try {
             $storeService->handle($request->validated());
             return redirect()->route('subjects.index')
-                ->with('status', '¡Asignatura registrada correctamente!');
+                ->with('success', '¡Asignatura registrada correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
         }
     }
 
-    public function update(UpdateSubjectRequest $request, UpdateSubjectService $updateService, Subject $subject)
+    public function update(UpdateSubjectRequest $request, UpdateSubjectService $updateService, Subject $subject): RedirectResponse
     {
         try {
             $subject = $updateService->handle($subject, $request->validated());
             return redirect()->route('subjects.index')
-                ->with('status', '¡Asignatura actualizada correctamente!');
+                ->with('success', '¡Asignatura actualizada correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
         }
+    }
+
+    public function destroy(Subject $subject): RedirectResponse
+    {
+        $subject->delete();
+        return redirect()->route('subjects.index')
+            ->with('success', '¡Asignatura eliminada correctamente!');
     }
 }

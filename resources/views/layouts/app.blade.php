@@ -37,14 +37,14 @@
 
     {{-- Alert modal for sessions --}}
     @php
-        $showModal = session('status') || session('error') || session('warning');
+        $showModal = session('success') || session('error') || session('warning');
     @endphp
 
     <x-modal name="alertModal" :show="$showModal" maxWidth="md">
         <div class="p-6 text-center">
-            @if (session('status'))
+            @if (session('success'))
                 <h3 class="text-xl font-semibold text-green-600 mb-2">¡Éxito!</h3>
-                <p class="text-gray-800">{{ session('status') }}</p>
+                <p class="text-gray-800">{{ session('success') }}</p>
             @endif
 
             @if (session('error'))
