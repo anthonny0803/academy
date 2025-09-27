@@ -91,7 +91,7 @@ class UserController extends Controller
     public function destroy(User $user): RedirectResponse
     {
         return $this->authorizeOrRedirect('delete', $user, function () use ($user) {
-            if ($user->isRepresentative() && !$user->hasStudents()) {
+            if ($user->isRepresentative() && !$user->representative->hasStudents()) {
                 $user->representative()->delete();
             }
             $user->delete();
@@ -103,7 +103,7 @@ class UserController extends Controller
     public function toggleActivation(User $user): RedirectResponse
     {
         return $this->authorizeOrRedirect('toggle', $user, function () use ($user) {
-            $user->activation(!$user->is_active); // Toggle usando el trait
+            $user->activation(!$user->is_active);
             $status = $user->is_active ? 'activado' : 'desactivado';
 
             return redirect()->route('users.show', $user)

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\RepresentativeController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
@@ -22,6 +23,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class);
         Route::patch('users/{user}/toggle', [UserController::class, 'toggleActivation'])
             ->name('users.toggle');
+        Route::resource('teachers', TeacherController::class);
+        Route::patch('teachers/{teacher}/toggle', [TeacherController::class, 'toggleActivation'])
+            ->name('teachers.toggle');
         Route::resource('representatives', RepresentativeController::class);
         Route::patch('representatives/{representative}/toggle', [RepresentativeController::class, 'toggleActivation'])
             ->name('representatives.toggle');

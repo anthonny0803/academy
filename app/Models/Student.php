@@ -34,9 +34,7 @@ class Student extends Model
         $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
     }
 
-    /**
-     * Definitions of relationships with other models:
-     */
+    // Relationships:
 
     public function user()
     {
@@ -63,5 +61,10 @@ class Student extends Model
             'id',
             'id'
         );
+    }
+
+    public function hasRepresentative(): bool
+    {
+        return $this->representative()->exists();
     }
 }

@@ -116,7 +116,8 @@
         <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
             <h3 class="text-xl font-bold mb-6">Profesores</h3>
             <div class="space-y-3">
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕ Registrar</a>
+                <a href="{{ route('teachers.create') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
+                    Registrar</a>
                 <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y Gestionar</a>
             </div>
             <button class="close-btn mt-6 text-red-500">Cerrar</button>
@@ -157,9 +158,8 @@
         <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
             <h3 class="text-xl font-bold mb-6">Asignaturas</h3>
             <div class="space-y-3">
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕ Registrar</a>
                 <a href="{{ route('subjects.index') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
-                    Buscar y Gestionar</a>
+                    Buscar <br>➕ Registrar y Gestionar</a>
             </div>
             <button class="close-btn mt-6 text-red-500">Cerrar</button>
         </div>

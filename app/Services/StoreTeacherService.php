@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Teacher;
 use App\Models\User;
-use App\Models\Representative;
 use Illuminate\Support\Facades\DB;
 
-class StoreRepresentativeService
+class StoreTeacherService
 {
-    public function handle(array $data): Representative
+    public function handle(array $data): Teacher
     {
         return DB::transaction(function () use ($data) {
             $user = User::firstOrCreate(
@@ -17,6 +17,7 @@ class StoreRepresentativeService
                     'name' => strtoupper($data['name']),
                     'last_name' => strtoupper($data['last_name']),
                     'sex' => $data['sex'],
+                    'password' => $data['password'],
                 ]
             );
 
@@ -28,22 +29,17 @@ class StoreRepresentativeService
                 ]);
             }
 
-            if ($user->hasRole('Representante')) {
-                throw new \Exception('Este usuario ya es un representante.');
+            if ($user->hasRole('Profesor')) {
+                throw new \Exception('Este usuario ya es un profesor.');
             }
 
-            $user->assignRole('Representante');
-            $representative = Representative::create([
+            $user->assignRole('Profesor');
+            $teacher = Teacher::create([
                 'user_id' => $user->id,
-                'document_id' => strtoupper($data['document_id']),
-                'phone' => $data['phone'],
-                'occupation' => strtoupper($data['occupation']),
-                'address' => strtoupper($data['address']),
-                'birth_date' => $data['birth_date'],
                 'is_active' => true,
             ]);
 
-            return $representative;
+            return $teacher;
         });
     }
 }

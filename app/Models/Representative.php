@@ -65,10 +65,7 @@ class Representative extends Model
         return $query;
     }
 
-
-    /**
-     * Definitions of relationships with other models:
-     */
+    // Relationships:
 
     public function user()
     {
@@ -78,5 +75,10 @@ class Representative extends Model
     public function students()
     {
         return $this->hasMany(Student::class);
+    }
+
+    public function hasStudents(): bool
+    {
+        return $this->students()->exists();
     }
 }

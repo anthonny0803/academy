@@ -26,10 +26,6 @@ class UserPolicy
             return Response::deny('No tienes autorización para ver este usuario.');
         }
 
-        if ($currentUser->isAdmin() && $targetUser->isSupervisor()) {
-            return Response::deny('No tienes autorización para ver este usuario.');
-        }
-
         return Response::allow();
     }
 
@@ -58,10 +54,6 @@ class UserPolicy
 
         if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No tienes autorización para modificar usuarios con tu rol.');
-        }
-
-        if ($currentUser->isAdmin() && ($targetUser->isAdmin() || $targetUser->isSupervisor())) {
-            return Response::deny('No tienes autorización para modificar usuarios con tu rol o roles superiores.');
         }
 
         return Response::allow();
@@ -98,6 +90,10 @@ class UserPolicy
 
     public function toggle(User $currentUser, User $targetUser): Response
     {
+        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
+            return Response::deny('No tienes autorización para realizar esta acción.');
+        }
+
         if ($targetUser->isDeveloper()) {
             return Response::deny('No se puede cambiar el estado de este usuario.');
         }
@@ -108,10 +104,6 @@ class UserPolicy
 
         if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No tienes autorización para cambiar el estado de este usuario.');
-        }
-
-        if ($currentUser->isAdmin() && ($targetUser->isAdmin() || $targetUser->isSupervisor())) {
-            return Response::deny('No tienes autorización para cambiar el estado de usuarios con mismo tu rol o superiores.');
         }
 
         return Response::allow();

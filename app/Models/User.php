@@ -112,16 +112,4 @@ class User extends Authenticatable
     {
         return $this->hasRole(Role::Student->value);
     }
-
-    // Associated users:
-
-    public function hasStudents(): bool
-    {
-        return $this->students()->exists();
-    }
-
-    public function hasRepresentative(): bool
-    {
-        return $this->representative()->exists();
-    }
 }

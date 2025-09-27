@@ -57,7 +57,7 @@ class RepresentativeController extends Controller
         try {
             $representative = $storeService->handle($request->validated());
 
-            return redirect()->route('students.create', ['representative' => $representative->id])
+            return redirect()->route('representatives.students.create', ['representative' => $representative->id])
                 ->with('success', '¡Representante registrado correctamente!');
         } catch (\Exception $e) {
             return redirect()->back()->withInput()
