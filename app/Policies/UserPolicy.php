@@ -7,22 +7,25 @@ use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
+    private function isActiveWithHighRole(User $user): bool
+    {
+        return $user->isActive() && ($user->isSupervisor() || $user->isDeveloper());
+    }
+
     public function viewAny(User $currentUser): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
-            return Response::deny('No tienes autorización para ver el módulo de usuarios.');
-        }
-
-        return Response::allow();
+        return $this->isActiveWithHighRole($currentUser)
+            ? Response::allow()
+            : Response::deny('No tienes autorización para ver el módulo de usuarios.');
     }
 
     public function view(User $currentUser, User $targetUser): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
+        if (! $this->isActiveWithHighRole($currentUser)) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
-        if ($targetUser->isDeveloper() && !$currentUser->isDeveloper()) {
+        if ($targetUser->isDeveloper() && ! $currentUser->isDeveloper()) {
             return Response::deny('No tienes autorización para ver este usuario.');
         }
 
@@ -31,16 +34,14 @@ class UserPolicy
 
     public function create(User $currentUser): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
-            return Response::deny('No tienes autorización para crear usuarios.');
-        }
-
-        return Response::allow();
+        return $this->isActiveWithHighRole($currentUser)
+            ? Response::allow()
+            : Response::deny('No tienes autorización para crear usuarios.');
     }
 
     public function edit(User $currentUser, User $targetUser): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
+        if (! $this->isActiveWithHighRole($currentUser)) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
@@ -52,7 +53,7 @@ class UserPolicy
             return Response::deny('No puedes modificar tu usuario.');
         }
 
-        if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
+        if ($currentUser->isSupervisor() && ! $currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No tienes autorización para modificar usuarios con tu rol.');
         }
 
@@ -61,7 +62,7 @@ class UserPolicy
 
     public function delete(User $currentUser, User $targetUser): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
+        if (! $this->isActiveWithHighRole($currentUser)) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
@@ -69,7 +70,7 @@ class UserPolicy
             return Response::deny('No puedes eliminar este usuario.');
         }
 
-        if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
+        if ($currentUser->isSupervisor() && ! $currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No puedes eliminar usuarios con tu rol.');
         }
 
@@ -90,7 +91,7 @@ class UserPolicy
 
     public function toggle(User $currentUser, User $targetUser): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isDeveloper()) {
+        if (! $this->isActiveWithHighRole($currentUser)) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
@@ -102,7 +103,7 @@ class UserPolicy
             return Response::deny('No tienes autorización para cambiar el estado de tu usuario.');
         }
 
-        if ($currentUser->isSupervisor() && !$currentUser->isDeveloper() && $targetUser->isSupervisor()) {
+        if ($currentUser->isSupervisor() && ! $currentUser->isDeveloper() && $targetUser->isSupervisor()) {
             return Response::deny('No tienes autorización para cambiar el estado de este usuario.');
         }
 

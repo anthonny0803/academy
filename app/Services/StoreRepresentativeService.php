@@ -12,8 +12,8 @@ class StoreRepresentativeService
     {
         return DB::transaction(function () use ($data) {
             $user = User::firstOrCreate(
+                ['email' => strtolower($data['email'])],
                 [
-                    'email' => strtolower($data['email']),
                     'name' => strtoupper($data['name']),
                     'last_name' => strtoupper($data['last_name']),
                     'sex' => $data['sex'],
@@ -28,7 +28,7 @@ class StoreRepresentativeService
                 ]);
             }
 
-            if ($user->hasRole('Representante')) {
+            if ($user->isRepresentative()) {
                 throw new \Exception('Este usuario ya es un representante.');
             }
 

@@ -21,13 +21,10 @@ class Representative extends Model
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-            'birth_date' => 'date',
-        ];
-    }
+    protected $casts = [
+        'is_active' => 'boolean',
+        'birth_date' => 'date',
+    ];
 
     public function setBirthDateAttribute($value)
     {
@@ -63,6 +60,11 @@ class Representative extends Model
             ->select('representatives.*');
 
         return $query;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
     }
 
     // Relationships:

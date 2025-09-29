@@ -4,25 +4,36 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Auth\Events\Registered;
 
 class StoreUserService
 {
     public function handle(array $data): User
     {
         return DB::transaction(function () use ($data) {
-            $user = User::create([
-                'name' => strtoupper($data['name']),
-                'last_name' => strtoupper($data['last_name']),
-                'email' => strtolower($data['email']),
-                'sex' => $data['sex'],
-                'password' => $data['password'],
-                'is_active' => true,
-            ]);
+            $user = User::firstOrCreate(
+                ['email' => strtolower($data['email'])],
+                [
+                    'name' => strtoupper($data['name']),
+                    'last_name' => strtoupper($data['last_name']),
+                    'sex' => $data['sex'],
+                    'password' => bcrypt($data['password']),
+                    'is_active' => true,
+                ]
+            );
 
-            $user->assignRole($data['role']);
+            if (!$user->wasRecentlyCreated) {
+                $user->update([
+                    'name' => strtoupper($data['name']),
+                    'last_name' => strtoupper($data['last_name']),
+                    'sex' => $data['sex'],
+                    'password' => $data['password'],
+                    'is_active' => true,
+                ]);
+            }
 
-            event(new Registered($user));
+            if (!$user->hasRole($data['role'])) {
+                $user->assignRole($data['role']);
+            }
 
             return $user;
         });

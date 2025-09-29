@@ -8,38 +8,48 @@ use Illuminate\Auth\Access\Response;
 
 class RepresentativePolicy
 {
+    private function isActiveWithAllRole(User $user): bool
+    {
+        return $user->isActive() && ($user->isSupervisor() || $user->isAdmin() || $user->isDeveloper());
+    }
+
+    private function isActiveWithHighRole(User $user): bool
+    {
+        return $user->isActive() && ($user->isSupervisor() || $user->isDeveloper());
+    }
+
     public function viewAny(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para ver el módulo de representantes.');
     }
 
     public function view(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para ver representantes.');
     }
 
     public function create(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para crear representantes.');
     }
 
     public function edit(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
-            : Response::deny('No tienes autorización para editar este representante.');
+            : Response::deny('No tienes autorización para editar representantes.');
     }
 
     public function update(User $currentUser, Representative $representative): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isAdmin() && !$currentUser->isDeveloper()) {
-            return Response::deny('No tienes autorización para editar representantes.');
+        if (! $this->isActiveWithAllRole($currentUser)) {
+            return Response::deny('No tienes autorización para actualizar representantes.');
         }
 
         if ($representative->user->isSupervisor() || $representative->user->isAdmin() || $representative->user->isTeacher()) {
@@ -51,14 +61,14 @@ class RepresentativePolicy
 
     public function delete(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isDeveloper()
+        return $this->isActiveWithHighRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para eliminar representantes.');
     }
 
     public function toggle(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isDeveloper()
+        return $this->isActiveWithHighRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para cambiar el estado de los representantes.');
     }

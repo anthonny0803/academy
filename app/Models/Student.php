@@ -21,17 +21,19 @@ class Student extends Model
         'is_active',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-            'birth_date' => 'date',
-        ];
-    }
+    protected $casts = [
+        'is_active' => 'boolean',
+        'birth_date' => 'date',
+    ];
 
     public function setBirthDateAttribute($value)
     {
         $this->attributes['birth_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
     }
 
     // Relationships:

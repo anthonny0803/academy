@@ -28,13 +28,11 @@ class User extends Authenticatable
     ];
 
 
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'is_active' => 'boolean',
+        'password' => 'hashed',
+    ];
+
 
     public static function searchWithFilters(?string $term, ?string $status, ?string $role)
     {
@@ -63,6 +61,12 @@ class User extends Authenticatable
 
         return $query->orderBy('name', 'asc');
     }
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
+
 
     // Relationships:
 

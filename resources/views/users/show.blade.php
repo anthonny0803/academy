@@ -35,7 +35,7 @@
                     {{-- Toggle active state --}}
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Estado de Empleado
+                            Estado de Administrador/Supervisor
                         </label>
                         <div class="mt-1 flex items-center space-x-2">
                             <form method="POST" action="{{ route('users.toggle', $user) }}">

@@ -26,17 +26,18 @@ class TeacherController extends Controller
 
     public function index(Request $request): View|RedirectResponse
     {
-        $this->authorize('viewAny', Teacher::class);
+        return $this->authorizeOrRedirect('viewAny', Teacher::class, function () use ($request) {
+            $search = trim($request->input('search', ''));
+            $status = $request->input('status');
 
-        $search = trim((string) $request->input('search', ''));
-        $status = $request->input('status');
+            // Solo mostrar resultados si hay un término de búsqueda
+            $query = Teacher::searchWithFilters($search, $status);
+            $teachers = $query ? $query->paginate(5) : collect();
 
-        // Only display if exists a search value.
-        $query = Teacher::searchWithFilters($search, $status);
-        $teachers = $query ? $query->paginate(5) : collect();
-
-        return view('teachers.index', compact('teachers'));
+            return view('teachers.index', compact('teachers'));
+        });
     }
+
 
     public function show(Teacher $teacher): View|RedirectResponse
     {
@@ -97,8 +98,8 @@ class TeacherController extends Controller
     public function toggleActivation(Teacher $teacher): RedirectResponse
     {
         return $this->authorizeOrRedirect('toggle', $teacher, function () use ($teacher) {
-            $teacher->activation(!$teacher->is_active);
-            $status = $teacher->is_active ? 'activado' : 'desactivado';
+            $teacher->activation(!$teacher->isActive());
+            $status = $teacher->isActive() ? 'activado' : 'desactivado';
 
             return redirect()->route('teachers.show', $teacher)
                 ->with('success', "¡Profesor {$status} correctamente!");

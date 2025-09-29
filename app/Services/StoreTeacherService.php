@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Teacher;
 use App\Models\User;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
 
 class StoreTeacherService
@@ -12,12 +12,13 @@ class StoreTeacherService
     {
         return DB::transaction(function () use ($data) {
             $user = User::firstOrCreate(
+                ['email' => strtolower($data['email'])],
                 [
-                    'email' => strtolower($data['email']),
                     'name' => strtoupper($data['name']),
                     'last_name' => strtoupper($data['last_name']),
                     'sex' => $data['sex'],
-                    'password' => $data['password'],
+                    'password' => bcrypt($data['password']),
+                    'is_active' => true,
                 ]
             );
 
@@ -26,18 +27,19 @@ class StoreTeacherService
                     'name' => strtoupper($data['name']),
                     'last_name' => strtoupper($data['last_name']),
                     'sex' => $data['sex'],
+                    'password' => bcrypt($data['password']),
+                    'is_active' => true,
                 ]);
             }
 
-            if ($user->hasRole('Profesor')) {
-                throw new \Exception('Este usuario ya es un profesor.');
+            if (!$user->hasRole('Profesor')) {
+                $user->assignRole('Profesor');
             }
 
-            $user->assignRole('Profesor');
-            $teacher = Teacher::create([
-                'user_id' => $user->id,
-                'is_active' => true,
-            ]);
+            $teacher = Teacher::firstOrCreate(
+                ['user_id' => $user->id],
+                ['is_active' => true]
+            );
 
             return $teacher;
         });

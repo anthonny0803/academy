@@ -17,75 +17,84 @@
 
                     {{-- Render content for Supervisor and Administrador --}}
                     @role('Supervisor|Administrador')
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        @if (auth()->user()->isActive())
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                            {{-- Users card --}}
-                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
-                                onclick="openModal('usersModal')">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Modulo de usuarios</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de usuarios de
-                                    la Academia.</p>
+                                {{-- Users card --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('usersModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                        Modulo de usuarios</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de usuarios
+                                        de
+                                        la Academia.</p>
+                                </div>
+
+                                {{-- Teachers card (Nuevo módulo) --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('teachersModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                        Modulo de profesores</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menú para la Gestión de
+                                        profesores
+                                        de
+                                        la Academia.</p>
+                                </div>
+
+                                {{-- Representatives card --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('representativesModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo
+                                        de
+                                        representantes</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
+                                        representantes de la Academia.</p>
+                                </div>
+
+                                {{-- Students card --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('studentsModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo
+                                        de
+                                        estudiantes</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
+                                        estudiantes
+                                        de la Academia.</p>
+                                </div>
+
+                                {{-- Subjects card --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('subjectsModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo
+                                        de
+                                        asignaturas</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
+                                        asignaturas.
+                                    </p>
+                                </div>
+
+                                {{-- Configuración del Sistema --}}
+                                <a href="#"
+                                    class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                        Configuración del Sistema</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Acceder a las opciones de
+                                        configuración global.</p>
+                                </a>
+
+                                {{-- Informes y Estadísticas --}}
+                                <a href="#"
+                                    class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                        Informes y
+                                        Estadísticas</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Visualizar datos y reportes de
+                                        la
+                                        academia.</p>
+                                </a>
+
                             </div>
-
-                            {{-- Teachers card (Nuevo módulo) --}}
-                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
-                                onclick="openModal('teachersModal')">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Modulo de profesores</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Menú para la Gestión de profesores
-                                    de
-                                    la Academia.</p>
-                            </div>
-
-                            {{-- Representatives card --}}
-                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
-                                onclick="openModal('representativesModal')">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
-                                    representantes</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
-                                    representantes de la Academia.</p>
-                            </div>
-
-                            {{-- Students card --}}
-                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
-                                onclick="openModal('studentsModal')">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
-                                    estudiantes</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de estudiantes
-                                    de la Academia.</p>
-                            </div>
-
-                            {{-- Subjects card --}}
-                            <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
-                                onclick="openModal('subjectsModal')">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo de
-                                    asignaturas</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de asignaturas.
-                                </p>
-                            </div>
-
-                            {{-- Configuración del Sistema --}}
-                            <a href="#"
-                                class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Configuración del Sistema</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Acceder a las opciones de
-                                    configuración global.</p>
-                            </a>
-
-                            {{-- Informes y Estadísticas --}}
-                            <a href="#"
-                                class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
-                                <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                    Informes y
-                                    Estadísticas</h5>
-                                <p class="font-normal text-gray-700 dark:text-gray-400">Visualizar datos y reportes de
-                                    la
-                                    academia.</p>
-                            </a>
-
-                        </div>
+                        @endif
                     @endrole
 
                     {{-- End of Supervisor and Administrador render content --}}
@@ -118,7 +127,8 @@
             <div class="space-y-3">
                 <a href="{{ route('teachers.create') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕
                     Registrar</a>
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y Gestionar</a>
+                <a href="{{ route('teachers.index') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
+                    Buscar y Gestionar</a>
             </div>
             <button class="close-btn mt-6 text-red-500">Cerrar</button>
         </div>

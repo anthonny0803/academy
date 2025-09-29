@@ -18,13 +18,10 @@ class Grade extends Model
         'comments',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'grade_date' => 'date',
-            'score' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'grade_date' => 'date',
+        'score' => 'decimal:2',
+    ];
 
     /**
      * Definitions of relationships with other models:

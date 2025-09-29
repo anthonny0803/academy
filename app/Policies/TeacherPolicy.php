@@ -8,37 +8,47 @@ use Illuminate\Auth\Access\Response;
 
 class TeacherPolicy
 {
+    private function isActiveWithAllRole(User $user): bool
+    {
+        return $user->isActive() && ($user->isSupervisor() || $user->isAdmin() || $user->isDeveloper());
+    }
+
+    private function isActiveWithHighRole(User $user): bool
+    {
+        return $user->isActive() && ($user->isSupervisor() || $user->isDeveloper());
+    }
+
     public function viewAny(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para ver el módulo de profesores.');
     }
 
     public function view(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para ver profesores.');
     }
 
     public function create(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para crear profesores.');
     }
 
     public function edit(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isAdmin() || $currentUser->isDeveloper()
+        return $this->isActiveWithAllRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para editar este profesor.');
     }
 
     public function update(User $currentUser, Teacher $teacher): Response
     {
-        if (!$currentUser->isSupervisor() && !$currentUser->isAdmin() && !$currentUser->isDeveloper()) {
+        if (! $this->isActiveWithAllRole($currentUser)) {
             return Response::deny('No tienes autorización para editar profesores.');
         }
 
@@ -51,14 +61,14 @@ class TeacherPolicy
 
     public function delete(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isDeveloper()
+        return $this->isActiveWithHighRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para eliminar profesores.');
     }
 
     public function toggle(User $currentUser): Response
     {
-        return $currentUser->isSupervisor() || $currentUser->isDeveloper()
+        return $this->isActiveWithHighRole($currentUser)
             ? Response::allow()
             : Response::deny('No tienes autorización para cambiar el estado de los profesores.');
     }

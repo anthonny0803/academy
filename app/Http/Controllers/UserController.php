@@ -103,8 +103,8 @@ class UserController extends Controller
     public function toggleActivation(User $user): RedirectResponse
     {
         return $this->authorizeOrRedirect('toggle', $user, function () use ($user) {
-            $user->activation(!$user->is_active);
-            $status = $user->is_active ? 'activado' : 'desactivado';
+            $user->activation(!$user->isActive());
+            $status = $user->isActive() ? 'activado' : 'desactivado';
 
             return redirect()->route('users.show', $user)
                 ->with('success', "¡Usuario {$status} correctamente!");

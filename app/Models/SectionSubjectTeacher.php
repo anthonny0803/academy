@@ -17,13 +17,10 @@ class SectionSubjectTeacher extends Model
         'unassigned_at',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'assigned_at' => 'date',
-            'unassigned_at' => 'date',
-        ];
-    }
+    protected $casts = [
+        'assigned_at' => 'date',
+        'unassigned_at' => 'date',
+    ];
 
     /**
      * Definitions of relationships with other models:
