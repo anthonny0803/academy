@@ -18,5 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->renderable(function (\Throwable $e, $request) {
+            if (!$request->expectsJson() && !app()->runningInConsole()) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', $e->getMessage());
+            }
+        });
     })->create();

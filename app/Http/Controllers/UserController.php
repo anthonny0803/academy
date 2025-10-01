@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Role;
 use App\Services\RoleAssignmentService;
 use App\Services\StoreUserService;
 use App\Services\UpdateUserService;
+use App\Services\DeleteUserService;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -18,7 +19,8 @@ use App\Traits\AuthorizesRedirect;
 
 class UserController extends Controller
 {
-    use AuthorizesRequests, AuthorizesRedirect;
+    use AuthorizesRequests;
+    use AuthorizesRedirect;
 
     protected function currentUser(): User
     {
@@ -33,9 +35,22 @@ class UserController extends Controller
             $status = $request->input('status');
             $role   = $request->input('role');
 
-            // Only display if exists a search value.
-            $query = User::searchWithFilters($search, $status, $role);
-            $users = $query ? $query->paginate(5) : collect();
+            // Security: Only display if exists a search value.
+            if (empty($search)) {
+                $users = collect();
+            } else {
+                $users = User::query()
+                    ->search($search)
+                    ->when($status && $status !== 'Todos', function ($q) use ($status) {
+                        $status === 'Activo' ? $q->active() : $q->inactive();
+                    })
+                    ->when($role && $role !== 'Todos', fn($q) => $q->withRole($role))
+                    ->with('roles')
+                    ->orderBy('name')
+                    ->orderBy('last_name')
+                    ->paginate(5)
+                    ->withQueryString();
+            }
 
             return view('users.index', compact('users', 'roles'));
         });
@@ -58,14 +73,11 @@ class UserController extends Controller
 
     public function store(StoreUserRequest $request, StoreUserService $storeService): RedirectResponse
     {
-        try {
-            $user = $storeService->handle($request->validated());
-            return redirect()->route('users.show', $user)
-                ->with('success', '¡Usuario registrado correctamente!');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()
-                ->with('error', $e->getMessage());
-        }
+        $user = $storeService->handle($request->validated());
+
+        return redirect()
+            ->route('users.show', $user)
+            ->with('success', '¡Usuario registrado correctamente!');
     }
 
     public function edit(User $user, RoleAssignmentService $roleAssignmentService): View|RedirectResponse
@@ -78,24 +90,20 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request, UpdateUserService $updateService, User $user): RedirectResponse
     {
-        try {
-            $user = $updateService->handle($user, $request->validated());
-            return redirect()->route('users.show', $user)
-                ->with('success', '¡Usuario actualizado correctamente!');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()
-                ->with('error', $e->getMessage());
-        }
+        $user = $updateService->handle($user, $request->validated());
+
+        return redirect()
+            ->route('users.show', $user)
+            ->with('success', '¡Usuario actualizado correctamente!');
     }
 
-    public function destroy(User $user): RedirectResponse
+    public function destroy(User $user, DeleteUserService $deleteService): RedirectResponse
     {
-        return $this->authorizeOrRedirect('delete', $user, function () use ($user) {
-            if ($user->isRepresentative() && !$user->representative->hasStudents()) {
-                $user->representative()->delete();
-            }
-            $user->delete();
-            return redirect()->route('users.index')
+        return $this->authorizeOrRedirect('delete', $user, function () use ($user, $deleteService) {
+            $deleteService->handle($user);
+
+            return redirect()
+                ->route('users.index')
                 ->with('success', '¡Usuario eliminado correctamente!');
         });
     }

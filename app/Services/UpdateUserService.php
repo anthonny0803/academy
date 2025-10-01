@@ -17,16 +17,16 @@ class UpdateUserService
                 'sex'       => $data['sex'],
             ]);
 
-            $submittedRoles = $data['roles'] ?? [];
+            $submittedRole = $data['role'] ?? null;
             $rolesToPreserve = $user->getRoleNames()
                 ->filter(fn($role) => in_array($role, ['Representante', 'Estudiante', 'Profesor']))
                 ->toArray();
 
-            $rolesToSync = array_unique(array_merge($submittedRoles, $rolesToPreserve));
+            $rolesToSync = $submittedRole
+                ? array_merge([$submittedRole], $rolesToPreserve)
+                : $rolesToPreserve;
+
             $user->syncRoles($rolesToSync);
-            $activationRoles = ['Supervisor', 'Administrador'];
-            $user->is_active = $user->hasAnyRole($activationRoles);
-            $user->save();
 
             return $user;
         });

@@ -35,8 +35,11 @@ class UpdateUserRequest extends FormRequest
                 Rule::unique('users')->ignore($user->id),
             ],
             'sex' => ['required', 'string', 'max:15'],
-            'roles' => ['array'],
-            'roles.*' => ['string', 'exists:roles,name'],
+            'role' => [
+                'required',
+                'string',
+                Rule::in(['Administrador', 'Supervisor']),
+            ],
         ];
     }
 }

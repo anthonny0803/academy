@@ -45,8 +45,8 @@ class Representative extends Model
                 $q->role('Representante')
                     ->where(
                         fn($q2) =>
-                        $q2->where('name', 'like', "%{$term}%")
-                            ->orWhere('last_name', 'like', "%{$term}%")
+                        $q2->where('users.name', 'like', "%{$term}%")
+                            ->orWhere('users.last_name', 'like', "%{$term}%")
                     );
             });
 

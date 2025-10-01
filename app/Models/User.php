@@ -2,16 +2,20 @@
 
 namespace App\Models;
 
-use App\Traits\Activatable;
 use App\Enums\Role;
-use Spatie\Permission\Traits\HasRoles;
+use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasRoles, Notifiable, HasFactory, Activatable;
+    use HasFactory;
+    use HasRoles;
+    use Notifiable;
+    use Activatable;
 
     protected $fillable = [
         'name',
@@ -27,70 +31,81 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-
     protected $casts = [
         'is_active' => 'boolean',
+        'is_developer' => 'boolean',
+        'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
+    // Relationships
 
-    public static function searchWithFilters(?string $term, ?string $status, ?string $role)
+    public function teacher(): HasOne
     {
-        $term = trim((string)$term);
-
-        // If no search term is given, returns null to prevent exposing sensitive data.
-        if ($term === '') {
-            return null;
-        }
-
-        $query = self::with('roles')
-            ->where(
-                fn($q) =>
-                $q->where('name', 'like', "%{$term}%")
-                    ->orWhere('last_name', 'like', "%{$term}%")
-            );
-
-        if ($status !== null && $status !== '' && $status !== 'Todos') {
-            $isActive = $status === 'Activo' ? 1 : 0;
-            $query->where('is_active', $isActive);
-        }
-
-        if ($role !== null && $role !== '' && $role !== 'Todos') {
-            $query->whereHas('roles', fn($q) => $q->where('name', $role));
-        }
-
-        return $query->orderBy('name', 'asc');
+        return $this->hasOne(Teacher::class);
     }
+
+    public function representative(): HasOne
+    {
+        return $this->hasOne(Representative::class);
+    }
+
+    public function student(): HasOne
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    // Query Scopes
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
+    }
+
+    public function scopeWithRole($query, string $role)
+    {
+        return $query->whereHas('roles', fn($q) => $q->where('name', $role));
+    }
+
+    public function scopeSearch($query, string $term)
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('last_name', 'like', "%{$term}%")
+                ->orWhere('email', 'like', "%{$term}%");
+        });
+    }
+
+    public function scopeDevelopers($query)
+    {
+        return $query->where('is_developer', true);
+    }
+
+    // Accessors
+
+    public function getFullNameAttribute(): string
+    {
+        return trim("{$this->name} {$this->last_name}");
+    }
+
+    // Status Methods
 
     public function isActive(): bool
     {
         return $this->is_active;
     }
 
-
-    // Relationships:
-
-    public function teacher()
-    {
-        return $this->hasOne(Teacher::class);
-    }
-
-    public function representative()
-    {
-        return $this->hasOne(Representative::class);
-    }
-
-    public function student()
-    {
-        return $this->hasOne(Student::class);
-    }
-
-    // Roles:
-
     public function isDeveloper(): bool
     {
-        return $this->is_developer;
+        return $this->is_developer ?? false;
     }
+
+    // Role Verification Methods
 
     public function isSupervisor(): bool
     {

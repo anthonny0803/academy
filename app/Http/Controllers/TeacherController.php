@@ -30,7 +30,6 @@ class TeacherController extends Controller
             $search = trim($request->input('search', ''));
             $status = $request->input('status');
 
-            // Solo mostrar resultados si hay un término de búsqueda
             $query = Teacher::searchWithFilters($search, $status);
             $teachers = $query ? $query->paginate(5) : collect();
 

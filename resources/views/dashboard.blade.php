@@ -5,9 +5,9 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-2xl font-bold mb-4">
                         @if (Auth::user()->sex === 'Femenino')
-                            Bienvenida, {{ Auth::user()->name }}!
+                            Bienvenida, {{ Auth::user()->getFullNameAttribute() }}!
                         @else
-                            Bienvenido, {{ Auth::user()->name }}!
+                            Bienvenido, {{ Auth::user()->getFullNameAttribute() }}!
                         @endif
                     </h3>
                     <p class="mb-6">
@@ -24,8 +24,9 @@
                                 <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
                                     onclick="openModal('usersModal')">
                                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                        Modulo de usuarios</h5>
+                                        Gestión de usuarios y administración</h5>
                                     <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de usuarios
+                                        y administración
                                         de
                                         la Academia.</p>
                                 </div>

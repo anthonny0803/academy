@@ -24,7 +24,6 @@ class Teacher extends Model
     {
         $term = trim((string) $term);
 
-        // Si no hay término de búsqueda, retornamos null para no exponer info sensible
         if ($term === '') {
             return null;
         }

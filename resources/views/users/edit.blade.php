@@ -52,10 +52,11 @@
 
                             <div class="mt-2 space-y-1">
                                 @foreach ($roles as $role)
-                                    <label class="flex items-center space-x-2">
-                                        <input type="checkbox" name="roles[]" value="{{ $role->name }}"
+                                    <label class="flex items-center space-x-2 cursor-pointer">
+                                        <input type="radio" name="role" value="{{ $role->name }}"
                                             {{ $user->hasRole($role->name) ? 'checked' : '' }}
-                                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                            class="border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 cursor-pointer">
+
                                         <span>{{ $role->name }}</span>
                                     </label>
                                 @endforeach
