@@ -2,17 +2,18 @@
 
 namespace App\Traits;
 
-use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Gate;
 
 trait AuthorizesRedirect
 {
     public function authorizeOrRedirect(string $ability, $model, \Closure $callback)
     {
-        try {
-            $this->authorize($ability, $model);
-            return $callback();
-        } catch (AuthorizationException $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+        $response = Gate::inspect($ability, $model);
+
+        if ($response->denied()) {
+            return redirect()->back()->with('error', $response->message());
         }
+
+        return $callback();
     }
 }

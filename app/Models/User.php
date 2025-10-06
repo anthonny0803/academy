@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Contracts\HasEntityName;
 use App\Enums\Role;
+use App\Enums\Sex;
 use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -10,12 +12,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasEntityName
 {
+    use Activatable;
     use HasFactory;
     use HasRoles;
     use Notifiable;
-    use Activatable;
 
     protected $fillable = [
         'name',
@@ -38,6 +40,11 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function getEntityName(): string
+    {
+        return 'Usuario';
+    }
+
     // Relationships
 
     public function teacher(): HasOne
@@ -57,16 +64,6 @@ class User extends Authenticatable
 
     // Query Scopes
 
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
-
-    public function scopeInactive($query)
-    {
-        return $query->where('is_active', false);
-    }
-
     public function scopeWithRole($query, string $role)
     {
         return $query->whereHas('roles', fn($q) => $q->where('name', $role));
@@ -81,11 +78,6 @@ class User extends Authenticatable
         });
     }
 
-    public function scopeDevelopers($query)
-    {
-        return $query->where('is_developer', true);
-    }
-
     // Accessors
 
     public function getFullNameAttribute(): string
@@ -95,14 +87,19 @@ class User extends Authenticatable
 
     // Status Methods
 
-    public function isActive(): bool
-    {
-        return $this->is_active;
-    }
-
     public function isDeveloper(): bool
     {
         return $this->is_developer ?? false;
+    }
+
+    public function isMale(): bool
+    {
+        return $this->sex === Sex::Male->value;
+    }
+
+    public function isFemale(): bool
+    {
+        return $this->sex === Sex::Female->value;
     }
 
     // Role Verification Methods
@@ -130,5 +127,22 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->hasRole(Role::Student->value);
+    }
+
+    // Mutators
+
+    protected function setEmailAttribute($value): void
+    {
+        $this->attributes['email'] = strtolower(trim($value));
+    }
+
+    protected function setNameAttribute($value): void
+    {
+        $this->attributes['name'] = strtoupper(trim($value));
+    }
+
+    protected function setLastNameAttribute($value): void
+    {
+        $this->attributes['last_name'] = strtoupper(trim($value));
     }
 }

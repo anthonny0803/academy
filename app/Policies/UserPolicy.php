@@ -61,7 +61,7 @@ class UserPolicy
             : Response::deny('No tienes autorización para crear usuarios.');
     }
 
-    public function edit(User $currentUser, User $targetUser): Response
+    public function update(User $currentUser, User $targetUser): Response
     {
         if (!$this->isAuthorized($currentUser)) {
             return Response::deny('No tienes autorización para realizar esta acción.');

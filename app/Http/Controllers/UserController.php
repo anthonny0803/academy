@@ -3,24 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Spatie\Permission\Models\Role;
+use App\Http\Requests\Users\StoreUserRequest;
+use App\Http\Requests\Users\UpdateUserRequest;
 use App\Services\RoleAssignmentService;
-use App\Services\StoreUserService;
-use App\Services\UpdateUserService;
-use App\Services\DeleteUserService;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
+use App\Services\Users\StoreUserService;
+use App\Services\Users\UpdateUserService;
+use App\Services\Users\DeleteUserService;
+use App\Traits\AuthorizesRedirect;
+use App\Traits\CanToggleActivation;
+use App\Enums\Sex;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
-use App\Traits\AuthorizesRedirect;
+use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     use AuthorizesRequests;
     use AuthorizesRedirect;
+    use CanToggleActivation;
 
     protected function currentUser(): User
     {
@@ -67,34 +70,37 @@ class UserController extends Controller
     {
         return $this->authorizeOrRedirect('create', User::class, function () use ($roleAssignmentService) {
             $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
-            return view('users.create', compact('roles'));
+            $sexes = Sex::toArray();
+            return view('users.create', compact('roles', 'sexes'));
         });
     }
 
     public function store(StoreUserRequest $request, StoreUserService $storeService): RedirectResponse
     {
-        $user = $storeService->handle($request->validated());
-
-        return redirect()
-            ->route('users.show', $user)
-            ->with('success', '¡Usuario registrado correctamente!');
+        return $this->authorizeOrRedirect('create', User::class, function () use ($request, $storeService) {
+            $user = $storeService->handle($request->validated());
+            return redirect()->route('users.show', $user)
+                ->with('success', '¡Usuario registrado correctamente!');
+        });
     }
 
     public function edit(User $user, RoleAssignmentService $roleAssignmentService): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('edit', $user, function () use ($user, $roleAssignmentService) {
+        return $this->authorizeOrRedirect('update', $user, function () use ($user, $roleAssignmentService) {
             $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
-            return view('users.edit', compact('user', 'roles'));
+            $sexes = Sex::toArray();
+            return view('users.edit', compact('user', 'roles', 'sexes'));
         });
     }
 
     public function update(UpdateUserRequest $request, UpdateUserService $updateService, User $user): RedirectResponse
     {
-        $user = $updateService->handle($user, $request->validated());
-
-        return redirect()
-            ->route('users.show', $user)
-            ->with('success', '¡Usuario actualizado correctamente!');
+        return $this->authorizeOrRedirect('update', $user, function () use ($request, $updateService, $user) {
+            $user = $updateService->handle($user, $request->validated());
+            return redirect()
+                ->route('users.show', $user)
+                ->with('success', '¡Usuario actualizado correctamente!');
+        });
     }
 
     public function destroy(User $user, DeleteUserService $deleteService): RedirectResponse
@@ -110,12 +116,6 @@ class UserController extends Controller
 
     public function toggleActivation(User $user): RedirectResponse
     {
-        return $this->authorizeOrRedirect('toggle', $user, function () use ($user) {
-            $user->activation(!$user->isActive());
-            $status = $user->isActive() ? 'activado' : 'desactivado';
-
-            return redirect()->route('users.show', $user)
-                ->with('success', "¡Usuario {$status} correctamente!");
-        });
+        return $this->executeToggle($user);
     }
 }

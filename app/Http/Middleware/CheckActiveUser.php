@@ -26,8 +26,6 @@ class CheckActiveUser
                 ]);
             }
         }
-
-
         return $next($request);
     }
 }

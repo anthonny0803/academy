@@ -4,9 +4,36 @@ namespace App\Traits;
 
 trait Activatable
 {
+    // Global State Management
+
     public function activation(bool $active): void
     {
-        $this->is_active = $active;
-        $this->save();
+        $this->update(['is_active' => $active]);
+    }
+
+    public function toggleActivation(): void
+    {
+        $this->activation(!$this->is_active);
+    }
+
+    // Global Status Check
+
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
+
+    // Global Query Scopes
+
+    public function scopeActive($query)
+    {
+        $table = $this->getTable();
+        return $query->where("{$table}.is_active", true);
+    }
+
+    public function scopeInactive($query)
+    {
+        $table = $this->getTable();
+        return $query->where("{$table}.is_active", false);
     }
 }
