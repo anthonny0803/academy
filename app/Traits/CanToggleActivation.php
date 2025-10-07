@@ -22,11 +22,13 @@ trait CanToggleActivation
 
         $status = $model->isActive() ? 'activado' : 'desactivado';
         $entityName = $this->getEntityName($model);
+        $paramName = strtolower(class_basename($model));
 
         return redirect()
-            ->route($this->getShowRoute($model), $model)
+            ->route($this->getShowRoute($model), [$paramName => $model])
             ->with('success', "¡{$entityName} {$status} correctamente!");
     }
+
 
     protected function getEntityName($model): string
     {

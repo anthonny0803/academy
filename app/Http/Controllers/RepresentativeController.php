@@ -38,7 +38,7 @@ class RepresentativeController extends Controller
             } else {
                 $representatives = Representative::query()
                     ->join('users', 'representatives.user_id', '=', 'users.id')
-                    ->select('representatives.*') // Solo campos de representatives
+                    ->select('representatives.*')
                     ->search($search)
                     ->when($status && $status !== 'Todos', function ($q) use ($status) {
                         $status === 'Activo' ? $q->active() : $q->inactive();

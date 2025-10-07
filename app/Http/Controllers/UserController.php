@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Enums\Sex;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Services\RoleAssignmentService;
@@ -11,7 +12,6 @@ use App\Services\Users\UpdateUserService;
 use App\Services\Users\DeleteUserService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
-use App\Enums\Sex;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

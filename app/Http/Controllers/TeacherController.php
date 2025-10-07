@@ -4,20 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Teacher;
-use App\Services\StoreTeacherService;
-use App\Services\UpdateTeacherService;
-use App\Http\Requests\StoreTeacherRequest;
-use App\Http\Requests\UpdateTeacherRequest;
+use App\Http\Requests\Teachers\StoreTeacherRequest;
+use App\Http\Requests\Teachers\UpdateTeacherRequest;
+use App\Services\Teachers\StoreTeacherService;
+use App\Services\Teachers\UpdateTeacherService;
+use App\Traits\AuthorizesRedirect;
+use App\Traits\CanToggleActivation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use App\Traits\AuthorizesRedirect;
 
 class TeacherController extends Controller
 {
-    use AuthorizesRequests, AuthorizesRedirect;
+    use AuthorizesRequests;
+    use AuthorizesRedirect;
+    use CanToggleActivation;
 
     protected function currentUser(): User
     {
@@ -27,16 +30,27 @@ class TeacherController extends Controller
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', Teacher::class, function () use ($request) {
-            $search = trim($request->input('search', ''));
+            $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
 
-            $query = Teacher::searchWithFilters($search, $status);
-            $teachers = $query ? $query->paginate(5) : collect();
+            // Security: Only display if exists a search value.
+            if (empty($search)) {
+                $teachers = collect();
+            } else {
+                $teachers = Teacher::query()
+                    ->search($search)
+                    ->when($status && $status !== 'Todos', function ($q) use ($status) {
+                        $status === 'Activo' ? $q->active() : $q->inactive();
+                    })
+                    ->orderByUserName()
+                    ->with('user')
+                    ->paginate(5)
+                    ->withQueryString();
+            }
 
             return view('teachers.index', compact('teachers'));
         });
     }
-
 
     public function show(Teacher $teacher): View|RedirectResponse
     {
@@ -54,14 +68,11 @@ class TeacherController extends Controller
 
     public function store(StoreTeacherRequest $request, StoreTeacherService $storeService): RedirectResponse
     {
-        try {
+        return $this->authorizeOrRedirect('create', Teacher::class, function () use ($request, $storeService) {
             $teacher = $storeService->handle($request->validated());
             return redirect()->route('teachers.show', $teacher)
                 ->with('success', '¡Profesor registrado correctamente!');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()
-                ->with('error', $e->getMessage());
-        }
+        });
     }
 
     public function edit(Teacher $teacher): View|RedirectResponse
@@ -71,37 +82,18 @@ class TeacherController extends Controller
         });
     }
 
-    public function update(Teacher $teacher, UpdateTeacherRequest $request, UpdateTeacherService $updateService): RedirectResponse
+    public function update(UpdateTeacherRequest $request, UpdateTeacherService $updateService, Teacher $teacher): RedirectResponse
     {
-        return $this->authorizeOrRedirect('update', $teacher, function () use ($teacher, $request, $updateService) {
-            try {
-                $updateService->handle($teacher, $request->validated());
-                return redirect()->route('teachers.show', $teacher)
-                    ->with('success', '¡Profesor actualizado correctamente!');
-            } catch (\Exception $e) {
-                return redirect()->back()->withInput()
-                    ->with('error', $e->getMessage());
-            }
-        });
-    }
-
-    public function destroy(Teacher $teacher): RedirectResponse
-    {
-        return $this->authorizeOrRedirect('delete', $teacher, function () use ($teacher) {
-            $teacher->delete();
-            return redirect()->route('teachers.index')
-                ->with('success', '¡Profesor eliminado correctamente!');
+        return $this->authorizeOrRedirect('update', $teacher, function () use ($request, $updateService, $teacher) {
+            $teacher = $updateService->handle($teacher, $request->validated());
+            return redirect()
+                ->route('teachers.show', $teacher)
+                ->with('success', '¡Profesor actualizado correctamente!');
         });
     }
 
     public function toggleActivation(Teacher $teacher): RedirectResponse
     {
-        return $this->authorizeOrRedirect('toggle', $teacher, function () use ($teacher) {
-            $teacher->activation(!$teacher->isActive());
-            $status = $teacher->isActive() ? 'activado' : 'desactivado';
-
-            return redirect()->route('teachers.show', $teacher)
-                ->with('success', "¡Profesor {$status} correctamente!");
-        });
+        return $this->executeToggle($teacher);
     }
 }

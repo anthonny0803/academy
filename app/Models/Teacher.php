@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use App\Contracts\HasEntityName;
 use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Teacher extends Model
+class Teacher extends Model implements HasEntityName
 {
-    use HasFactory, Activatable;
+    use Activatable;
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -19,59 +24,49 @@ class Teacher extends Model
         'is_active' => 'boolean',
     ];
 
-
-    public static function searchWithFilters(?string $term, ?string $status)
+    public function getEntityName(): string
     {
-        $term = trim((string) $term);
-
-        if ($term === '') {
-            return null;
-        }
-
-        $query = self::with('user')
-            ->whereHas('user', function ($q) use ($term) {
-                $q->where(function ($q2) use ($term) {
-                    $q2->where('name', 'like', "%{$term}%")
-                        ->orWhere('last_name', 'like', "%{$term}%")
-                        ->orWhere('email', 'like', "%{$term}%");
-                });
-            });
-
-        // Filtro por estado activo/inactivo
-        if ($status !== null && $status !== '' && $status !== 'Todos') {
-            $isActive = $status === 'Activo' ? 1 : 0;
-            $query->where('teachers.is_active', $isActive);
-        }
-
-        // Join para ordenar por nombre del usuario
-        $query->join('users', 'teachers.user_id', '=', 'users.id')
-            ->orderBy('users.name', 'asc')
-            ->select('teachers.*');
-
-        return $query;
+        return 'Profesor';
     }
 
-    public function isActive(): bool
-    {
-        return $this->is_active;
-    }
+    // Relationships
 
-    /**
-     * Definitions of relationships with other models:
-     */
-
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function subjects()
+    public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class, 'subject_teacher');
     }
 
-    public function sectionSubjectTeachers()
+    public function sectionSubjectTeachers(): HasMany
     {
         return $this->hasMany(SectionSubjectTeacher::class);
+    }
+
+    // Query Scopes
+
+    public function scopeSearch($query, string $term)
+    {
+        return $query->whereHas('user', function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('last_name', 'like', "%{$term}%")
+                ->orWhere('email', 'like', "%{$term}%");
+        });
+    }
+
+    public function scopeWithUser($query)
+    {
+        return $query->with('user');
+    }
+
+    public function scopeOrderByUserName($query)
+    {
+        return $query->join('users', 'teachers.user_id', '=', 'users.id')
+            ->orderBy('users.name')
+            ->orderBy('users.last_name')
+            ->select('teachers.*');
     }
 }

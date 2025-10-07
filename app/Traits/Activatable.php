@@ -20,7 +20,7 @@ trait Activatable
 
     public function isActive(): bool
     {
-        return $this->is_active;
+        return (bool) ($this->is_active ?? false);
     }
 
     // Global Query Scopes
