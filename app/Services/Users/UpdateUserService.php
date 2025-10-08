@@ -2,21 +2,21 @@
 
 namespace App\Services\Users;
 
-use App\Models\User;
 use App\Enums\Role;
+use App\Models\User;
+use App\Services\Shared\UpdatePersonService;
 use Illuminate\Support\Facades\DB;
 
 class UpdateUserService
 {
+    public function __construct(
+        private UpdatePersonService $updatePersonService
+    ) {}
+
     public function handle(User $user, array $data): User
     {
         return DB::transaction(function () use ($user, $data) {
-            $user->update([
-                'name'      => $data['name'],
-                'last_name' => $data['last_name'],
-                'email'     => $data['email'],
-                'sex'       => $data['sex'],
-            ]);
+            $user = $this->updatePersonService->handle($user, $data);
 
             if (isset($data['role'])) {
                 $this->updateAdministrativeRole($user, $data['role']);
@@ -33,7 +33,6 @@ class UpdateUserService
             ->toArray();
 
         $rolesToSync = array_merge([$newAdministrativeRole], $profileRoles);
-
         $user->syncRoles($rolesToSync);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Teachers;
 
-use App\Http\Requests\StorePersonRequest;
+use App\Http\Requests\Shared\StorePersonRequest;
 use Illuminate\Validation\Rules\Password;
 
 class StoreTeacherRequest extends StorePersonRequest

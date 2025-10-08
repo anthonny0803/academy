@@ -40,6 +40,8 @@ class User extends Authenticatable implements HasEntityName
         'password' => 'hashed',
     ];
 
+    // Contracts Implementation
+
     public function getEntityName(): string
     {
         return 'Usuario';

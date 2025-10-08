@@ -2,31 +2,12 @@
 
 namespace App\Http\Requests\Teachers;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\Shared\UpdatePersonRequest;
 
-class UpdateTeacherRequest extends FormRequest
+class UpdateTeacherRequest extends UpdatePersonRequest
 {
-    public function authorize(): bool
+    protected function getUserId(): int
     {
-        return true;
-    }
-
-    public function rules(): array
-    {
-        $teacher = $this->route('teacher');
-
-        return [
-            'name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'email' => [
-                'required',
-                'string',
-                'email',
-                'max:100',
-                Rule::unique('users', 'email')->ignore($teacher->user_id),
-            ],
-            'sex' => ['required', 'string', 'max:15'],
-        ];
+        return $this->route('teacher')->user_id;
     }
 }

@@ -3,48 +3,31 @@
 namespace App\Http\Requests\Users;
 
 use App\Enums\Role;
-use App\Enums\Sex;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Shared\UpdatePersonRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateUserRequest extends FormRequest
+class UpdateUserRequest extends UpdatePersonRequest
 {
-    public function authorize(): bool
+    protected function getUserId(): int
     {
-        return true;
+        return $this->route('user')->id;
     }
 
     public function rules(): array
     {
-        $user = $this->route('user');
-
-        return [
-            'name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'email' => [
+        return array_merge(parent::rules(), [
+            'role' => [
                 'required',
-                'string',
-                'email',
-                'max:100',
-                Rule::unique('users')->ignore($user->id),
+                Rule::in(array_map(fn($r) => $r->value, Role::administrativeRoles())),
             ],
-            'sex' => ['required', 'string', Rule::enum(Sex::class)],
-            'role' => ['required', 'string', Rule::in(Role::administrativeRoles())],
-        ];
+        ]);
     }
 
     public function messages(): array
     {
-        return [
-            'email.unique' => 'El correo electrónico ya está registrado.',
-            'email.email' => 'El correo electrónico no tiene un formato válido.',
-            'name.required' => 'El nombre es obligatorio.',
-            'last_name.required' => 'El apellido es obligatorio.',
-            'sex.required' => 'El sexo es obligatorio.',
-            'password.required' => 'La contraseña es obligatoria.',
-            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+        return array_merge(parent::messages(), [
             'role.required' => 'El rol es obligatorio.',
-            'role.exists' => 'El rol seleccionado no es válido.',
-        ];
+            'role.in' => 'El rol seleccionado no es válido.',
+        ]);
     }
 }

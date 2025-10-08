@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use App\Contracts\HasEntityName;
 use App\Traits\Activatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Carbon\Carbon;
 
-class Representative extends Model
+class Representative extends Model implements HasEntityName
 {
     use Activatable;
     use HasFactory;
@@ -17,10 +17,10 @@ class Representative extends Model
     protected $fillable = [
         'user_id',
         'document_id',
+        'birth_date',
         'phone',
         'address',
         'occupation',
-        'birth_date',
         'is_active',
     ];
 
@@ -29,8 +29,14 @@ class Representative extends Model
         'birth_date' => 'date',
     ];
 
+    // Contracts Implementation
 
-    // Relationships:
+    public function getEntityName(): string
+    {
+        return 'Representante';
+    }
+
+    // Relationships
 
     public function user(): BelongsTo
     {
@@ -44,13 +50,15 @@ class Representative extends Model
 
     // Query Scopes
 
+
     public function scopeSearch($query, string $term)
     {
         return $query->whereHas('user', function ($q) use ($term) {
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('last_name', 'like', "%{$term}%")
                 ->orWhere('email', 'like', "%{$term}%");
-        });
+        })->orWhere('document_id', 'like', "%{$term}%")
+            ->orWhere('phone', 'like', "%{$term}%");
     }
 
     public function scopeWithUser($query)
@@ -58,36 +66,21 @@ class Representative extends Model
         return $query->with('user');
     }
 
-    public function scopeWithStudents($query)
+    public function scopeHasStudents($query)
     {
-        return $query->with('students');
+        return $query->has('students');
+    }
+
+    public function scopeWithoutStudents($query)
+    {
+        return $query->doesntHave('students');
     }
 
     // Accessors
 
-    public function getFullNameAttribute(): string
-    {
-        return $this->user ? trim("{$this->user->name} {$this->user->last_name}") : '';
-    }
-
     public function getAgeAttribute(): ?int
     {
         return $this->birth_date?->age;
-    }
-
-    // Mutators
-
-    protected function setBirthDateAttribute($value): void
-    {
-        if (is_string($value)) {
-            try {
-                $this->attributes['birth_date'] = Carbon::parse($value)->format('Y-m-d');
-            } catch (\Exception $e) {
-                $this->attributes['birth_date'] = null;
-            }
-        } else {
-            $this->attributes['birth_date'] = $value;
-        }
     }
 
     // Business Logic
@@ -97,9 +90,25 @@ class Representative extends Model
         return $this->students()->exists();
     }
 
-
     public function getStudentCount(): int
     {
         return $this->students()->count();
+    }
+
+    // Mutators
+
+    protected function setDocumentIdAttribute($value): void
+    {
+        $this->attributes['document_id'] = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $value));
+    }
+
+    protected function setPhoneAttribute($value): void
+    {
+        $this->attributes['phone'] = preg_replace('/[^0-9]/', '', $value);
+    }
+
+    protected function setAddressAttribute($value): void
+    {
+        $this->attributes['address'] = strtoupper(trim(preg_replace('/\s+/', ' ', $value)));
     }
 }

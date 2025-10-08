@@ -10,35 +10,30 @@ enum Role: string
     case Representative = 'Representante';
     case Student = 'Estudiante';
 
-    public static function assignableByDeveloper(): array
-    {
-        return [
-            self::Supervisor->value,
-            self::Admin->value,
-        ];
-    }
-
-    public static function assignableBySupervisor(): array
-    {
-        return [
-            self::Admin->value,
-        ];
-    }
-
     public static function administrativeRoles(): array
     {
         return [
-            self::Supervisor->value,
-            self::Admin->value,
+            self::Supervisor,
+            self::Admin,
         ];
     }
 
     public static function profileRoles(): array
     {
         return [
-            self::Teacher->value,
-            self::Representative->value,
-            self::Student->value,
+            self::Teacher,
+            self::Representative,
+            self::Student,
         ];
+    }
+
+    public static function assignableByDeveloper(): array
+    {
+        return self::administrativeRoles();
+    }
+
+    public static function assignableBySupervisor(): array
+    {
+        return [self::Admin];
     }
 }

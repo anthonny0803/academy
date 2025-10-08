@@ -24,6 +24,8 @@ class Teacher extends Model implements HasEntityName
         'is_active' => 'boolean',
     ];
 
+    // Contracts Implementation
+
     public function getEntityName(): string
     {
         return 'Profesor';
