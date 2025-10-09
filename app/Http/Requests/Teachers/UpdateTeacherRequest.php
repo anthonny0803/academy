@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Teachers;
 
-use App\Http\Requests\Shared\UpdatePersonRequest;
+use App\Http\Requests\Shared\UpdateEmployeeRequest;
 
-class UpdateTeacherRequest extends UpdatePersonRequest
+class UpdateTeacherRequest extends UpdateEmployeeRequest
 {
     protected function getUserId(): int
     {

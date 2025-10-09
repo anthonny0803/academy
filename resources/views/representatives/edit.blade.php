@@ -11,18 +11,26 @@
                             {{-- Nombre --}}
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="name" :value="__('Nombres')" />
-                                <x-text-input id="name" class="block mt-1 w-full uppercase" type="text"
-                                    name="name" value="{{ old('name', $representative->user->name) }}"
-                                    autocomplete="off" required />
+                                <x-text-input id="name"
+                                    class="block mt-1 w-full uppercase {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="text" name="name" :value="old('name', $representative->user->name)" :disabled="!$canEditEmail" autocomplete="off"
+                                    :required="$canEditEmail" />
+                                @if (!$canEditEmail)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
                                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
                             </div>
 
                             {{-- Apellidos --}}
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="last_name" :value="__('Apellidos')" />
-                                <x-text-input id="last_name" class="block mt-1 w-full uppercase" type="text"
-                                    name="last_name" value="{{ old('last_name', $representative->user->last_name) }}"
-                                    autocomplete="off" required />
+                                <x-text-input id="last_name"
+                                    class="block mt-1 w-full uppercase {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="text" name="last_name" :value="old('last_name', $representative->user->last_name)" :disabled="!$canEditEmail"
+                                    autocomplete="off" :required="$canEditEmail" />
+                                @if (!$canEditEmail)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
                                 <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
                             </div>
 
@@ -30,17 +38,20 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="document_id" :value="__('DNI/NIE')" />
                                 <x-text-input id="document_id" class="block mt-1 w-full uppercase" type="text"
-                                    name="document_id" value="{{ old('document_id', $representative->document_id) }}"
-                                    autocomplete="off" pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}" required />
+                                    name="document_id" :value="old('document_id', $representative->document_id)" autocomplete="off" required />
                                 <x-input-error :messages="$errors->get('document_id')" class="mt-2" />
                             </div>
 
                             {{-- Correo --}}
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="email" :value="__('Correo')" />
-                                <x-text-input id="email" class="block mt-1 w-full lowercase" type="email"
-                                    name="email" value="{{ old('email', $representative->user->email) }}"
-                                    autocomplete="off" required />
+                                <x-text-input id="email"
+                                    class="block mt-1 w-full lowercase {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="email" name="email" :value="old('email', $representative->user->email)" :disabled="!$canEditEmail"
+                                    autocomplete="off" :required="$canEditEmail" />
+                                @if (!$canEditEmail)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
                             </div>
 
@@ -48,8 +59,7 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="phone" :value="__('Teléfono')" />
                                 <x-text-input id="phone" class="block mt-1 w-full" type="text" name="phone"
-                                    value="{{ old('phone', $representative->phone) }}" pattern="[0-9]{9,13}"
-                                    autocomplete="off" required />
+                                    :value="old('phone', $representative->phone)" autocomplete="off" required />
                                 <x-input-error :messages="$errors->get('phone')" class="mt-2" />
                             </div>
 
@@ -57,8 +67,7 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="occupation" :value="__('Ocupación (Opcional)')" />
                                 <x-text-input id="occupation" class="block mt-1 w-full uppercase" type="text"
-                                    name="occupation" value="{{ old('occupation', $representative->occupation) }}"
-                                    autocomplete="off" />
+                                    name="occupation" :value="old('occupation', $representative->occupation)" autocomplete="off" />
                                 <x-input-error :messages="$errors->get('occupation')" class="mt-2" />
                             </div>
 
@@ -66,26 +75,38 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="sex" :value="__('Sexo')" />
                                 <select id="sex" name="sex"
-                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 rounded-md shadow-sm"
-                                    required>
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    @disabled(!$canEditEmail) @required($canEditEmail)>
                                     <option value="">Selecciona una opción</option>
-                                    @foreach (['Masculino', 'Femenino', 'Otro'] as $sex)
+                                    @foreach ($sexes as $sex)
                                         <option value="{{ $sex }}"
                                             {{ old('sex', $representative->user->sex) === $sex ? 'selected' : '' }}>
-                                            {{ $sex }}
+                                            {{ ucfirst($sex) }}
                                         </option>
                                     @endforeach
                                 </select>
+                                @if (!$canEditEmail)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
                                 <x-input-error :messages="$errors->get('sex')" class="mt-2" />
                             </div>
 
                             {{-- Fecha de nacimiento --}}
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="birth_date" :value="__('Fecha de Nacimiento')" />
-                                <x-text-input id="birth_date" datepicker datepicker-autohide
-                                    datepicker-format="dd/mm/yyyy" type="text" name="birth_date"
-                                    value="{{ old('birth_date', $representative->birth_date?->format('d/m/Y')) }}"
-                                    class="block mt-1 w-full" placeholder="Elige una fecha" required />
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
+                                            fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
+                                        </svg>
+                                    </div>
+                                    <x-text-input id="birth_date" datepicker datepicker-autohide
+                                        datepicker-format="dd/mm/yyyy" type="text" name="birth_date"
+                                        :value="old('birth_date', $representative->birth_date?->format('d/m/Y'))" class="block mt-1 w-full ps-10" required autocomplete="off"
+                                        placeholder="Elige una fecha" />
+                                </div>
                                 <x-input-error :messages="$errors->get('birth_date')" class="mt-2" />
                             </div>
 
@@ -93,8 +114,8 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="address" :value="__('Domicilio')" />
                                 <textarea id="address" name="address" rows="4"
-                                    class="block mt-1 w-full uppercase text-gray-900 dark:text-gray-300 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 rounded-md shadow-sm"
-                                    autocomplete="off" required>{{ old('address', $representative->address) }}</textarea>
+                                    class="block mt-1 w-full uppercase text-gray-900 dark:text-gray-300 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-700 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                    required>{{ old('address', $representative->address) }}</textarea>
                                 <x-input-error :messages="$errors->get('address')" class="mt-2" />
                             </div>
                         </div>

@@ -25,6 +25,15 @@
                                     Inactivo</option>
                             </select>
 
+                            <select name="students"
+                                class="block rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2">
+                                <option value="">Con o Sin estudiantes</option>
+                                <option value="con" {{ request('students') === 'con' ? 'selected' : '' }}>Con
+                                    estudiantes</option>
+                                <option value="sin" {{ request('students') === 'sin' ? 'selected' : '' }}>
+                                    Sin estudiantes</option>
+                            </select>
+
                             <button type="submit"
                                 class="bg-indigo-600 text-white rounded-md px-4 py-2 hover:bg-indigo-700">
                                 Buscar
@@ -95,14 +104,6 @@
                                                             Estudiante</a></li>
                                                     <li><a href="{{ route('representatives.edit', $representative) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
-                                                    </li>
-                                                    <li>
-                                                        <form method="POST" action="#">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit"
-                                                                class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600">Eliminar</button>
-                                                        </form>
                                                     </li>
                                                 </ul>
                                             </div>

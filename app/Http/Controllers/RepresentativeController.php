@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Representative;
-use App\Http\Requests\StoreRepresentativeRequest;
-use App\Http\Requests\UpdateRepresentativeRequest;
-use App\Services\StoreRepresentativeService;
-use App\Services\UpdateRepresentativeService;
+use App\Enums\Sex;
+use App\Http\Requests\Representatives\StoreRepresentativeRequest;
+use App\Http\Requests\Representatives\UpdateRepresentativeRequest;
+use App\Services\Representatives\StoreRepresentativeService;
+use App\Services\Representatives\UpdateRepresentativeService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -32,6 +33,7 @@ class RepresentativeController extends Controller
         return $this->authorizeOrRedirect('viewAny', Representative::class, function () use ($request) {
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
+            $studentsFilter = $request->input('students');
 
             if (empty($search)) {
                 $representatives = collect();
@@ -43,6 +45,8 @@ class RepresentativeController extends Controller
                     ->when($status && $status !== 'Todos', function ($q) use ($status) {
                         $status === 'Activo' ? $q->active() : $q->inactive();
                     })
+                    ->when($studentsFilter === 'con', fn($q) => $q->hasStudents())
+                    ->when($studentsFilter === 'sin', fn($q) => $q->withoutStudents())
                     ->with(['user', 'students'])
                     ->orderBy('users.name')
                     ->orderBy('users.last_name')
@@ -64,33 +68,49 @@ class RepresentativeController extends Controller
     public function create(): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('create', Representative::class, function () {
-            return view('representatives.create');
+            $sexes = Sex::toArray();
+            return view('representatives.create', compact('sexes'));
         });
     }
 
-    public function store(StoreRepresentativeRequest $request, StoreRepresentativeService $storeService): RedirectResponse
+    public function store(StoreRepresentativeRequest $request, StoreRepresentativeService $createService): RedirectResponse
     {
-        $representative = $storeService->handle($request->validated());
+        return $this->authorizeOrRedirect('create', Representative::class, function () use ($request, $createService) {
+            $representative = $createService->handle($request->validated());
 
-        return redirect()->route('representatives.students.create', ['representative' => $representative->id])
-            ->with('success', '¡Representante registrado correctamente!');
+            return redirect()
+                ->route('representatives.students.create', ['representative' => $representative->id])
+                ->with('success', '¡Representante registrado correctamente!');
+        });
     }
 
     public function edit(Representative $representative): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('edit', $representative, function () use ($representative) {
-            return view('representatives.edit', compact('representative'));
+        return $this->authorizeOrRedirect('update', $representative, function () use ($representative) {
+            $sexes = Sex::toArray();
+            $canEditEmail = !$representative->user->isEmployee();
+
+            return view('representatives.edit', compact('representative', 'sexes', 'canEditEmail'));
         });
     }
 
-    public function update(UpdateRepresentativeRequest $request, UpdateRepresentativeService $updateService, Representative $representative): RedirectResponse
-    {
-        $result = $updateService->handle($representative, $request->validated());
-        $route = redirect()->route('representatives.show', $result['representative']);
+    public function update(
+        UpdateRepresentativeRequest $request,
+        UpdateRepresentativeService $updateService,
+        Representative $representative
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('update', $representative, function () use (
+            $request,
+            $updateService,
+            $representative
+        ) {
+            $result = $updateService->handle($representative, $request->validated());
+            $route = redirect()->route('representatives.show', $result['representative']);
 
-        return $result['warning']
-            ? $route->with('warning', '¡Representante actualizado! Se han ignorado algunos campos sensibles de empleados.')
-            : $route->with('success', '¡Representante actualizado correctamente!');
+            return $result['userFieldsIgnored']
+                ? $route->with('warning', 'Representante actualizado. Los datos sensibles de usuarios con rol de empleado pueden cambiarse desde su perfil.')
+                : $route->with('success', '¡Representante actualizado correctamente!');
+        });
     }
 
     public function toggleActivation(Representative $representative): RedirectResponse

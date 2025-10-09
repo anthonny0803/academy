@@ -36,11 +36,11 @@
                                 class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
                                 required>
                                 <option value="">Selecciona una opción</option>
-                                <option value="Masculino" {{ old('sex') == 'Masculino' ? 'selected' : '' }}>Masculino
-                                </option>
-                                <option value="Femenino" {{ old('sex') == 'Femenino' ? 'selected' : '' }}>Femenino
-                                </option>
-                                <option value="Otro" {{ old('sex') == 'Otro' ? 'selected' : '' }}>Otro</option>
+                                @foreach ($sexes as $sex)
+                                    <option value="{{ $sex }}" {{ old('sex') == $sex ? 'selected' : '' }}>
+                                        {{ ucfirst($sex) }}
+                                    </option>
+                                @endforeach
                             </select>
                             <x-input-error :messages="$errors->get('sex')" class="mt-2" />
                         </div>

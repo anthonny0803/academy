@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Teachers;
 
-use App\Http\Requests\Shared\StorePersonRequest;
+use App\Http\Requests\Shared\StoreEmployeeRequest;
 use Illuminate\Validation\Rules\Password;
 
-class StoreTeacherRequest extends StorePersonRequest
+class StoreTeacherRequest extends StoreEmployeeRequest
 {
     public function authorize(): bool
     {

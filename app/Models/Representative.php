@@ -50,20 +50,17 @@ class Representative extends Model implements HasEntityName
 
     // Query Scopes
 
-
     public function scopeSearch($query, string $term)
     {
-        return $query->whereHas('user', function ($q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-                ->orWhere('last_name', 'like', "%{$term}%")
-                ->orWhere('email', 'like', "%{$term}%");
-        })->orWhere('document_id', 'like', "%{$term}%")
-            ->orWhere('phone', 'like', "%{$term}%");
-    }
-
-    public function scopeWithUser($query)
-    {
-        return $query->with('user');
+        return $query->where(function ($q) use ($term) {
+            $q->whereHas('user', function ($userQuery) use ($term) {
+                $userQuery->where('name', 'like', "%{$term}%")
+                    ->orWhere('last_name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%");
+            })
+                ->orWhere('document_id', 'like', "%{$term}%")
+                ->orWhere('phone', 'like', "%{$term}%");
+        });
     }
 
     public function scopeHasStudents($query)

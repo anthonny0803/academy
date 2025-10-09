@@ -4,7 +4,7 @@ namespace App\Services\Shared;
 
 use App\Models\User;
 
-class UpdatePersonService
+class UpdateEmployeeService
 {
     public function handle(User $user, array $data): User
     {

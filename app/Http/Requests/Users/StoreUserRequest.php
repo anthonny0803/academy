@@ -3,11 +3,11 @@
 namespace App\Http\Requests\Users;
 
 use App\Enums\Role;
-use App\Http\Requests\Shared\StorePersonRequest;
+use App\Http\Requests\Shared\StoreEmployeeRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
-class StoreUserRequest extends StorePersonRequest
+class StoreUserRequest extends StoreEmployeeRequest
 {
     public function rules(): array
     {

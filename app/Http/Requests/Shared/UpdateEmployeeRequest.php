@@ -5,7 +5,7 @@ namespace App\Http\Requests\Shared;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-abstract class UpdatePersonRequest extends FormRequest
+abstract class UpdateEmployeeRequest extends FormRequest
 {
     public function authorize(): bool
     {

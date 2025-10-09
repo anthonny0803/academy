@@ -4,7 +4,7 @@ namespace App\Services\Shared;
 
 use App\Models\User;
 
-class CreatePersonService
+class CreateEmployeeService
 {
     public function handle(array $data, string $role, bool $isActive): User
     {

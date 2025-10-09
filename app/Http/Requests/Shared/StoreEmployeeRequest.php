@@ -6,7 +6,7 @@ use App\Enums\Sex;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-abstract class StorePersonRequest extends FormRequest
+abstract class StoreEmployeeRequest extends FormRequest
 {
     public function authorize(): bool
     {

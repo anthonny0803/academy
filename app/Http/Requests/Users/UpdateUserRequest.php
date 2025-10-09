@@ -3,10 +3,10 @@
 namespace App\Http\Requests\Users;
 
 use App\Enums\Role;
-use App\Http\Requests\Shared\UpdatePersonRequest;
+use App\Http\Requests\Shared\UpdateEmployeeRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateUserRequest extends UpdatePersonRequest
+class UpdateUserRequest extends UpdateEmployeeRequest
 {
     protected function getUserId(): int
     {

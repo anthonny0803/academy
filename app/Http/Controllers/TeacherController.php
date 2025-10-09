@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Teacher;
+use App\Enums\Sex;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Services\Teachers\StoreTeacherService;
@@ -61,8 +62,9 @@ class TeacherController extends Controller
 
     public function create(): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('create', Teacher::class, function () {
-            return view('teachers.create');
+        $sexes = Sex::toArray();
+        return $this->authorizeOrRedirect('create', Teacher::class, function () use ($sexes) {
+            return view('teachers.create', compact('sexes'));
         });
     }
 
@@ -77,8 +79,9 @@ class TeacherController extends Controller
 
     public function edit(Teacher $teacher): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('update', $teacher, function () use ($teacher) {
-            return view('teachers.edit', compact('teacher'));
+        $sexes = Sex::toArray();
+        return $this->authorizeOrRedirect('update', $teacher, function () use ($teacher, $sexes) {
+            return view('teachers.edit', compact('teacher', 'sexes'));
         });
     }
 

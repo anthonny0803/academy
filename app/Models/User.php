@@ -87,23 +87,6 @@ class User extends Authenticatable implements HasEntityName
         return trim("{$this->name} {$this->last_name}");
     }
 
-    // Status Methods
-
-    public function isDeveloper(): bool
-    {
-        return $this->is_developer ?? false;
-    }
-
-    public function isMale(): bool
-    {
-        return $this->sex === Sex::Male->value;
-    }
-
-    public function isFemale(): bool
-    {
-        return $this->sex === Sex::Female->value;
-    }
-
     // Role Verification Methods
 
     public function isSupervisor(): bool
@@ -129,6 +112,31 @@ class User extends Authenticatable implements HasEntityName
     public function isStudent(): bool
     {
         return $this->hasRole(Role::Student->value);
+    }
+
+    // Status Methods
+
+    public function isDeveloper(): bool
+    {
+        return $this->is_developer ?? false;
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->isDeveloper()
+            || $this->isSupervisor()
+            || $this->isAdmin()
+            || $this->isTeacher();
+    }
+
+    public function isMale(): bool
+    {
+        return $this->sex === Sex::Male->value;
+    }
+
+    public function isFemale(): bool
+    {
+        return $this->sex === Sex::Female->value;
     }
 
     // Mutators

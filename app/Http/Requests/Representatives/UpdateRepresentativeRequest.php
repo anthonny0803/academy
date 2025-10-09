@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Representatives;
 
+use App\Enums\Sex;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -12,43 +13,84 @@ class UpdateRepresentativeRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->document_id) {
+            $this->merge([
+                'document_id' => strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)),
+            ]);
+        }
+
+        if ($this->phone) {
+            $this->merge([
+                'phone' => preg_replace('/[^0-9]/', '', $this->phone),
+            ]);
+        }
+
+        if ($this->birth_date) {
+            $this->merge([
+                'birth_date' => \Carbon\Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d'),
+            ]);
+        }
+    }
+
     public function rules(): array
     {
         $representative = $this->route('representative');
-        $isEmployee = $representative->user->hasRole(['Supervisor', 'Administrador', 'Profesor']);
 
-        $validationRules = [
-            'phone'       => ['required', 'string', 'regex:/^[0-9]{9,13}$/', 'max:15'],
-            'occupation'  => ['nullable', 'string', 'max:50'],
-            'address'     => ['required', 'string'],
-            'birth_date'  => ['required', 'date_format:d/m/Y'],
-            'document_id' => [
+        return [
+            'name' => ['sometimes', 'required', 'string', 'max:100'],
+            'last_name' => ['sometimes', 'required', 'string', 'max:100'],
+            'email' => [
+                'sometimes',
                 'required',
-                'string',
-                'max:15',
-                'regex:/^[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}$/',
-                Rule::unique('representatives', 'document_id')->ignore($representative->id),
-            ],
-        ];
-
-        if ($isEmployee) {
-            $validationRules['name'] = ['nullable', 'string', 'max:100'];
-            $validationRules['last_name'] = ['nullable', 'string', 'max:100'];
-            $validationRules['email'] = ['nullable', 'string', 'email', 'max:100'];
-            $validationRules['sex'] = ['nullable', 'string', 'max:15'];
-        } else {
-            $validationRules['name'] = ['required', 'string', 'max:100'];
-            $validationRules['last_name'] = ['required', 'string', 'max:100'];
-            $validationRules['email'] = [
-                'required',
-                'string',
                 'email',
                 'max:100',
                 Rule::unique('users', 'email')->ignore($representative->user_id),
-            ];
-            $validationRules['sex'] = ['required', 'string', 'max:15'];
-        }
+            ],
+            'sex' => ['sometimes', 'required', Rule::enum(Sex::class)],
+            'document_id' => [
+                'required',
+                'string',
+                'regex:/^[A-Z]?[0-9]{7,9}[A-Z]?$/',
+                Rule::unique('representatives', 'document_id')->ignore($representative->id),
+            ],
+            'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
+            'phone' => ['required', 'string', 'regex:/^[0-9]{9,15}$/'],
+            'address' => ['required', 'string', 'max:255'],
+            'occupation' => ['nullable', 'string', 'max:100'],
+        ];
+    }
 
-        return $validationRules;
+    public function messages(): array
+    {
+        return [
+            'email.unique' => 'Este correo ya está registrado en el sistema.',
+            'email.email' => 'El correo electrónico no tiene un formato válido.',
+            'sex.enum' => 'El sexo debe ser Masculino o Femenino.',
+            'document_id.regex' => 'El documento debe tener formato válido (Ej: 12345678A, X1234567B).',
+            'document_id.unique' => 'Este documento ya está registrado.',
+            'birth_date.date' => 'La fecha de nacimiento no es válida.',
+            'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
+            'birth_date.after' => 'La fecha de nacimiento debe ser posterior a 1900.',
+            'phone.regex' => 'El teléfono debe tener entre 9 y 15 dígitos.',
+            'address.max' => 'La dirección no puede exceder 255 caracteres.',
+            'occupation.max' => 'La ocupación no puede exceder 100 caracteres.',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'nombre',
+            'last_name' => 'apellido',
+            'email' => 'correo electrónico',
+            'sex' => 'sexo',
+            'document_id' => 'documento de identidad',
+            'birth_date' => 'fecha de nacimiento',
+            'phone' => 'teléfono',
+            'address' => 'dirección',
+            'occupation' => 'ocupación',
+        ];
     }
 }
