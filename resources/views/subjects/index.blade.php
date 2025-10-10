@@ -12,6 +12,15 @@
                                 class="block w-64 rounded-md border-gray-300 dark:border-gray-700 bg-gray-800 dark:bg-gray-900 text-white p-2"
                                 autocomplete="off">
 
+                            <select name="status"
+                                class="block rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2">
+                                <option value="">Todos los estados</option>
+                                <option value="Activo" {{ request('status') === 'Activo' ? 'selected' : '' }}>Activo
+                                </option>
+                                <option value="Inactivo" {{ request('status') === 'Inactivo' ? 'selected' : '' }}>
+                                    Inactivo</option>
+                            </select>
+
                             <button type="submit"
                                 class="bg-indigo-600 text-white rounded-md px-4 py-2 hover:bg-indigo-700">Buscar</button>
                         </form>
@@ -34,6 +43,7 @@
                                     <th class="py-2 px-4 border-b text-left">Código</th>
                                     <th class="py-2 px-4 border-b text-left">Nombre</th>
                                     <th class="py-2 px-4 border-b text-left">Descripción</th>
+                                    <th class="py-2 px-4 border-b text-left">Estado</th>
                                     <th class="py-2 px-4 border-b text-left">Acciones</th>
                                 </tr>
                             </thead>
@@ -43,6 +53,24 @@
                                         <td class="py-2 px-4 border-b">{{ $subject->id ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">{{ $subject->name }}</td>
                                         <td class="py-2 px-4 border-b">{{ $subject->description ?? '-' }}</td>
+                                        <td class="py-2 px-4 border-b">
+                                            <form method="POST" action="{{ route('subjects.toggle', $subject) }}">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer 
+                       {{ $subject->is_active ? 'bg-blue-600' : 'bg-gray-400' }}">
+                                                    <span
+                                                        class="inline-block h-4 w-4 transform rounded-full bg-white transition
+                           {{ $subject->is_active ? 'translate-x-6' : 'translate-x-1' }}">
+                                                    </span>
+                                                </button>
+                                            </form>
+                                            <span
+                                                class="inline-block {{ $subject->is_active ? 'bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100 text-xs px-2 py-1 rounded mr-1' : 'bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-100 text-xs px-2 py-1 rounded mr-1' }}">
+                                                {{ $subject->is_active ? 'Activa' : 'Inactiva' }}
+                                            </span>
+                                        </td>
                                         <td class="py-2 px-4 border-b relative">
                                             <!-- Botón Acciones -->
                                             <button data-dropdown-subject="{{ $subject->id }}"

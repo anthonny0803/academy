@@ -5,6 +5,7 @@ namespace App\Traits;
 use App\Contracts\HasEntityName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 
 trait CanToggleActivation
 {
@@ -20,15 +21,17 @@ trait CanToggleActivation
 
         $model->toggleActivation();
 
-        $status = $model->isActive() ? 'activado' : 'desactivado';
+        $status = $model->isActive() ? 'activado/a' : 'desactivado/a';
         $entityName = $this->getEntityName($model);
-        $paramName = strtolower(class_basename($model));
+        $route = $this->getShowRoute($model);
+        $params = $this->routeNeedsParameter($route)
+            ? [strtolower(class_basename($model)) => $model]
+            : [];
 
         return redirect()
-            ->route($this->getShowRoute($model), [$paramName => $model])
+            ->route($route, $params)
             ->with('success', "¡{$entityName} {$status} correctamente!");
     }
-
 
     protected function getEntityName($model): string
     {
@@ -40,6 +43,14 @@ trait CanToggleActivation
     protected function getShowRoute($model): string
     {
         $base = strtolower(class_basename($model));
-        return str($base)->plural() . '.show';
+        $showRoute = str($base)->plural() . '.show';
+        $indexRoute = str($base)->plural() . '.index';
+
+        return Route::has($showRoute) ? $showRoute : $indexRoute;
+    }
+
+    protected function routeNeedsParameter(string $route): bool
+    {
+        return str_ends_with($route, '.show');
     }
 }

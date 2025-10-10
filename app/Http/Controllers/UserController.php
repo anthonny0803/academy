@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Enums\Sex;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
-use App\Services\RoleAssignmentService;
+use App\Services\Users\RoleAssignmentService;
 use App\Services\Users\StoreUserService;
 use App\Services\Users\UpdateUserService;
 use App\Services\Users\DeleteUserService;

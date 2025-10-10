@@ -2,11 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Contracts\HasEntityName;
+use App\Traits\Activatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
-class Section extends Model
+class Section extends Model implements HasEntityName
 {
+    use Activatable;
     use HasFactory;
 
     protected $fillable = [
@@ -14,7 +21,7 @@ class Section extends Model
         'name',
         'description',
         'capacity',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [
@@ -22,34 +29,66 @@ class Section extends Model
         'capacity' => 'integer',
     ];
 
-    /**
-     * Definitions of relationships with other models:
-     */
+    // Contracts Implementation
 
-    public function academicPeriod()
+    public function getEntityName(): string
+    {
+        return 'Sección';
+    }
+
+    // Relationships
+
+    public function academicPeriod(): BelongsTo
     {
         return $this->belongsTo(AcademicPeriod::class);
     }
 
-    public function sectionSubjectTeachers()
-    {
-        return $this->hasMany(SectionSubjectTeacher::class);
-    }
-
-    public function enrollments()
+    public function enrollments(): HasMany
     {
         return $this->hasMany(Enrollment::class);
     }
 
-    public function students()
+    public function sectionSubjectTeachers(): HasMany
+    {
+        return $this->hasMany(SectionSubjectTeacher::class);
+    }
+
+    public function students(): HasManyThrough
     {
         return $this->hasManyThrough(
-            User::class,
+            Student::class,
             Enrollment::class,
             'section_id',
             'id',
             'id',
-            'user_id'
-        )->where('is_active', true);
+            'student_id'
+        );
+    }
+
+    // Query Scopes
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%");
+        });
+    }
+
+    public function scopeForAcademicPeriod(Builder $query, int $academicPeriodId): Builder
+    {
+        return $query->where('academic_period_id', $academicPeriodId);
+    }
+
+    // Mutators
+
+    protected function setNameAttribute($value): void
+    {
+        $this->attributes['name'] = strtoupper(trim($value));
+    }
+
+    protected function setDescriptionAttribute($value): void
+    {
+        $this->attributes['description'] = $value ? ucfirst(trim($value)) : null;
     }
 }

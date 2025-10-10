@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Subjects;
 
 use App\Models\Subject;
 use Illuminate\Support\Facades\DB;
@@ -10,15 +10,12 @@ class UpdateSubjectService
     public function handle(Subject $subject, array $data): Subject
     {
         return DB::transaction(function () use ($subject, $data) {
-
             $subject->update([
-                'name'      => strtoupper($data['name']),
-                'description' => strtoupper($data['description']),
+                'name' => $data['name'],
+                'description' => $data['description'],
             ]);
 
-            $subject->save();
-
-            return $subject;
+            return $subject->fresh();
         });
     }
 }

@@ -7,6 +7,8 @@ use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
+    // Helper Methods
+
     private function cannotManageUsers(User $user): ?Response
     {
         if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor())) {
@@ -59,6 +61,8 @@ class UserPolicy
 
         return null;
     }
+
+    // Policy Methods
 
     public function viewAny(User $currentUser): Response
     {

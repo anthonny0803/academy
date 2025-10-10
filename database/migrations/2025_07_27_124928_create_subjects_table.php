@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->id(); // Identificador único autoincremental de la Asignatura
             $table->string('name', 100)->unique(); // Nombre de la Asignatura (Ej: Matemática 1, Física 3)
-            $table->string('description')->nullable(); // Descripción de la Asignatura (opcional)
+            $table->string('description'); // Descripción de la Asignatura
+            $table->boolean('is_active')->default(true); // Estado de la Asignatura (activa/inactiva)
             $table->timestamps(); // Columnas created_at y updated_at para auditoría
         });
     }

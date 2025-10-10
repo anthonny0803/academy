@@ -12,10 +12,10 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="name" :value="__('Nombres')" />
                                 <x-text-input id="name"
-                                    class="block mt-1 w-full uppercase {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
-                                    type="text" name="name" :value="old('name', $representative->user->name)" :disabled="!$canEditEmail" autocomplete="off"
-                                    :required="$canEditEmail" />
-                                @if (!$canEditEmail)
+                                    class="block mt-1 w-full uppercase {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="text" name="name" :value="old('name', $representative->user->name)" :disabled="!$canEditSensitiveFields" autocomplete="off"
+                                    :required="$canEditSensitiveFields" />
+                                @if (!$canEditSensitiveFields)
                                     <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
                                 @endif
                                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
@@ -25,10 +25,10 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="last_name" :value="__('Apellidos')" />
                                 <x-text-input id="last_name"
-                                    class="block mt-1 w-full uppercase {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
-                                    type="text" name="last_name" :value="old('last_name', $representative->user->last_name)" :disabled="!$canEditEmail"
-                                    autocomplete="off" :required="$canEditEmail" />
-                                @if (!$canEditEmail)
+                                    class="block mt-1 w-full uppercase {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="text" name="last_name" :value="old('last_name', $representative->user->last_name)" :disabled="!$canEditSensitiveFields"
+                                    autocomplete="off" :required="$canEditSensitiveFields" />
+                                @if (!$canEditSensitiveFields)
                                     <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
                                 @endif
                                 <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
@@ -46,10 +46,10 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="email" :value="__('Correo')" />
                                 <x-text-input id="email"
-                                    class="block mt-1 w-full lowercase {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
-                                    type="email" name="email" :value="old('email', $representative->user->email)" :disabled="!$canEditEmail"
-                                    autocomplete="off" :required="$canEditEmail" />
-                                @if (!$canEditEmail)
+                                    class="block mt-1 w-full lowercase {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="email" name="email" :value="old('email', $representative->user->email)" :disabled="!$canEditSensitiveFields"
+                                    autocomplete="off" :required="$canEditSensitiveFields" />
+                                @if (!$canEditSensitiveFields)
                                     <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
                                 @endif
                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
@@ -75,8 +75,8 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="sex" :value="__('Sexo')" />
                                 <select id="sex" name="sex"
-                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm {{ !$canEditEmail ? 'cursor-not-allowed opacity-60' : '' }}"
-                                    @disabled(!$canEditEmail) @required($canEditEmail)>
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    @disabled(!$canEditSensitiveFields) @required($canEditSensitiveFields)>
                                     <option value="">Selecciona una opción</option>
                                     @foreach ($sexes as $sex)
                                         <option value="{{ $sex }}"
@@ -85,7 +85,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                @if (!$canEditEmail)
+                                @if (!$canEditSensitiveFields)
                                     <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
                                 @endif
                                 <x-input-error :messages="$errors->get('sex')" class="mt-2" />

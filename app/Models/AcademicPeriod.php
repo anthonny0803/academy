@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Contracts\HasEntityName;
+use App\Traits\Activatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class AcademicPeriod extends Model
+class AcademicPeriod extends Model implements HasEntityName
 {
+    use Activatable;
     use HasFactory;
 
     protected $fillable = [
@@ -18,23 +23,49 @@ class AcademicPeriod extends Model
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
-        'is_active' => 'boolean',
     ];
 
-    /**
-     * Definitions of relationships with other models:
-     */
+    // Contracts Implementation
 
-    public function sections()
+    public function getEntityName(): string
+    {
+        return 'Período Académico';
+    }
+
+    // Relationships
+
+    public function sections(): HasMany
     {
         return $this->hasMany(Section::class);
     }
 
-    public function isCurrent()
+    public function enrollments(): HasMany
     {
-        $now = now();
-        return $this->is_active && $now->isBetween($this->start_date, $this->end_date, true);
+        return $this->hasMany(Enrollment::class);
+    }
+
+    // Query Scopes
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('notes', 'like', "%{$term}%");
+        });
+    }
+
+    // Mutators
+
+    protected function setNameAttribute($value): void
+    {
+        $this->attributes['name'] = strtoupper(trim($value));
+    }
+
+    protected function setNotesAttribute($value): void
+    {
+        $this->attributes['notes'] = $value ? ucfirst(trim($value)) : null;
     }
 }

@@ -35,6 +35,7 @@ class RepresentativeController extends Controller
             $status = $request->input('status');
             $studentsFilter = $request->input('students');
 
+            // Security: Only display if exists a search value.
             if (empty($search)) {
                 $representatives = collect();
             } else {
@@ -88,9 +89,9 @@ class RepresentativeController extends Controller
     {
         return $this->authorizeOrRedirect('update', $representative, function () use ($representative) {
             $sexes = Sex::toArray();
-            $canEditEmail = !$representative->user->isEmployee();
+            $canEditSensitiveFields = !$representative->user->isEmployee();
 
-            return view('representatives.edit', compact('representative', 'sexes', 'canEditEmail'));
+            return view('representatives.edit', compact('representative', 'sexes', 'canEditSensitiveFields'));
         });
     }
 

@@ -4,20 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Subject;
+use App\Http\Requests\Subjects\StoreSubjectRequest;
+use App\Http\Requests\Subjects\UpdateSubjectRequest;
+use App\Services\Subjects\StoreSubjectService;
+use App\Services\Subjects\UpdateSubjectService;
+use App\Services\Subjects\DeleteSubjectService;
+use App\Traits\AuthorizesRedirect;
+use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
-use App\Http\Requests\StoreSubjectRequest;
-use App\Http\Requests\UpdateSubjectRequest;
-use App\Services\StoreSubjectService;
-use App\Services\UpdateSubjectService;
-use App\Traits\AuthorizesRedirect;
 
 class SubjectController extends Controller
 {
-    use AuthorizesRequests, AuthorizesRedirect;
+    use AuthorizesRequests;
+    use AuthorizesRedirect;
+    use CanToggleActivation;
 
     protected function currentUser(): User
     {
@@ -27,10 +31,17 @@ class SubjectController extends Controller
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', Subject::class, function () use ($request) {
-            $search = $request->input('search', '');
+            $search = trim((string) $request->input('search', ''));
+            $status = $request->input('status');
 
-            $query = $search !== '' ? Subject::search($search) : Subject::query();
-            $subjects = $query->paginate(5);
+            $subjects = Subject::query()
+                ->when($search !== '', fn($q) => $q->search($search))
+                ->when($status && $status !== 'Todos', function ($q) use ($status) {
+                    $status === 'Activo' ? $q->active() : $q->inactive();
+                })
+                ->orderBy('name')
+                ->paginate(6)
+                ->withQueryString();
 
             return view('subjects.index', compact('subjects'));
         });
@@ -38,32 +49,36 @@ class SubjectController extends Controller
 
     public function store(StoreSubjectRequest $request, StoreSubjectService $storeService): RedirectResponse
     {
-        try {
+        return $this->authorizeOrRedirect('create', Subject::class, function () use ($request, $storeService) {
             $storeService->handle($request->validated());
+
             return redirect()->route('subjects.index')
                 ->with('success', '¡Asignatura registrada correctamente!');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()
-                ->with('error', $e->getMessage());
-        }
+        });
     }
 
     public function update(UpdateSubjectRequest $request, UpdateSubjectService $updateService, Subject $subject): RedirectResponse
     {
-        try {
-            $subject = $updateService->handle($subject, $request->validated());
+        return $this->authorizeOrRedirect('update', $subject, function () use ($request, $updateService, $subject) {
+            $updateService->handle($subject, $request->validated());
+
             return redirect()->route('subjects.index')
                 ->with('success', '¡Asignatura actualizada correctamente!');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()
-                ->with('error', $e->getMessage());
-        }
+        });
     }
 
-    public function destroy(Subject $subject): RedirectResponse
+    public function destroy(Subject $subject, DeleteSubjectService $deleteService): RedirectResponse
     {
-        $subject->delete();
-        return redirect()->route('subjects.index')
-            ->with('success', '¡Asignatura eliminada correctamente!');
+        return $this->authorizeOrRedirect('delete', $subject, function () use ($subject, $deleteService) {
+            $deleteService->handle($subject);
+
+            return redirect()->route('subjects.index')
+                ->with('success', '¡Asignatura eliminada correctamente!');
+        });
+    }
+
+    public function toggleActivation(Subject $subject): RedirectResponse
+    {
+        return $this->executeToggle($subject);
     }
 }

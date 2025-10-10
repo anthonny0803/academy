@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteUserService
 {
+    private function deleteRepresentativeWithoutStudents(User $user): void
+    {
+        if (!$user->representative->hasStudents()) {
+            $user->representative->delete();
+        }
+    }
+
     public function handle(User $user): void
     {
         DB::transaction(function () use ($user) {
@@ -16,12 +23,5 @@ class DeleteUserService
 
             $user->delete();
         });
-    }
-
-    private function deleteRepresentativeWithoutStudents(User $user): void
-    {
-        if (!$user->representative->hasStudents()) {
-            $user->representative->delete();
-        }
     }
 }

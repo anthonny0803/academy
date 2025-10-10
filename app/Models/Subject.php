@@ -2,47 +2,72 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Contracts\HasEntityName;
+use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Subject extends Model
+class Subject extends Model implements HasEntityName
 {
+    use Activatable;
     use HasFactory;
 
     protected $fillable = [
         'name',
         'description',
+        'is_active',
     ];
 
-    public function scopeSearch(Builder $query, ?string $term): Builder
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    // Contracts Implementation
+
+    public function getEntityName(): string
     {
-        $term = trim((string) $term);
-
-        if ($term === '') {
-            return $query;
-        }
-
-        return $query->where('name', 'like', "%{$term}%")
-            ->orWhere('description', 'like', "%{$term}%");
+        return 'Asignatura';
     }
 
-    /**
-     * Definitions of relationships with other models:
-     */
+    // Relationships
 
-    public function teachers()
+    public function teachers(): BelongsToMany
     {
         return $this->belongsToMany(Teacher::class, 'subject_teacher');
     }
 
-    public function grades()
+    public function grades(): HasMany
     {
         return $this->hasMany(Grade::class);
     }
 
-    public function sectionSubjectTeachers()
+    public function sectionSubjectTeachers(): HasMany
     {
         return $this->hasMany(SectionSubjectTeacher::class);
+    }
+
+    // Query Scopes
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%");
+        });
+    }
+
+    // Mutators
+
+    protected function setNameAttribute($value): void
+    {
+        $this->attributes['name'] = strtoupper(trim($value));
+    }
+
+    protected function setDescriptionAttribute($value): void
+    {
+        $this->attributes['description'] = ucfirst(trim($value));
     }
 }
