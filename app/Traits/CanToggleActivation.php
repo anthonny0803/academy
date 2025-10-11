@@ -6,6 +6,7 @@ use App\Contracts\HasEntityName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 trait CanToggleActivation
 {
@@ -25,7 +26,7 @@ trait CanToggleActivation
         $entityName = $this->getEntityName($model);
         $route = $this->getShowRoute($model);
         $params = $this->routeNeedsParameter($route)
-            ? [strtolower(class_basename($model)) => $model]
+            ? [Str::kebab(class_basename($model)) => $model]
             : [];
 
         return redirect()
@@ -42,9 +43,9 @@ trait CanToggleActivation
 
     protected function getShowRoute($model): string
     {
-        $base = strtolower(class_basename($model));
-        $showRoute = str($base)->plural() . '.show';
-        $indexRoute = str($base)->plural() . '.index';
+        $base = Str::kebab(class_basename($model));
+        $showRoute = Str::plural($base) . '.show';
+        $indexRoute = Str::plural($base) . '.index';
 
         return Route::has($showRoute) ? $showRoute : $indexRoute;
     }

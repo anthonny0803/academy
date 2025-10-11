@@ -7,6 +7,7 @@ use App\Http\Controllers\RepresentativeController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\AcademicPeriodController;
+use App\Http\Controllers\SectionController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -39,6 +40,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('academic-periods', AcademicPeriodController::class)->except(['show']);
         Route::patch('academic-periods/{academicPeriod}/toggle', [AcademicPeriodController::class, 'toggleActivation'])
             ->name('academic-periods.toggle');
+        Route::resource('sections', SectionController::class)->except(['show']);
+        Route::patch('sections/{section}/toggle', [SectionController::class, 'toggleActivation'])
+            ->name('sections.toggle');
     });
 });
 

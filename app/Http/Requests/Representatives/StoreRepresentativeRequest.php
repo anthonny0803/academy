@@ -26,12 +26,6 @@ class StoreRepresentativeRequest extends FormRequest
                 'phone' => preg_replace('/[^0-9]/', '', $this->phone),
             ]);
         }
-
-        if ($this->birth_date) {
-            $this->merge([
-                'birth_date' => \Carbon\Carbon::createFromFormat('d/m/Y', $this->birth_date)->format('Y-m-d'),
-            ]);
-        }
     }
 
     public function rules(): array

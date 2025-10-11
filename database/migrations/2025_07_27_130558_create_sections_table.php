@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id(); // Identificador único autoincremental de la Sección
             // Clave foránea al Período Académico al que pertenece esta Sección
             $table->foreignId('academic_period_id')->constrained('academic_periods')
-            ->onDelete('restrict'); // Impide borrar un período si tiene secciones asociadas
+                ->onDelete('restrict'); // Impide borrar un período si tiene secciones asociadas
 
             // Nombre de la Sección (Ej: "1ro A", "5to D") "también implica el nivel/grado" (único)
-            $table->string('name', 50)->unique();
+            $table->string('name', 50);
+            $table->unique(['academic_period_id', 'name']);
             $table->string('description')->nullable(); // Descripción de la sección (opcional)
             $table->integer('capacity')->nullable(); // Capacidad de la sección (opcional)
             // Estado de la Sección (Ej: Activa = Inscripción abierta) (activa por defecto)

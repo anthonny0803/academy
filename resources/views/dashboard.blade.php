@@ -74,6 +74,28 @@
                                     </p>
                                 </div>
 
+                                {{-- Academic Periods card --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('academicPeriodsModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo
+                                        de
+                                        períodos académicos</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
+                                        períodos académicos.
+                                    </p>
+                                </div>
+
+                                {{-- Sections card --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('sectionsModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo
+                                        de
+                                        secciones</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
+                                        secciones.
+                                    </p>
+                                </div>
+
                                 {{-- Configuración del Sistema --}}
                                 <a href="#"
                                     class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
@@ -170,6 +192,34 @@
             <h3 class="text-xl font-bold mb-6">Asignaturas</h3>
             <div class="space-y-3">
                 <a href="{{ route('subjects.index') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
+                    Buscar <br>➕ Registrar y Gestionar</a>
+            </div>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
+        </div>
+    </div>
+
+    {{-- Academic Periods Modal --}}
+    <div id="academicPeriodsModal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+            <h3 class="text-xl font-bold mb-6">Períodos Académicos</h3>
+            <div class="space-y-3">
+                <a href="{{ route('academic-periods.index') }}"
+                    class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
+                    Buscar <br>➕ Registrar y Gestionar</a>
+            </div>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
+        </div>
+    </div>
+
+    {{-- Sections Modal --}}
+    <div id="sectionsModal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+            <h3 class="text-xl font-bold mb-6">Secciones</h3>
+            <div class="space-y-3">
+                <a href="{{ route('sections.index') }}"
+                    class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
                     Buscar <br>➕ Registrar y Gestionar</a>
             </div>
             <button class="close-btn mt-6 text-red-500">Cerrar</button>

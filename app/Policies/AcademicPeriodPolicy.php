@@ -37,15 +37,6 @@ class AcademicPeriodPolicy
         return null;
     }
 
-    private function cannotDeleteAcademicPeriodWithEnrollments(AcademicPeriod $academicPeriod): ?Response
-    {
-        if ($academicPeriod->enrollments()->exists()) {
-            return Response::deny('No puedes eliminar un período académico con inscripciones registradas.');
-        }
-
-        return null;
-    }
-
     private function cannotDeleteAcademicPeriodWithSections(AcademicPeriod $academicPeriod): ?Response
     {
         if ($academicPeriod->sections()->exists()) {
@@ -63,7 +54,7 @@ class AcademicPeriodPolicy
             ?? Response::allow();
     }
 
-    public function view(User $currentUser): Response
+    public function view(User $currentUser, AcademicPeriod $academicPeriod): Response
     {
         return $this->cannotViewAcademicPeriods($currentUser)
             ?? Response::allow();
@@ -75,7 +66,7 @@ class AcademicPeriodPolicy
             ?? Response::allow();
     }
 
-    public function update(User $currentUser): Response
+    public function update(User $currentUser, AcademicPeriod $academicPeriod): Response
     {
         return $this->cannotManageAcademicPeriods($currentUser)
             ?? Response::allow();
@@ -85,12 +76,11 @@ class AcademicPeriodPolicy
     {
         return $this->cannotManageAcademicPeriods($currentUser)
             ?? $this->cannotDeleteActiveAcademicPeriod($academicPeriod)
-            ?? $this->cannotDeleteAcademicPeriodWithEnrollments($academicPeriod)
             ?? $this->cannotDeleteAcademicPeriodWithSections($academicPeriod)
             ?? Response::allow();
     }
 
-    public function toggle(User $currentUser): Response
+    public function toggle(User $currentUser, AcademicPeriod $academicPeriod): Response
     {
         return $this->cannotManageAcademicPeriods($currentUser)
             ?? Response::allow();

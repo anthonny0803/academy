@@ -102,10 +102,10 @@
                                                 d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
                                         </svg>
                                     </div>
-                                    <x-text-input id="birth_date" datepicker datepicker-autohide
-                                        datepicker-format="dd/mm/yyyy" type="text" name="birth_date"
-                                        :value="old('birth_date', $representative->birth_date?->format('d/m/Y'))" class="block mt-1 w-full ps-10" required autocomplete="off"
-                                        placeholder="Elige una fecha" />
+                                    <input type="date" id="birth_date" name="birth_date"
+                                        value="{{ old('birth_date', $representative->birth_date ? $representative->birth_date->format('Y-m-d') : '') }}"
+                                        class="block mt-1 w-full ps-10 rounded-md border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white p-2 dark:[color-scheme:dark]"
+                                        required autocomplete="off" />
                                 </div>
                                 <x-input-error :messages="$errors->get('birth_date')" class="mt-2" />
                             </div>
@@ -139,4 +139,21 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const datePicker = document.getElementById('birth_date_picker');
+            const hiddenInput = document.getElementById('birth_date');
+
+            // Convertir de Y-m-d a d/m/Y cuando cambia la fecha
+            datePicker.addEventListener('change', function() {
+                if (this.value) {
+                    const [year, month, day] = this.value.split('-');
+                    hiddenInput.value = `${day}/${month}/${year}`;
+                } else {
+                    hiddenInput.value = '';
+                }
+            });
+        });
+    </script>
 </x-app-layout>
