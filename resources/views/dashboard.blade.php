@@ -179,7 +179,8 @@
             <h3 class="text-xl font-bold mb-6">Estudiantes</h3>
             <div class="space-y-3">
                 <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">➕ Registrar</a>
-                <a href="#" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍 Buscar y Gestionar</a>
+                <a href="{{ route('students.index') }}" class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
+                    Buscar y Gestionar</a>
             </div>
             <button class="close-btn mt-6 text-red-500">Cerrar</button>
         </div>

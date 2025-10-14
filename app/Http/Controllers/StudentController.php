@@ -3,64 +3,150 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Representative;
 use App\Models\Student;
-use Illuminate\Auth\Events\Registered;
+use App\Models\Representative;
+use App\Models\AcademicPeriod;
+use App\Models\Section;
+use App\Enums\Sex;
+use App\Enums\RelationshipType;
+use App\Http\Requests\Students\StoreStudentRequest;
+use App\Http\Requests\Students\UpdateStudentRequest;
+use App\Http\Requests\Students\ReassignRepresentativeRequest;
+use App\Services\Students\StoreStudentService;
+use App\Services\Students\UpdateStudentService;
+use App\Services\Students\ReassignRepresentativeService;
+use App\Traits\AuthorizesRedirect;
+use App\Traits\CanToggleActivation;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
 
 class StudentController extends Controller
 {
-    public function create(Representative $representative): View|RedirectResponse
+    use AuthorizesRequests;
+    use AuthorizesRedirect;
+    use CanToggleActivation;
+
+    protected function currentUser(): User
     {
-
-        if (!$representative->user->hasRole('Representante')) {
-            return redirect()->back()
-                ->with('error', 'El usuario seleccionado no es un representante válido.');
-        }
-
-        return view('students.create', ['representative' => $representative]);
+        return Auth::user();
     }
 
-    public function store(Request $request): RedirectResponse
+    public function index(Request $request): View|RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'document_id' => ['required', 'string', 'max:15', 'regex:/^[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}$/', 'unique:' . Representative::class],
-            'email' => ['required', 'string', 'email', 'max:100', 'unique:' . User::class],
-            'phone' => ['required', 'string', 'regex:/^[0-9]{9,13}$/', 'max:15'],
-            'occupation' => ['string', 'max:50'],
-            'address' => ['required', 'string'],
-            'sex' => ['required', 'string', 'max:15'],
-            'birth_date' => ['required', 'date_format:d/m/Y'],
-        ]);
+        return $this->authorizeOrRedirect('viewAny', Student::class, function () use ($request) {
+            $search = trim((string) $request->input('search', ''));
+            $status = $request->input('status');
+            $sectionId = $request->input('section_id');
 
-        $representative = DB::transaction(function () use ($request) {
-            $user = User::create([
-                'name' => strtoupper($request->name),
-                'last_name' => strtoupper($request->last_name),
-                'email' => strtolower($request->email),
-                'sex' => $request->sex,
-                'is_active' => false,
-            ]);
+            $sections = Section::active()->orderBy('name')->get();
 
-            $user->assignRole('Representante');
-            $representative = Representative::create([
-                'user_id' => $user->id, // Relacion con la tabla users
-                'document_id' => strtoupper($request->document_id),
-                'phone' => $request->phone,
-                'occupation' => strtoupper($request->occupation),
-                'address' => strtoupper($request->address),
-                'birth_date' => $request->birth_date,
-                'is_active' => true,
-            ]);
-            event(new Registered($user));
+            // If no search term is provided, return an empty collection.
+            if (empty($search)) {
+                $students = collect();
+            } else {
+                $students = Student::query()
+                    ->with(['user', 'representative.user', 'enrollments.section'])
+                    ->search($search)
+                    ->when($status && $status !== 'Todos', function ($q) use ($status) {
+                        $status === 'Activo' ? $q->active() : $q->inactive();
+                    })
+                    ->when($sectionId && $sectionId !== 'Todos', function ($q) use ($sectionId) {
+                        $q->whereHas('enrollments', fn($query) => $query->where('section_id', $sectionId));
+                    })
+                    ->orderBy('student_code')
+                    ->paginate(10)
+                    ->withQueryString();
+            }
 
-            return $representative;
+            return view('students.index', compact('students', 'sections'));
         });
-        return redirect()->route('students.create', ['representative' => $representative->id])->with('success', '¡Estudiante registrado con éxito!');
+    }
+
+    public function show(Student $student): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('view', $student, function () use ($student) {
+            $student->load(['user', 'representative.user', 'enrollments.section.academicPeriod']);
+            return view('students.show', compact('student'));
+        });
+    }
+
+    public function create(Representative $representative): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('create', Student::class, function () use ($representative) {
+            $sexes = Sex::toArray();
+            $relationshipTypes = RelationshipType::toArray();
+
+            $academicPeriods = AcademicPeriod::active()
+                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->orderBy('start_date', 'desc')
+                ->get();
+
+            return view('students.create', compact('representative', 'sexes', 'relationshipTypes', 'academicPeriods'));
+        });
+    }
+
+    public function store(
+        StoreStudentRequest $request,
+        StoreStudentService $storeService,
+        Representative $representative
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('create', Student::class, function () use ($request, $storeService, $representative) {
+            $student = $storeService->handle($representative, $request->validated());
+
+            return redirect()->route('students.show', $student)
+                ->with('success', '¡Estudiante registrado correctamente!');
+        });
+    }
+
+    public function edit(Student $student): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('update', $student, function () use ($student) {
+            $sexes = Sex::toArray();
+            $relationshipTypes = RelationshipType::toArray();
+
+            return view('students.edit', compact('student', 'sexes', 'relationshipTypes'));
+        });
+    }
+
+    public function update(
+        UpdateStudentRequest $request,
+        UpdateStudentService $updateService,
+        Student $student
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('update', $student, function () use ($request, $updateService, $student) {
+            $result = $updateService->handle($student, $request->validated());
+            $route = redirect()->route('students.show', $result['student']);
+
+            return $result['userFieldsIgnored']
+                ? $route->with('warning', 'Estudiante actualizado. Los datos personales de usuarios con rol de empleado pueden cambiarse desde su perfil.')
+                : $route->with('success', '¡Estudiante actualizado correctamente!');
+        });
+    }
+
+    public function reassignRepresentative(
+        ReassignRepresentativeRequest $request,
+        ReassignRepresentativeService $reassignService,
+        Student $student
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('reassignRepresentative', $student, function () use ($request, $reassignService, $student) {
+            $validated = $request->validated();
+
+            $reassignService->handle(
+                $student,
+                $validated['representative_id'],
+                $validated['reason']
+            );
+
+            return redirect()->route('students.show', $student)
+                ->with('success', '¡Representante reasignado correctamente!');
+        });
+    }
+
+    public function toggleActivation(Student $student): RedirectResponse
+    {
+        return $this->executeToggle($student);
     }
 }

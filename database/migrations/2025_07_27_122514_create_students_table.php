@@ -21,13 +21,13 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->unique();
             // Clave foránea al Representante legal/académico del Estudiante (obligatorio)
             $table->foreignId('representative_id')
-            ->constrained('representatives')
-            ->onDelete('restrict'); // Impide borrar al Representante si tiene un Estudiante asociado
+                ->constrained('representatives')
+                ->onDelete('restrict'); // Impide borrar al Representante si tiene un Estudiante asociado
 
             // Tipo de relación con el representante (Ej: Padre, Madre, Tutor Legal, Auto-representante)
             $table->string('relationship_type', 30);
             // Fecha de nacimiento del Usuario
-            $table->date('birth_date'); 
+            $table->date('birth_date');
             // Estado del Usuario en su rol de Estudiante (activo por defecto)
             $table->boolean('is_active')->default(true);
             $table->timestamps(); // Columnas created_at y updated_at para auditoría

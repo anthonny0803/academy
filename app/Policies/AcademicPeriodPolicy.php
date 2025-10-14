@@ -54,7 +54,7 @@ class AcademicPeriodPolicy
             ?? Response::allow();
     }
 
-    public function view(User $currentUser, AcademicPeriod $academicPeriod): Response
+    public function view(User $currentUser): Response
     {
         return $this->cannotViewAcademicPeriods($currentUser)
             ?? Response::allow();
@@ -66,7 +66,7 @@ class AcademicPeriodPolicy
             ?? Response::allow();
     }
 
-    public function update(User $currentUser, AcademicPeriod $academicPeriod): Response
+    public function update(User $currentUser): Response
     {
         return $this->cannotManageAcademicPeriods($currentUser)
             ?? Response::allow();
@@ -80,7 +80,7 @@ class AcademicPeriodPolicy
             ?? Response::allow();
     }
 
-    public function toggle(User $currentUser, AcademicPeriod $academicPeriod): Response
+    public function toggle(User $currentUser): Response
     {
         return $this->cannotManageAcademicPeriods($currentUser)
             ?? Response::allow();

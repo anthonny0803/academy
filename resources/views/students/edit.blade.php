@@ -1,0 +1,149 @@
+<x-app-layout>
+    <div class="py-12">
+        <div class="mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <form method="POST" action="{{ route('students.update', $student) }}">
+                        @csrf
+                        @method('PATCH')
+
+                        <div class="flex flex-wrap -mx-2 mb-4">
+                            {{-- Nombre --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="name" :value="__('Nombres')" />
+                                <x-text-input id="name"
+                                    class="block mt-1 w-full uppercase {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="text" name="name" :value="old('name', $student->user->name)" :disabled="!$canEditSensitiveFields" autocomplete="off"
+                                    :required="$canEditSensitiveFields" />
+                                @if (!$canEditSensitiveFields)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
+                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                            </div>
+
+                            {{-- Apellidos --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="last_name" :value="__('Apellidos')" />
+                                <x-text-input id="last_name"
+                                    class="block mt-1 w-full uppercase {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="text" name="last_name" :value="old('last_name', $student->user->last_name)" :disabled="!$canEditSensitiveFields"
+                                    autocomplete="off" :required="$canEditSensitiveFields" />
+                                @if (!$canEditSensitiveFields)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
+                                <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
+                            </div>
+
+                            {{-- DNI/NIE --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="document_id" :value="__('DNI/NIE')" />
+                                <x-text-input id="document_id" class="block mt-1 w-full uppercase" type="text"
+                                    name="document_id" :value="old('document_id', $student->document_id)" pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}"
+                                    autocomplete="off" />
+                                <x-input-error :messages="$errors->get('document_id')" class="mt-2" />
+                            </div>
+
+                            {{-- Correo --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="email" :value="__('Correo (Opcional)')" />
+                                <x-text-input id="email"
+                                    class="block mt-1 w-full lowercase {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    type="email" name="email" :value="old('email', $student->user->email)" :disabled="!$canEditSensitiveFields"
+                                    autocomplete="off" />
+                                @if (!$canEditSensitiveFields)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
+                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                            </div>
+
+                            {{-- Sexo --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="sex" :value="__('Sexo')" />
+                                <select id="sex" name="sex"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm {{ !$canEditSensitiveFields ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    @disabled(!$canEditSensitiveFields) @required($canEditSensitiveFields)>
+                                    <option value="">Selecciona una opción</option>
+                                    @foreach ($sexes as $sex)
+                                        <option value="{{ $sex }}"
+                                            {{ old('sex', $student->user->sex) === $sex ? 'selected' : '' }}>
+                                            {{ ucfirst($sex) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @if (!$canEditSensitiveFields)
+                                    <p class="text-xs text-gray-500 mt-1">Editable desde su perfil</p>
+                                @endif
+                                <x-input-error :messages="$errors->get('sex')" class="mt-2" />
+                            </div>
+
+                            {{-- Fecha de nacimiento --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="birth_date" :value="__('Fecha de Nacimiento')" />
+                                <div class="relative">
+                                    <input type="date" id="birth_date" name="birth_date"
+                                        value="{{ old('birth_date', $student->birth_date ? $student->birth_date->format('Y-m-d') : '') }}"
+                                        class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 p-2 dark:[color-scheme:dark]"
+                                        required autocomplete="off" />
+                                </div>
+                                <x-input-error :messages="$errors->get('birth_date')" class="mt-2" />
+                            </div>
+
+                            {{-- Parentesco --}}
+                            <div class="w-full sm:w-1/3 px-2 mb-4">
+                                <x-input-label for="relationship_type" :value="__('Parentesco con Representante')" />
+                                <select id="relationship_type" name="relationship_type"
+                                    class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300
+focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
+                                    required>
+                                    <option value="">Selecciona una opción</option>
+                                    @foreach ($relationshipTypes as $type)
+                                        <option value="{{ $type }}"
+                                            {{ old('relationship_type', $student->relationship_type) === $type ? 'selected' : '' }}>
+                                            {{ ucfirst($type) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('relationship_type')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        {{-- Botones --}}
+                        <div class="flex items-center justify-end mt-4">
+                            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                href="{{ route('students.index') }}">
+                                {{ __('Ir a la Lista') }}
+                            </a>
+                            <a class="underline text-sm px-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                href="{{ route('dashboard') }}">
+                                {{ __('Volver al Panel') }}
+                            </a>
+                            <x-primary-button class="ms-4">
+                                {{ __('Actualizar') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+
+                    {{-- Notificación sobre campos de empleados --}}
+                    @if (!$canEditSensitiveFields)
+                        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 10000)" x-transition
+                            class="fixed top-5 right-5 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg shadow-lg text-sm z-50 w-80"
+                            role="alert">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <strong class="font-bold">Nota:</strong>
+                                    <span class="block sm:inline">Los datos personales de usuarios con rol de empleado
+                                        pueden cambiarse desde su perfil.</span>
+                                </div>
+                                <button type="button"
+                                    class="text-yellow-700 hover:text-yellow-900 font-bold text-lg leading-none ml-2"
+                                    @click="show = false">
+                                    &times;
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

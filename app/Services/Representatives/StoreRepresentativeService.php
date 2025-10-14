@@ -18,7 +18,7 @@ class StoreRepresentativeService
                 'email' => $data['email'],
                 'sex' => $data['sex'],
                 'password' => null,
-                'is_active' => true,
+                'is_active' => false,
             ]);
 
             $user->assignRole(Role::Representative->value);

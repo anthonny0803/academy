@@ -26,6 +26,7 @@
                                 name="email" :value="$user->email" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
+
                         <div class="mt-4">
                             <x-input-label for="sex" :value="__('Sexo')" />
                             <select id="sex" name="sex"
