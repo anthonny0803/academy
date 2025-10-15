@@ -33,13 +33,14 @@ class StoreRepresentativeRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
+            'email' => ['required', 'email', 'max:100', Rule::unique('users', 'email')],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'sex' => ['required', Rule::enum(Sex::class)],
             'document_id' => [
                 'required',
                 'string',
                 'regex:/^[A-Z]?[0-9]{7,9}[A-Z]?$/',
-                'unique:representatives,document_id',
+                Rule::unique('users', 'document_id'),
             ],
             'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
             'phone' => ['required', 'string', 'regex:/^[0-9]{9,15}$/'],

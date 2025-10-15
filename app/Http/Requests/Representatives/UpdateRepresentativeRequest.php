@@ -47,7 +47,7 @@ class UpdateRepresentativeRequest extends FormRequest
                 'required',
                 'string',
                 'regex:/^[A-Z]?[0-9]{7,9}[A-Z]?$/',
-                Rule::unique('representatives', 'document_id')->ignore($representative->id),
+                Rule::unique('users', 'document_id')->ignore($representative->user_id),
             ],
             'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
             'phone' => ['required', 'string', 'regex:/^[0-9]{9,15}$/'],

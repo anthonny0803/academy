@@ -15,11 +15,6 @@ return new class extends Migration
             $table->id(); // Identificador único autoincremental del Representante
             // Clave foránea al Usuario asociado a este perfil de Representante (único)
             $table->foreignId('user_id')->constrained('users')->unique();
-            $table->string('document_id', 20)->unique(); // Dni del Usuario (Para inicio de sesión público)
-            $table->date('birth_date'); // Fecha de nacimiento del Usuario
-            $table->string('phone', 20); // Número de teléfono del Representante
-            $table->string('address'); // Dirección del Representante
-            $table->string('occupation', 100)->nullable(); // Ocupación del Representante (opcional)
             // Estado del Usuario en su rol de Representante (activo por defecto)
             $table->boolean('is_active')->default(true);
             $table->timestamps(); // Columnas created_at y updated_at para auditoría

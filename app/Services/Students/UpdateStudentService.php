@@ -22,6 +22,10 @@ class UpdateStudentService
                 unset($data['name'], $data['last_name'], $data['email'], $data['sex']);
             }
 
+            if ($student->isSelfRepresented() && isset($data['relationship_type'])) {
+                unset($data['relationship_type']);
+            }
+
             $userFields = array_intersect_key($data, array_flip(['name', 'last_name', 'email', 'sex']));
             if (!empty($userFields)) {
                 $user->update($userFields);

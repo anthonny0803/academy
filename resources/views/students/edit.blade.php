@@ -93,8 +93,9 @@
                                 <x-input-label for="relationship_type" :value="__('Parentesco con Representante')" />
                                 <select id="relationship_type" name="relationship_type"
                                     class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300
-focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
-                                    required>
+                                           focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm
+                                           {{ $student->isSelfRepresented() ? 'cursor-not-allowed opacity-60' : '' }}"
+                                    @disabled($student->isSelfRepresented()) required>
                                     <option value="">Selecciona una opción</option>
                                     @foreach ($relationshipTypes as $type)
                                         <option value="{{ $type }}"
@@ -103,6 +104,9 @@ focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:
                                         </option>
                                     @endforeach
                                 </select>
+                                @if ($student->isSelfRepresented())
+                                    <p class="text-xs text-gray-500 mt-1">No se puede cambiar (auto-representado)</p>
+                                @endif
                                 <x-input-error :messages="$errors->get('relationship_type')" class="mt-2" />
                             </div>
                         </div>
@@ -122,26 +126,6 @@ focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:
                             </x-primary-button>
                         </div>
                     </form>
-
-                    {{-- Notificación sobre campos de empleados --}}
-                    @if (!$canEditSensitiveFields)
-                        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 10000)" x-transition
-                            class="fixed top-5 right-5 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg shadow-lg text-sm z-50 w-80"
-                            role="alert">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <strong class="font-bold">Nota:</strong>
-                                    <span class="block sm:inline">Los datos personales de usuarios con rol de empleado
-                                        pueden cambiarse desde su perfil.</span>
-                                </div>
-                                <button type="button"
-                                    class="text-yellow-700 hover:text-yellow-900 font-bold text-lg leading-none ml-2"
-                                    @click="show = false">
-                                    &times;
-                                </button>
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>

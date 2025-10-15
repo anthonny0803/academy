@@ -39,11 +39,15 @@ class StudentController extends Controller
         return $this->authorizeOrRedirect('viewAny', Student::class, function () use ($request) {
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
+            $academicPeriodId = $request->input('academic_period_id');
             $sectionId = $request->input('section_id');
 
-            $sections = Section::active()->orderBy('name')->get();
+            $academicPeriods = AcademicPeriod::active()
+                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->orderBy('start_date', 'desc')
+                ->get();
 
-            // If no search term is provided, return an empty collection.
+            // If no search term is provided, return an empty collection
             if (empty($search)) {
                 $students = collect();
             } else {
@@ -53,7 +57,10 @@ class StudentController extends Controller
                     ->when($status && $status !== 'Todos', function ($q) use ($status) {
                         $status === 'Activo' ? $q->active() : $q->inactive();
                     })
-                    ->when($sectionId && $sectionId !== 'Todos', function ($q) use ($sectionId) {
+                    ->when($academicPeriodId, function ($q) use ($academicPeriodId) {
+                        $q->whereHas('enrollments.section', fn($query) => $query->where('academic_period_id', $academicPeriodId));
+                    })
+                    ->when($sectionId, function ($q) use ($sectionId) {
                         $q->whereHas('enrollments', fn($query) => $query->where('section_id', $sectionId));
                     })
                     ->orderBy('student_code')
@@ -61,7 +68,7 @@ class StudentController extends Controller
                     ->withQueryString();
             }
 
-            return view('students.index', compact('students', 'sections'));
+            return view('students.index', compact('students', 'academicPeriods'));
         });
     }
 
@@ -106,8 +113,9 @@ class StudentController extends Controller
         return $this->authorizeOrRedirect('update', $student, function () use ($student) {
             $sexes = Sex::toArray();
             $relationshipTypes = RelationshipType::toArray();
+            $canEditSensitiveFields = !$student->user->isEmployee();
 
-            return view('students.edit', compact('student', 'sexes', 'relationshipTypes'));
+            return view('students.edit', compact('student', 'sexes', 'relationshipTypes', 'canEditSensitiveFields'));
         });
     }
 

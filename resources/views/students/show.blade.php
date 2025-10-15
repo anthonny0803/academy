@@ -61,8 +61,8 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Nombre del
                                     Representante</label>
                                 <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $student->representative->user->name }}
-                                    {{ $student->representative->user->last_name }}
+                                    {{ $student->representative?->user?->name ?? 'Sin representante' }}
+                                    {{ $student->representative?->user?->last_name ?? '' }}
                                 </p>
                             </div>
 
@@ -77,14 +77,14 @@
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Correo del
                                     Representante</label>
                                 <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $student->representative->user->email }}</p>
+                                    {{ $student->representative?->user?->email ?? 'Sin correo' }}</p>
                             </div>
 
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Teléfono del
                                     Representante</label>
                                 <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $student->representative->phone ?? 'Sin teléfono' }}</p>
+                                    {{ $student->representative?->phone ?? 'Sin teléfono' }}</p>
                             </div>
                         </div>
                     </div>
@@ -175,15 +175,11 @@
                         <div id="dropdown-template-{{ $student->id }}" class="hidden">
                             <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
                                 <li><a href="{{ route('students.enrollments.create', $student) }}"
-                                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Inscribir en
-                                        Sección</a>
+                                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Asignar Nueva
+                                        Inscripción</a>
                                 </li>
                                 <li><a href="{{ route('students.edit', $student) }}"
                                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
-                                </li>
-                                <li><a href="{{ route('students.reassign-form', $student) }}"
-                                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Cambiar
-                                        Representante</a>
                                 </li>
                             </ul>
                         </div>
@@ -210,32 +206,29 @@
                     const clone = tpl.cloneNode(true);
                     clone.id = "dropdownMenu-" + studentId;
                     clone.classList.remove("hidden");
-                    clone.classList.add("dropdown-clone", "fixed", "z-50", "w-40", "bg-white",
+                    clone.classList.add("dropdown-clone", "absolute", "z-50", "w-40", "bg-white",
                         "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700",
                         "rounded", "shadow-lg");
-                    const rect = btn.getBoundingClientRect();
-                    const menuHeight = 160;
-                    const espacioAbajo = window.innerHeight - rect.bottom;
-                    const espacioArriba = rect.top;
-                    if (espacioAbajo >= menuHeight) {
-                        clone.style.top = rect.bottom + "px";
-                    } else if (espacioArriba >= menuHeight) {
-                        clone.style.top = (rect.top - menuHeight) + "px";
-                    } else {
-                        clone.style.top = rect.bottom + "px";
-                        clone.style.maxHeight = espacioAbajo + "px";
-                        clone.style.overflowY = "auto";
-                    }
-                    clone.style.left = rect.left + "px";
-                    document.body.appendChild(clone);
+
+                    // Posicionar relativamente al botón
+                    btn.style.position = 'relative';
+                    const menuHeight = 100;
+
+                    // Siempre hacia ARRIBA
+                    clone.style.bottom = "100%";
+                    clone.style.left = "0";
+                    clone.style.marginBottom = "5px";
+
+                    btn.appendChild(clone);
                 });
             });
+
             document.addEventListener("click", e => {
-                if (!e.target.closest("[data-dropdown-student]") && !e.target.closest(
-                        ".dropdown-clone")) {
+                if (!e.target.closest("[data-dropdown-student]") && !e.target.closest(".dropdown-clone")) {
                     document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
                 }
             });
         });
     </script>
+
 </x-app-layout>

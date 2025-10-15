@@ -19,19 +19,28 @@ class UpdateStudentRequest extends FormRequest
         return $this->route('student')->id;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => $this->filled('email') ? $this->email : null,
+            'document_id' => $this->filled('document_id') ? strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)) : null,
+        ]);
+    }
+
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
+            'name' => ['sometimes', 'required', 'string', 'max:100'],
+            'last_name' => ['sometimes', 'required', 'string', 'max:100'],
             'email' => [
+                'sometimes',
                 'nullable',
                 'string',
                 'email',
                 'max:100',
                 Rule::unique('users', 'email')->ignore($this->route('student')->user_id),
             ],
-            'sex' => ['required', Rule::in(Sex::toArray())],
+            'sex' => ['sometimes', 'required', Rule::in(Sex::toArray())],
             'document_id' => [
                 'nullable',
                 'string',
@@ -42,7 +51,7 @@ class UpdateStudentRequest extends FormRequest
                     ->whereNotNull('document_id'),
             ],
             'birth_date' => ['required', 'date', 'before:today'],
-            'relationship_type' => ['required', Rule::in(RelationshipType::toArray())],
+            'relationship_type' => ['sometimes', 'required', Rule::in(RelationshipType::toArray())],
         ];
     }
 

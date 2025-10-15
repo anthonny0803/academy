@@ -14,13 +14,21 @@ class StoreStudentRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => $this->filled('email') ? $this->email : null,
+            'document_id' => $this->filled('document_id') ? strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)) : null,
+        ]);
+    }
+
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => [
-                'nullable', // ⭐ Nullable para auto-representados
+                'nullable',
                 'string',
                 'email',
                 'max:100',

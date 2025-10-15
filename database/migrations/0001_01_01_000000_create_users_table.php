@@ -18,6 +18,11 @@ return new class extends Migration
             $table->string('email', 100)->nullable()->unique(); // Correo del Usuario (Para inicio de sesión de empleado)
             $table->string('password')->nullable(); // Contraseña del Usuario (Para inicio de sesión de empleado)
             $table->string('sex'); // Sexo del Usuario para auditoría
+            $table->string('document_id', 20)->nullable()->unique();
+            $table->date('birth_date')->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->text('address')->nullable();
+            $table->string('occupation', 100)->nullable();
             $table->boolean('is_active')->default(true); // Estado del Usuario
             $table->boolean('is_developer')->default(false);
             $table->timestamp('email_verified_at')->nullable();

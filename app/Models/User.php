@@ -143,7 +143,7 @@ class User extends Authenticatable implements HasEntityName
 
     protected function setEmailAttribute($value): void
     {
-        $this->attributes['email'] = strtolower(trim($value));
+        $this->attributes['email'] = !empty($value) ? strtolower(trim($value)) : null;
     }
 
     protected function setNameAttribute($value): void

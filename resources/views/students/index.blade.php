@@ -25,6 +25,24 @@
                                     Inactivo</option>
                             </select>
 
+                            <select id="academic_period_filter" name="academic_period_id"
+                                class="block rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2">
+                                <option value="">Todos los períodos</option>
+                                @foreach ($academicPeriods as $period)
+                                    <option value="{{ $period->id }}"
+                                        {{ request('academic_period_id') == $period->id ? 'selected' : '' }}>
+                                        {{ $period->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <select id="section_filter" name="section_id"
+                                class="block rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-2"
+                                {{ request('academic_period_id') ? '' : 'disabled' }}>
+                                <option value="">Todas las secciones</option>
+                                {{-- Las opciones se cargan dinámicamente con JavaScript --}}
+                            </select>
+
                             <button type="submit"
                                 class="bg-indigo-600 text-white rounded-md px-4 py-2 hover:bg-indigo-700">
                                 Buscar
@@ -120,6 +138,50 @@
         </div>
     </div>
 
+    <!-- Script para filtro cascada de períodos → secciones -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const academicPeriodsData = {!! json_encode(
+                $academicPeriods->map(function ($period) {
+                    return [
+                        'id' => $period->id,
+                        'sections' => $period->sections->map(fn($s) => ['id' => $s->id, 'name' => $s->name]),
+                    ];
+                }),
+            ) !!};
+
+            const periodSelect = document.getElementById('academic_period_filter');
+            const sectionSelect = document.getElementById('section_filter');
+            const oldSectionId = '{{ request('section_id') }}';
+
+            periodSelect.addEventListener('change', function() {
+                const periodId = parseInt(this.value);
+                sectionSelect.innerHTML = '<option value="">Todas las secciones</option>';
+                sectionSelect.disabled = !periodId;
+
+                if (periodId) {
+                    const period = academicPeriodsData.find(p => p.id === periodId);
+                    if (period && period.sections) {
+                        period.sections.forEach(section => {
+                            const option = document.createElement('option');
+                            option.value = section.id;
+                            option.textContent = section.name;
+                            if (section.id == oldSectionId) {
+                                option.selected = true;
+                            }
+                            sectionSelect.appendChild(option);
+                        });
+                    }
+                }
+            });
+
+            // Trigger inicial si hay old value
+            if (periodSelect.value) {
+                periodSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+
     <!-- Script para dropdowns -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -148,20 +210,25 @@
                     const rect = btn.getBoundingClientRect();
                     const menuHeight = 160;
                     const espacioAbajo = window.innerHeight - rect.bottom;
-                    const espacioArriba = rect.top;
 
-                    if (espacioAbajo >= menuHeight) {
-                        clone.style.top = rect.bottom + "px";
-                    } else if (espacioArriba >= menuHeight) {
-                        clone.style.top = (rect.top - menuHeight) + "px";
+                    // Decidir si va arriba o abajo
+                    if (espacioAbajo >= menuHeight + 10) {
+                        // Hay espacio abajo
+                        clone.style.top = (rect.bottom + 5) + "px";
                     } else {
-                        clone.style.top = rect.bottom + "px";
-                        clone.style.maxHeight = espacioAbajo + "px";
-                        clone.style.overflowY = "auto";
+                        // No hay espacio, va arriba
+                        clone.style.top = (rect.top - menuHeight - 5) + "px";
                     }
 
                     clone.style.left = rect.left + "px";
                     document.body.appendChild(clone);
+
+                    // Cerrar dropdown al hacer scroll (para evitar desincronización)
+                    const scrollHandler = () => {
+                        clone.remove();
+                        window.removeEventListener('scroll', scrollHandler, true);
+                    };
+                    window.addEventListener('scroll', scrollHandler, true);
                 });
             });
 
