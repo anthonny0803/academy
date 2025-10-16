@@ -38,7 +38,7 @@
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="document_id" :value="__('DNI/NIE')" />
                                 <x-text-input id="document_id" class="block mt-1 w-full uppercase" type="text"
-                                    name="document_id" :value="old('document_id', $student->document_id)" pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}"
+                                    name="document_id" :value="old('document_id', $student->user->document_id)" pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}"
                                     autocomplete="off" />
                                 <x-input-error :messages="$errors->get('document_id')" class="mt-2" />
                             </div>

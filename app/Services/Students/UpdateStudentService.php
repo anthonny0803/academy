@@ -26,15 +26,21 @@ class UpdateStudentService
                 unset($data['relationship_type']);
             }
 
-            $userFields = array_intersect_key($data, array_flip(['name', 'last_name', 'email', 'sex']));
+            $userFields = array_intersect_key($data, array_flip([
+                'name',
+                'last_name',
+                'email',
+                'sex',
+                'document_id',
+                'birth_date',
+            ]));
+
             if (!empty($userFields)) {
                 $user->update($userFields);
             }
 
             $studentFields = array_intersect_key($data, array_flip([
-                'document_id',
                 'relationship_type',
-                'birth_date',
             ]));
 
             if (!empty($studentFields)) {

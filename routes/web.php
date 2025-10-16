@@ -62,8 +62,12 @@ Route::middleware('auth')->group(function () {
         Route::resource('students.enrollments', EnrollmentController::class)
             ->shallow()
             ->only(['create', 'store']);
+        Route::get('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'showTransferForm'])
+            ->name('enrollments.transfer.form');
         Route::patch('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])
             ->name('enrollments.transfer');
+        Route::get('enrollments/{enrollment}/promote', [EnrollmentController::class, 'showPromoteForm'])
+            ->name('enrollments.promote.form');
         Route::patch('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])
             ->name('enrollments.promote');
     });

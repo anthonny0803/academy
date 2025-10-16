@@ -96,6 +96,17 @@
                                     </p>
                                 </div>
 
+                                {{-- Enrollments card --}}
+                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
+                                    onclick="openModal('enrollmentsModal')">
+                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo
+                                        de
+                                        inscripciones</h5>
+                                    <p class="font-normal text-gray-700 dark:text-gray-400">Menu para la Gestión de
+                                        inscripciones.
+                                    </p>
+                                </div>
+
                                 {{-- Configuración del Sistema --}}
                                 <a href="#"
                                     class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
@@ -220,6 +231,20 @@
             <h3 class="text-xl font-bold mb-6">Secciones</h3>
             <div class="space-y-3">
                 <a href="{{ route('sections.index') }}"
+                    class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
+                    Buscar <br>➕ Registrar y Gestionar</a>
+            </div>
+            <button class="close-btn mt-6 text-red-500">Cerrar</button>
+        </div>
+    </div>
+
+    {{-- Enrollments Modal --}}
+    <div id="enrollmentsModal"
+        class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white p-8 rounded-2xl shadow-xl w-96 text-center">
+            <h3 class="text-xl font-bold mb-6">Inscripciones</h3>
+            <div class="space-y-3">
+                <a href="{{ route('enrollments.index') }}"
                     class="block bg-gray-200 py-2 rounded-lg hover:bg-blue-700">🔍
                     Buscar <br>➕ Registrar y Gestionar</a>
             </div>

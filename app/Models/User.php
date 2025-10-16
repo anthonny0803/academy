@@ -25,6 +25,11 @@ class User extends Authenticatable implements HasEntityName
         'email',
         'password',
         'sex',
+        'document_id',
+        'birth_date',
+        'phone',
+        'address',
+        'occupation',
         'is_active',
     ];
 
@@ -38,6 +43,7 @@ class User extends Authenticatable implements HasEntityName
         'is_developer' => 'boolean',
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'birth_date' => 'date',
     ];
 
     // Contracts Implementation
@@ -154,5 +160,29 @@ class User extends Authenticatable implements HasEntityName
     protected function setLastNameAttribute($value): void
     {
         $this->attributes['last_name'] = strtoupper(trim($value));
+    }
+
+    protected function setDocumentIdAttribute($value): void
+    {
+        $this->attributes['document_id'] = $value
+            ? strtoupper(preg_replace('/[^A-Z0-9]/i', '', $value))
+            : null;
+    }
+
+    protected function setPhoneAttribute($value): void
+    {
+        $this->attributes['phone'] = $value
+            ? preg_replace('/[^0-9]/', '', $value)
+            : null;
+    }
+
+    protected function setAddressAttribute($value): void
+    {
+        $this->attributes['address'] = $value ? strtoupper(trim($value)) : null;
+    }
+
+    protected function setOccupationAttribute($value): void
+    {
+        $this->attributes['occupation'] = $value ? strtoupper(trim($value)) : null;
     }
 }

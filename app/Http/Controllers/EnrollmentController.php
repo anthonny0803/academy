@@ -39,21 +39,28 @@ class EnrollmentController extends Controller
         return $this->authorizeOrRedirect('viewAny', Enrollment::class, function () use ($request) {
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
+            $academicPeriodId = $request->input('academic_period_id');
             $sectionId = $request->input('section_id');
+            $academicPeriods = AcademicPeriod::active()
+                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->orderBy('start_date', 'desc')
+                ->get();
 
-            $sections = Section::active()->orderBy('name')->get();
             $statuses = EnrollmentStatus::toArray();
 
             $enrollments = Enrollment::query()
                 ->with(['student.user', 'section.academicPeriod'])
                 ->when($search !== '', fn($q) => $q->search($search))
                 ->when($status && $status !== 'Todos', fn($q) => $q->byStatus($status))
+                ->when($academicPeriodId, function ($q) use ($academicPeriodId) {
+                    $q->whereHas('section', fn($query) => $query->where('academic_period_id', $academicPeriodId));
+                })
                 ->when($sectionId && $sectionId !== 'Todos', fn($q) => $q->forSection($sectionId))
                 ->orderBy('created_at', 'desc')
                 ->paginate(10)
                 ->withQueryString();
 
-            return view('enrollments.index', compact('enrollments', 'sections', 'statuses'));
+            return view('enrollments.index', compact('enrollments', 'academicPeriods', 'statuses'));
         });
     }
 
@@ -62,6 +69,32 @@ class EnrollmentController extends Controller
         return $this->authorizeOrRedirect('view', $enrollment, function () use ($enrollment) {
             $enrollment->load(['student.user', 'student.representative.user', 'section.academicPeriod', 'grades']);
             return view('enrollments.show', compact('enrollment'));
+        });
+    }
+
+    public function showTransferForm(Enrollment $enrollment): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('transfer', $enrollment, function () use ($enrollment) {
+            $sections = Section::active()
+                ->where('academic_period_id', $enrollment->section->academic_period_id)
+                ->where('id', '!=', $enrollment->section_id)
+                ->orderBy('name')
+                ->get();
+
+            return view('enrollments.transfer', compact('enrollment', 'sections'));
+        });
+    }
+
+    public function showPromoteForm(Enrollment $enrollment): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('promote', $enrollment, function () use ($enrollment) {
+            $academicPeriods = AcademicPeriod::active()
+                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->where('id', '!=', $enrollment->section->academic_period_id)
+                ->orderBy('start_date', 'desc')
+                ->get();
+
+            return view('enrollments.promote', compact('enrollment', 'academicPeriods'));
         });
     }
 
@@ -94,7 +127,13 @@ class EnrollmentController extends Controller
     {
         return $this->authorizeOrRedirect('update', $enrollment, function () use ($enrollment) {
             $statuses = EnrollmentStatus::toArray();
-            return view('enrollments.edit', compact('enrollment', 'statuses'));
+            $sections = Section::active()
+                ->where('academic_period_id', $enrollment->section->academic_period_id)
+                ->where('id', '!=', $enrollment->section_id)
+                ->orderBy('name')
+                ->get();
+
+            return view('enrollments.edit', compact('enrollment', 'statuses', 'sections'));
         });
     }
 

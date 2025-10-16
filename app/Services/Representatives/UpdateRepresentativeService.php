@@ -22,12 +22,11 @@ class UpdateRepresentativeService
                 unset($data['name'], $data['last_name'], $data['email'], $data['sex']);
             }
 
-            $userFields = array_intersect_key($data, array_flip(['name', 'last_name', 'email', 'sex']));
-            if (!empty($userFields)) {
-                $user->update($userFields);
-            }
-
-            $representativeFields = array_intersect_key($data, array_flip([
+            $userFields = array_intersect_key($data, array_flip([
+                'name',
+                'last_name',
+                'email',
+                'sex',
                 'document_id',
                 'birth_date',
                 'phone',
@@ -35,8 +34,8 @@ class UpdateRepresentativeService
                 'occupation',
             ]));
 
-            if (!empty($representativeFields)) {
-                $representative->update($representativeFields);
+            if (!empty($userFields)) {
+                $user->update($userFields);
             }
 
             return [

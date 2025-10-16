@@ -18,44 +18,39 @@ class StoreStudentService
         return DB::transaction(function () use ($representative, $data) {
             $isSelfRepresented = $data['is_self_represented'] ?? false;
 
-            // Si es auto-representado, usa el User del representative
             if ($isSelfRepresented) {
                 $user = $representative->user;
 
-                // Asignar rol Student si no lo tiene
                 if (!$user->hasRole(Role::Student->value)) {
                     $user->assignRole(Role::Student->value);
                 }
             } else {
-                // Crear nuevo User para el estudiante
+
                 $user = User::create([
                     'name' => $data['name'],
                     'last_name' => $data['last_name'],
                     'email' => $data['email'] ?? null,
                     'password' => null,
                     'sex' => $data['sex'],
+                    'document_id' => $data['document_id'] ?? null,
+                    'birth_date' => $data['birth_date'],
                     'is_active' => true,
                 ]);
 
                 $user->assignRole(Role::Student->value);
             }
 
-            // Generar student_code
-            $isChild = Carbon::parse($data['birth_date'])->age < 18;
+            $isChild = $user->getAge() < 18;
             $studentCode = $this->generateStudentCode($isChild);
 
-            // Crear Student
             $student = Student::create([
                 'user_id' => $user->id,
                 'representative_id' => $representative->id,
                 'student_code' => $studentCode,
-                'document_id' => $data['document_id'] ?? null,
                 'relationship_type' => $data['relationship_type'],
-                'birth_date' => $data['birth_date'],
                 'is_active' => true,
             ]);
 
-            // Crear Enrollment
             Enrollment::create([
                 'student_id' => $student->id,
                 'section_id' => $data['section_id'],

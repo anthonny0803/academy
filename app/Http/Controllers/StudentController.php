@@ -63,7 +63,10 @@ class StudentController extends Controller
                     ->when($sectionId, function ($q) use ($sectionId) {
                         $q->whereHas('enrollments', fn($query) => $query->where('section_id', $sectionId));
                     })
-                    ->orderBy('student_code')
+                    ->join('users', 'students.user_id', '=', 'users.id')
+                    ->orderBy('users.name')
+                    ->orderBy('users.last_name')
+                    ->select('students.*')
                     ->paginate(10)
                     ->withQueryString();
             }

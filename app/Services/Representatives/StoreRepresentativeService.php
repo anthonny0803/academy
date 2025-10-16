@@ -16,24 +16,24 @@ class StoreRepresentativeService
                 'name' => $data['name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
+                'password' => $data['password'],
                 'sex' => $data['sex'],
-                'password' => null,
-                'is_active' => false,
+                'document_id' => $data['document_id'],
+                'birth_date' => $data['birth_date'],
+                'phone' => $data['phone'],
+                'address' => $data['address'],
+                'occupation' => $data['occupation'],
+                'is_active' => true,
             ]);
 
             $user->assignRole(Role::Representative->value);
 
             $representative = Representative::create([
                 'user_id' => $user->id,
-                'document_id' => $data['document_id'],
-                'birth_date' => $data['birth_date'],
-                'phone' => $data['phone'],
-                'address' => $data['address'],
-                'occupation' => $data['occupation'] ?? null,
                 'is_active' => true,
             ]);
 
-            return $representative;
+            return $representative->fresh(['user']);
         });
     }
 }

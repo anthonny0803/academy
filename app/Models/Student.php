@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Carbon\Carbon;
 
 class Student extends Model implements HasEntityName
 {
@@ -22,15 +21,12 @@ class Student extends Model implements HasEntityName
         'user_id',
         'representative_id',
         'student_code',
-        'document_id',
         'relationship_type',
-        'birth_date',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'birth_date' => 'date',
     ];
 
     // Contracts Implementation
@@ -75,9 +71,9 @@ class Student extends Model implements HasEntityName
     {
         return $query->whereHas('user', function ($q) use ($term) {
             $q->where('name', 'like', "%{$term}%")
-                ->orWhere('last_name', 'like', "%{$term}%");
-        })->orWhere('student_code', 'like', "%{$term}%")
-            ->orWhere('document_id', 'like', "%{$term}%");
+                ->orWhere('last_name', 'like', "%{$term}%")
+                ->orWhere('document_id', 'like', "%{$term}%");
+        })->orWhere('student_code', 'like', "%{$term}%");
     }
 
     public function scopeForRepresentative(Builder $query, int $representativeId): Builder
@@ -85,11 +81,18 @@ class Student extends Model implements HasEntityName
         return $query->where('representative_id', $representativeId);
     }
 
+    // Accessors
+
+    public function getBirthDateAttribute()
+    {
+        return $this->user->birth_date ?? $this->attributes['birth_date'] ?? null;
+    }
+
     // Helper Methods
 
     public function isChild(): bool
     {
-        return Carbon::parse($this->birth_date)->age < 18;
+        return $this->user->getAge() < 18;
     }
 
     public function isSelfRepresented(): bool
@@ -98,13 +101,6 @@ class Student extends Model implements HasEntityName
     }
 
     // Mutators
-
-    protected function setDocumentIdAttribute($value): void
-    {
-        $this->attributes['document_id'] = $value
-            ? strtoupper(preg_replace('/[^A-Z0-9]/i', '', $value))
-            : null;
-    }
 
     protected function setStudentCodeAttribute($value): void
     {

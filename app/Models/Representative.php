@@ -16,17 +16,11 @@ class Representative extends Model implements HasEntityName
 
     protected $fillable = [
         'user_id',
-        'document_id',
-        'birth_date',
-        'phone',
-        'address',
-        'occupation',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'birth_date' => 'date',
     ];
 
     // Contracts Implementation
@@ -52,12 +46,10 @@ class Representative extends Model implements HasEntityName
 
     public function scopeSearch($query, string $term)
     {
-        return $query->where(function ($q) use ($term) {
-            $q->whereHas('user', function ($userQuery) use ($term) {
-                $userQuery->where('name', 'like', "%{$term}%")
-                    ->orWhere('last_name', 'like', "%{$term}%")
-                    ->orWhere('email', 'like', "%{$term}%");
-            })
+        return $query->whereHas('user', function ($userQuery) use ($term) {
+            $userQuery->where('name', 'like', "%{$term}%")
+                ->orWhere('last_name', 'like', "%{$term}%")
+                ->orWhere('email', 'like', "%{$term}%")
                 ->orWhere('document_id', 'like', "%{$term}%")
                 ->orWhere('phone', 'like', "%{$term}%");
         });
@@ -75,9 +67,29 @@ class Representative extends Model implements HasEntityName
 
     // Accessors
 
+    public function getDocumentIdAttribute()
+    {
+        return $this->user->document_id ?? $this->attributes['document_id'] ?? null;
+    }
+
+    public function getBirthDateAttribute()
+    {
+        return $this->user->birth_date ?? $this->attributes['birth_date'] ?? null;
+    }
+
+    public function getPhoneAttribute()
+    {
+        return $this->user->phone ?? $this->attributes['phone'] ?? null;
+    }
+
+    public function getAddressAttribute()
+    {
+        return $this->user->address ?? $this->attributes['address'] ?? null;
+    }
+
     public function getAgeAttribute(): ?int
     {
-        return $this->birth_date?->age;
+        return $this->user->getAge();
     }
 
     // Business Logic
@@ -90,22 +102,5 @@ class Representative extends Model implements HasEntityName
     public function getStudentCount(): int
     {
         return $this->students()->count();
-    }
-
-    // Mutators
-
-    protected function setDocumentIdAttribute($value): void
-    {
-        $this->attributes['document_id'] = strtoupper(preg_replace('/[^A-Z0-9]/i', '', $value));
-    }
-
-    protected function setPhoneAttribute($value): void
-    {
-        $this->attributes['phone'] = preg_replace('/[^0-9]/', '', $value);
-    }
-
-    protected function setAddressAttribute($value): void
-    {
-        $this->attributes['address'] = strtoupper(trim(preg_replace('/\s+/', ' ', $value)));
     }
 }
