@@ -40,12 +40,20 @@ class Teacher extends Model implements HasEntityName
 
     public function subjects(): BelongsToMany
     {
-        return $this->belongsToMany(Subject::class, 'subject_teacher');
+        return $this->belongsToMany(Subject::class, 'subject_teacher')
+            ->withTimestamps();
     }
 
     public function sectionSubjectTeachers(): HasMany
     {
         return $this->hasMany(SectionSubjectTeacher::class);
+    }
+
+    public function sections(): BelongsToMany
+    {
+        return $this->belongsToMany(Section::class, 'section_subject_teacher')
+            ->withPivot('subject_id', 'is_primary', 'status')
+            ->withTimestamps();
     }
 
     // Query Scopes
@@ -70,5 +78,23 @@ class Teacher extends Model implements HasEntityName
             ->orderBy('users.name')
             ->orderBy('users.last_name')
             ->select('teachers.*');
+    }
+
+    // Helper Methods
+
+    public function hasSubject(int $subjectId): bool
+    {
+        return $this->sectionSubjectTeachers()
+            ->where('subject_id', $subjectId)
+            ->exists();
+    }
+
+    public function getSubjectTeacher(int $subjectId): ?SectionSubjectTeacher
+    {
+        return $this->sectionSubjectTeachers()
+            ->where('subject_id', $subjectId)
+            ->primary()
+            ->active()
+            ->first();
     }
 }

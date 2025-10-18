@@ -106,4 +106,39 @@ class Enrollment extends Model implements HasEntityName
     {
         return $this->status === EnrollmentStatus::Withdrawn->value;
     }
+
+    public function getGradesForSubject(int $subjectId)
+    {
+        return $this->grades()
+            ->whereHas('sectionSubjectTeacher', function ($q) use ($subjectId) {
+                $q->where('subject_id', $subjectId);
+            })
+            ->get();
+    }
+
+    public function getAverageForSubject(int $subjectId): ?float
+    {
+        $average = $this->grades()
+            ->whereHas('sectionSubjectTeacher', function ($q) use ($subjectId) {
+                $q->where('subject_id', $subjectId);
+            })
+            ->avg('grade');
+
+        return $average ? round($average, 2) : null;
+    }
+
+    public function getOverallAverage(): ?float
+    {
+        $average = $this->grades()->avg('grade');
+        return $average ? round($average, 2) : null;
+    }
+
+    public function getAvailableSubjects()
+    {
+        return $this->section->sectionSubjectTeachers()
+            ->active()
+            ->with('subject')
+            ->get()
+            ->pluck('subject');
+    }
 }

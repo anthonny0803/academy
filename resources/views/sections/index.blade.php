@@ -94,6 +94,12 @@
                                             <div id="dropdown-template-{{ $section->id }}" class="hidden">
                                                 <ul class="py-1 text-sm text-gray-200">
                                                     <li>
+                                                        <a href="{{ route('sections.show', $section) }}"
+                                                            class="block px-4 py-2 hover:bg-gray-700">
+                                                            Asignar materias
+                                                        </a>
+                                                    </li>
+                                                    <li>
                                                         <button type="button" data-id="{{ $section->id }}"
                                                             data-academic-period-id="{{ $section->academic_period_id }}"
                                                             data-name="{{ e($section->name) }}"
@@ -141,7 +147,7 @@
         </div>
     </div>
 
-    <!-- Modal CREAR -->
+    {{-- Modal CREAR (sin cambios) --}}
     <div id="sectionModal"
         class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 overflow-y-auto p-4">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-lg my-8 relative">
@@ -200,7 +206,7 @@
         </div>
     </div>
 
-    <!-- Modal EDITAR -->
+    {{-- Modal EDITAR (sin cambios) --}}
     <div id="editSectionModal"
         class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50 overflow-y-auto p-4">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-lg my-8 relative">
@@ -256,7 +262,7 @@
         </div>
     </div>
 
-    <!-- Script dropdown + modal -->
+    {{-- Script (SIN CAMBIOS, mantén tu mismo script) --}}
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             function toggleBodyScroll(disable) {
@@ -300,7 +306,7 @@
                         "border", "border-gray-700", "rounded", "shadow-lg");
 
                     const rect = btn.getBoundingClientRect();
-                    const menuHeight = 160;
+                    const menuHeight = 120;
                     const espacioAbajo = window.innerHeight - rect.bottom;
 
                     if (espacioAbajo >= menuHeight) {

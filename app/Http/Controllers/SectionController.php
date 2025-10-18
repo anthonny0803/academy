@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Section;
 use App\Models\AcademicPeriod;
+use App\Models\Subject;
 use App\Http\Requests\Sections\StoreSectionRequest;
 use App\Http\Requests\Sections\UpdateSectionRequest;
 use App\Services\Sections\StoreSectionService;
@@ -52,6 +53,41 @@ class SectionController extends Controller
                 ->withQueryString();
 
             return view('sections.index', compact('sections', 'academicPeriods'));
+        });
+    }
+
+    public function show(Section $section): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('view', $section, function () use ($section) {
+            // Cargar relaciones necesarias
+            $section->load([
+                'academicPeriod',
+                'sectionSubjectTeachers.subject',
+                'sectionSubjectTeachers.teacher.user'
+            ]);
+
+            // Materias activas para el select del modal
+            $subjects = Subject::active()->orderBy('name')->get();
+
+            // Construir array de profesores agrupados por materia
+            $teachersBySubject = [];
+
+            foreach ($subjects as $subject) {
+                // Obtener profesores que PUEDEN impartir esta materia (desde subject_teacher)
+                $teachers = $subject->teachers()
+                    ->where('is_active', true)
+                    ->with('user')
+                    ->get();
+
+                $teachersBySubject[$subject->id] = $teachers->map(function ($teacher) {
+                    return [
+                        'id' => $teacher->id,
+                        'name' => $teacher->user->full_name
+                    ];
+                })->toArray();
+            }
+
+            return view('sections.show', compact('section', 'subjects', 'teachersBySubject'));
         });
     }
 

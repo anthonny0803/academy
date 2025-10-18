@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Subject extends Model implements HasEntityName
 {
@@ -36,17 +37,32 @@ class Subject extends Model implements HasEntityName
 
     public function teachers(): BelongsToMany
     {
-        return $this->belongsToMany(Teacher::class, 'subject_teacher');
-    }
-
-    public function grades(): HasMany
-    {
-        return $this->hasMany(Grade::class);
+        return $this->belongsToMany(Teacher::class, 'subject_teacher')
+            ->withTimestamps();
     }
 
     public function sectionSubjectTeachers(): HasMany
     {
         return $this->hasMany(SectionSubjectTeacher::class);
+    }
+
+    public function sections(): BelongsToMany
+    {
+        return $this->belongsToMany(Section::class, 'section_subject_teacher')
+            ->withPivot('teacher_id', 'is_primary', 'status')
+            ->withTimestamps();
+    }
+
+    public function grades(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Grade::class,
+            SectionSubjectTeacher::class,
+            'subject_id',
+            'section_subject_teacher_id',
+            'id',
+            'id'
+        );
     }
 
     // Query Scopes
@@ -68,6 +84,6 @@ class Subject extends Model implements HasEntityName
 
     protected function setDescriptionAttribute($value): void
     {
-        $this->attributes['description'] = ucfirst(trim($value));
+        $this->attributes['description'] = $value ? strtoupper(trim($value)) : null;
     }
 }

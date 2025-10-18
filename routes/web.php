@@ -9,6 +9,8 @@ use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\AcademicPeriodController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\EnrollmentController;
+use App\Http\Controllers\SubjectTeacherController;
+use App\Http\Controllers\SectionSubjectTeacherController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -30,6 +32,16 @@ Route::middleware('auth')->group(function () {
         Route::resource('teachers', TeacherController::class);
         Route::patch('teachers/{teacher}/toggle', [TeacherController::class, 'toggleActivation'])
             ->name('teachers.toggle');
+
+        Route::get('teachers/{teacher}/subjects/assign', [SubjectTeacherController::class, 'assign'])
+            ->name('teachers.subjects.assign');
+        Route::post('teachers/{teacher}/subjects', [SubjectTeacherController::class, 'store'])
+            ->name('teachers.subjects.store');
+        Route::delete('teachers/{teacher}/subjects/{subject}', [SubjectTeacherController::class, 'destroy'])
+            ->name('teachers.subjects.destroy');
+
+        Route::get('subject-teacher', [SubjectTeacherController::class, 'index'])
+            ->name('subject-teacher.index');
 
         Route::resource('representatives', RepresentativeController::class);
         Route::patch('representatives/{representative}/toggle', [RepresentativeController::class, 'toggleActivation'])
@@ -53,9 +65,12 @@ Route::middleware('auth')->group(function () {
         Route::patch('academic-periods/{academicPeriod}/toggle', [AcademicPeriodController::class, 'toggleActivation'])
             ->name('academic-periods.toggle');
 
-        Route::resource('sections', SectionController::class)->except(['show']);
+        Route::resource('sections', SectionController::class);
         Route::patch('sections/{section}/toggle', [SectionController::class, 'toggleActivation'])
             ->name('sections.toggle');
+
+        Route::resource('section-subject-teacher', SectionSubjectTeacherController::class)
+            ->except(['index', 'show', 'create', 'edit']);
 
         Route::resource('enrollments', EnrollmentController::class)
             ->except(['create', 'store']);
