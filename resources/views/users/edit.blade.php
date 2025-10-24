@@ -12,12 +12,12 @@
                         {{-- Personal information --}}
                         <div>
                             <x-input-label for="name" :value="__('Nombre')" />
-                            <x-text-input id="name" class="block mt-1 w-full uppercase cursor-not-allowed"
+                            <x-text-input id="name" class="block mt-1 w-full uppercase cursor-not-allowed opacity-60"
                                 type="text" name="name" :value="$user->name" disabled />
                         </div>
                         <div class="mt-4">
                             <x-input-label for="last_name" :value="__('Apellido')" />
-                            <x-text-input id="last_name" class="block mt-1 w-full uppercase cursor-not-allowed"
+                            <x-text-input id="last_name" class="block mt-1 w-full uppercase cursor-not-allowed opacity-60"
                                 type="text" name="last_name" :value="$user->last_name" disabled />
                         </div>
                         <div class="mt-4">
@@ -31,7 +31,7 @@
                             <x-input-label for="sex" :value="__('Sexo')" />
                             <select id="sex" name="sex"
                                 class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm
-                                cursor-not-allowed"
+                                cursor-not-allowed opacity-60"
                                 disabled>
                                 @foreach ($sexes as $sex)
                                     <option value="{{ $sex }}"
@@ -92,8 +92,7 @@
                                 <strong class="font-bold">Nota:</strong>
                                 <span class="block sm:inline">Los campos de empleados se modifican en su propio
                                     perfil.</span><br>
-                                <span class="block sm:inline">Los demás campos son modificables a través de su
-                                    módulo.</span>
+                                <span class="block sm:inline">El correo solo debe ser modificado en caso de ser necesario.</span>
                             </div>
                             <button type="button"
                                 class="text-red-700 hover:text-red-900 font-bold text-lg leading-none ml-2"

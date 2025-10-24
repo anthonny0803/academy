@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\HasEntityName;
 use App\Enums\RelationshipType;
 use App\Traits\Activatable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -83,9 +84,44 @@ class Student extends Model implements HasEntityName
 
     // Accessors
 
-    public function getBirthDateAttribute()
+    public function getFullNameAttribute(): string
     {
-        return $this->user->birth_date ?? $this->attributes['birth_date'] ?? null;
+        return $this->user?->full_name ?? '';
+    }
+
+    public function getAgeAttribute(): ?int
+    {
+        return $this->user?->age ?? null;
+    }
+
+    public function getEmailAttribute(): ?string
+    {
+        return $this->user?->email ?? null;
+    }
+
+    public function getDocumentIdAttribute(): ?string
+    {
+        return $this->user?->document_id ?? null;
+    }
+
+    public function getSexAttribute(): ?string
+    {
+        return $this->user?->sex ?? null;
+    }
+
+    public function getBirthDateAttribute(): ?Carbon
+    {
+        return $this->user?->birth_date ?? null;
+    }
+
+    public function getPhoneAttribute(): ?string
+    {
+        return $this->user?->phone ?? null;
+    }
+
+    public function getAddressAttribute(): ?string
+    {
+        return $this->user?->address ?? null;
     }
 
     // Helper Methods

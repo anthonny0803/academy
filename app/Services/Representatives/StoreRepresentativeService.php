@@ -23,7 +23,7 @@ class StoreRepresentativeService
                 'phone' => $data['phone'],
                 'address' => $data['address'],
                 'occupation' => $data['occupation'],
-                'is_active' => true,
+                'is_active' => false,
             ]);
 
             $user->assignRole(Role::Representative->value);

@@ -6,6 +6,7 @@ use App\Contracts\HasEntityName;
 use App\Enums\Role;
 use App\Enums\Sex;
 use App\Traits\Activatable;
+use Carbon\Carbon; 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -72,6 +73,11 @@ class User extends Authenticatable implements HasEntityName
 
     // Query Scopes
 
+    public function scopeOrderByName($query, string $direction = 'asc')
+    {
+        return $query->orderBy('name', $direction)->orderBy('last_name', $direction);
+    }
+
     public function scopeWithRole($query, string $role)
     {
         return $query->whereHas('roles', fn($q) => $q->where('name', $role));
@@ -91,6 +97,11 @@ class User extends Authenticatable implements HasEntityName
     public function getFullNameAttribute(): string
     {
         return trim("{$this->name} {$this->last_name}");
+    }
+
+    public function getAgeAttribute(): ?int
+    {
+        return $this->birth_date ? $this->birth_date->age : null;
     }
 
     // Role Verification Methods
@@ -143,6 +154,15 @@ class User extends Authenticatable implements HasEntityName
     public function isFemale(): bool
     {
         return $this->sex === Sex::Female->value;
+    }
+
+    // Helper Methods
+
+    public function hasEntity(): bool
+    {
+        return $this->teacher()->exists()
+            || $this->representative()->exists()
+            || $this->student()->exists();
     }
 
     // Mutators

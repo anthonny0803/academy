@@ -49,8 +49,7 @@ class UserController extends Controller
                     })
                     ->when($role && $role !== 'Todos', fn($q) => $q->withRole($role))
                     ->with('roles')
-                    ->orderBy('name')
-                    ->orderBy('last_name')
+                    ->orderByName()
                     ->paginate(5)
                     ->withQueryString();
             }

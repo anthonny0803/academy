@@ -49,6 +49,15 @@ class UserPolicy
         return null;
     }
 
+    private function cannotToggleWithoutAdministrativeRole(User $targetUser): ?Response
+    {
+        if (!$targetUser->isSupervisor() && !$targetUser->isAdmin()) {
+            return Response::deny('No puedes activar un usuario si no tiene rol administrativo.');
+        }
+
+        return null;
+    }
+
     private function cannotDeleteUserWithConditions(User $targetUser): ?Response
     {
         if ($targetUser->isActive()) {
@@ -108,6 +117,7 @@ class UserPolicy
             ?? $this->cannotManageDeveloper($targetUser)
             ?? $this->cannotModifySelf($currentUser, $targetUser)
             ?? $this->cannotManageSameRoleSupervisor($currentUser, $targetUser)
+            ?? $this->cannotToggleWithoutAdministrativeRole($targetUser)
             ?? Response::allow();
     }
 }

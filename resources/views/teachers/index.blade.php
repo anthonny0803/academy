@@ -62,10 +62,10 @@
                             <tbody>
                                 @forelse ($teachers as $teacher)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                        <td class="py-2 px-4 border-b">{{ $teacher->user?->name ?? '-' }}</td>
-                                        <td class="py-2 px-4 border-b">{{ $teacher->user?->last_name ?? '-' }}</td>
-                                        <td class="py-2 px-4 border-b">{{ $teacher->user?->email ?? '-' }}</td>
-                                        <td class="py-2 px-4 border-b">{{ $teacher->user?->sex ?? '-' }}</td>
+                                        <td class="py-2 px-4 border-b">{{ $teacher->name }}</td>
+                                        <td class="py-2 px-4 border-b">{{ $teacher->last_name }}</td>
+                                        <td class="py-2 px-4 border-b">{{ $teacher->email }}</td>
+                                        <td class="py-2 px-4 border-b">{{ $teacher->sex }}</td>
                                         <td class="py-2 px-4 border-b">
                                             @if ($teacher->user && $teacher->user->roles->isNotEmpty())
                                                 @foreach ($teacher->user->roles as $role)
@@ -90,7 +90,7 @@
                                                     <li><a href="{{ route('teachers.show', $teacher) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Ver</a>
                                                     </li>
-                                                    <li><a href="{{ route('teachers.edit', $teacher) }}"
+                                                    <li><a href="{{ route('users.edit', $teacher->user) }}"
                                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
                                                     </li>
                                                 </ul>

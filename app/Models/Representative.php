@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\HasEntityName;
 use App\Traits\Activatable;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -67,32 +68,52 @@ class Representative extends Model implements HasEntityName
 
     // Accessors
 
-    public function getDocumentIdAttribute()
+    public function getFullNameAttribute(): string
     {
-        return $this->user->document_id ?? $this->attributes['document_id'] ?? null;
-    }
-
-    public function getBirthDateAttribute()
-    {
-        return $this->user->birth_date ?? $this->attributes['birth_date'] ?? null;
-    }
-
-    public function getPhoneAttribute()
-    {
-        return $this->user->phone ?? $this->attributes['phone'] ?? null;
-    }
-
-    public function getAddressAttribute()
-    {
-        return $this->user->address ?? $this->attributes['address'] ?? null;
+        return $this->user?->full_name ?? '';
     }
 
     public function getAgeAttribute(): ?int
     {
-        return $this->user->getAge();
+        return $this->user?->age ?? null;
     }
 
-    // Business Logic
+    public function getEmailAttribute(): ?string
+    {
+        return $this->user?->email ?? null;
+    }
+
+    public function getDocumentIdAttribute(): ?string
+    {
+        return $this->user?->document_id ?? null;
+    }
+    
+    public function getSexAttribute(): ?string
+    {
+        return $this->user?->sex ?? null;
+    }
+
+    public function getBirthDateAttribute(): ?Carbon
+    {
+        return $this->user?->birth_date ?? null;
+    }
+
+    public function getPhoneAttribute(): ?string
+    {
+        return $this->user?->phone ?? null;
+    }
+
+    public function getAddressAttribute(): ?string
+    {
+        return $this->user?->address ?? null;
+    }
+
+    public function getOccupationAttribute(): ?string
+    {
+        return $this->user?->occupation ?? null;
+    }
+
+    // Helper Methods
 
     public function hasStudents(): bool
     {

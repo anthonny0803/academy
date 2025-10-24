@@ -10,29 +10,40 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class RepresentativeFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = Representative::class;
 
     /**
      * Define the model's default state.
-     * Define el estado por defecto del modelo.
+     * Los campos personales (document_id, phone, address, occupation, birth_date) 
+     * ahora están en User.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            // 'user_id' se asignará cuando el UserFactory lo cree (en el estado 'representative()')
-            'document_id' => $this->faker->unique()->regexify('[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}'), // Genera un ID de documento único (10 dígitos)
-            'phone' => $this->faker->phoneNumber(),
-            'address' => $this->faker->address(),
-            'occupation' => $this->faker->jobTitle(),
-            'is_active' => $this->faker->boolean(95), // 95% de probabilidad de ser activo
-            'birth_date' => $this->faker->dateTimeBetween('-60 years', '-20 years')->format('Y-m-d'), // Edad entre 20 y 60 años
+            // user_id se asigna desde UserFactory con el estado ->representative()
+            'is_active' => fake()->boolean(95), // 95% de probabilidad de estar activo
         ];
+    }
+
+    /**
+     * Indicate that the representative is inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
+    }
+
+    /**
+     * Indicate that the representative is active.
+     */
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => true,
+        ]);
     }
 }

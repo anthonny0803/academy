@@ -5,9 +5,9 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <h3 class="text-2xl font-bold mb-4">
                         @if (Auth::user()->sex === 'Femenino')
-                            Bienvenida, {{ Auth::user()->getFullNameAttribute() }}!
+                            Bienvenida, {{ Auth::user()->full_name }}!
                         @else
-                            Bienvenido, {{ Auth::user()->getFullNameAttribute() }}!
+                            Bienvenido, {{ Auth::user()->full_name }}!
                         @endif
                     </h3>
                     <p class="mb-6">

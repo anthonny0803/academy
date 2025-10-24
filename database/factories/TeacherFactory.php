@@ -10,24 +10,39 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TeacherFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = Teacher::class;
 
     /**
      * Define the model's default state.
-     * Define el estado por defecto del modelo.
+     * Los campos personales (name, email, document_id, etc.) están en User ahora.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            // 'user_id' se asignará cuando el UserFactory lo cree (en el estado 'teacher()')
-            'is_active' => $this->faker->boolean(90), // 90% de probabilidad de ser activo
+            // user_id se asigna desde UserFactory con el estado ->teacher()
+            'is_active' => fake()->boolean(90), // 90% de probabilidad de estar activo académicamente
         ];
+    }
+
+    /**
+     * Indicate that the teacher is inactive academically.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
+    }
+
+    /**
+     * Indicate that the teacher is active academically.
+     */
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => true,
+        ]);
     }
 }

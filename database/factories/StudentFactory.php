@@ -2,8 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Student;
+use App\Enums\RelationshipType;
 use App\Models\Representative;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -12,61 +13,102 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class StudentFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = Student::class;
 
     /**
      * Define the model's default state.
-     * Define el estado por defecto del modelo.
+     * Los campos personales (document_id, birth_date) ahora están en User.
      *
      * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            // 'user_id' no se define aquí; se asignará desde el UserFactory.
-            // Por defecto, se creará un representante externo si no se especifica.
+            // user_id se asigna desde UserFactory con el estado ->student()
+            
+            // Crear un representante externo por defecto
             'representative_id' => Representative::factory()->create([
-                'user_id' => User::factory()->create()->id, // Crea un User para el Representative
-                'document_id' => $this->faker->unique()->regexify('[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}'), // Genera un ID de documento único (10 dígitos)
-            ])->id, // Obtiene el ID del Representative recién creado
-
-            'student_code' => $this->faker->unique()->numerify('####-####'), // Ejemplo: "1234-5678"
-            'document_id' => $this->faker->unique()->regexify('[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}'), // Genera un ID de documento único (10 dígitos)
-            'relationship_type' => $this->faker->randomElement(['Padre', 'Madre', 'Tutor Legal', 'Otro Familiar']), // Esto cambiará si es auto-representado
-            'birth_date' => $this->faker->dateTimeBetween('-60 years', '-6 years')->format('Y-m-d'), // Edad entre 6 y 60 años
-            'is_active' => $this->faker->boolean(95), // 95% de probabilidad de ser activo
+                'user_id' => User::factory()->create([
+                    'is_active' => false, // Los representatives no acceden al sistema
+                    'birth_date' => fake()->dateTimeBetween('-60 years', '-20 years')->format('Y-m-d'),
+                ])->id,
+            ])->id,
+            
+            'student_code' => fake()->unique()->numerify('####-####'), // Ejemplo: "1234-5678"
+            'relationship_type' => fake()->randomElement([
+                RelationshipType::Father->value,
+                RelationshipType::Mother->value,
+                RelationshipType::LegalGuardian->value,
+            ]),
+            'is_active' => fake()->boolean(95), // 95% de probabilidad de estar activo
         ];
     }
 
     /**
-     * Indicate that the student is their own representative.
-     * Indica que el estudiante es su propio representante (mayor de edad).
+     * Indicate that the student is self-represented (mayor de edad).
+     * NOTA: Este método se llama desde UserFactory->student(true)
      *
-     * @param \App\Models\User $studentUser El usuario que se está convirtiendo en estudiante.
+     * @param \App\Models\User $studentUser El usuario del estudiante
      * @return static
      */
     public function selfRepresented(User $studentUser): static
     {
         return $this->state(function (array $attributes) use ($studentUser) {
-            // Crea el perfil de Representative usando el mismo user_id del estudiante
-            $representative = Representative::factory()->create([
-                'user_id' => $studentUser->id,
-                'phone' => $studentUser->phone_number ?? $this->faker->phoneNumber(), // Usa el teléfono del usuario si existe, sino genera uno
-                'address' => $studentUser->address ?? $this->faker->address(), // Usa la dirección del usuario si existe, sino genera una
-                'occupation' => $this->faker->jobTitle(),
-                'is_active' => $studentUser->is_active,
-            ]);
-
+            // El representante ya fue creado en UserFactory->student(true)
+            // Solo necesitamos asignar el representative_id que se pasa
             return [
-                'representative_id' => $representative->id,
-                'document_id' => $representative->document_id,
-                'relationship_type' => 'Auto-representado', // O 'El mismo', 'Self'
+                'relationship_type' => RelationshipType::SelfRepresented->value,
             ];
         });
+    }
+
+    /**
+     * Indicate that the student is inactive.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
+    }
+
+    /**
+     * Indicate that the student is active.
+     */
+    public function active(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => true,
+        ]);
+    }
+
+    /**
+     * Indicate that the student's relationship is Father.
+     */
+    public function withFather(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'relationship_type' => RelationshipType::Father->value,
+        ]);
+    }
+
+    /**
+     * Indicate that the student's relationship is Mother.
+     */
+    public function withMother(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'relationship_type' => RelationshipType::Mother->value,
+        ]);
+    }
+
+    /**
+     * Indicate that the student's relationship is Legal Guardian.
+     */
+    public function withLegalGuardian(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'relationship_type' => RelationshipType::LegalGuardian->value,
+        ]);
     }
 }

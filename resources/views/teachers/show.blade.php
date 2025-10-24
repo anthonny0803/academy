@@ -118,20 +118,10 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="{{ route('teachers.edit', $teacher) }}"
+                                    <a href="{{ route('users.edit', $teacher->user) }}"
                                         class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                                         Editar
                                     </a>
-                                </li>
-                                <li>
-                                    <form method="POST" action="{{ route('teachers.destroy', $teacher) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-red-600">
-                                            Eliminar
-                                        </button>
-                                    </form>
                                 </li>
                             </ul>
                         </div>

@@ -174,15 +174,27 @@
                                 if (isSelfRepresented) {
                                     // Rellenar con datos del representante
                                     Object.keys(studentFields).forEach(key => {
-                                        studentFields[key].value = representativeData[key];
-                                        studentFields[key].readOnly = true;
-                                        studentFields[key].classList.add('cursor-not-allowed', 'opacity-60');
+                                        const field = studentFields[key];
+                                        field.value = representativeData[key];
+
+                                        // Para select, usar disabled. Para input, usar readOnly
+                                        if (field.tagName === 'SELECT') {
+                                            field.disabled = true;
+                                        } else {
+                                            field.readOnly = true;
+                                        }
+
+                                        field.classList.add('cursor-not-allowed', 'opacity-60');
                                     });
                                 } else {
                                     // Limpiar campos
                                     Object.values(studentFields).forEach(field => {
                                         field.value = '';
+
+                                        // Remover tanto disabled como readOnly
+                                        field.disabled = false;
                                         field.readOnly = false;
+
                                         field.classList.remove('cursor-not-allowed', 'opacity-60');
                                     });
                                 }

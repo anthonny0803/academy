@@ -80,6 +80,33 @@ class Teacher extends Model implements HasEntityName
             ->select('teachers.*');
     }
 
+    // Accessors
+
+    public function getFullNameAttribute(): string
+    {
+        return $this->user?->full_name ?? '';
+    }
+
+    public function getEmailAttribute(): ?string
+    {
+        return $this->user?->email ?? null;
+    }
+
+    public function getNameAttribute(): string
+    {
+        return $this->user?->name ?? '';
+    }
+
+    public function getLastNameAttribute(): string
+    {
+        return $this->user?->last_name ?? '';
+    }
+
+    public function getSexAttribute(): ?string
+    {
+        return $this->user?->sex ?? null;
+    }
+
     // Helper Methods
 
     public function hasSubject(int $subjectId): bool

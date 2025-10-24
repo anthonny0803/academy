@@ -34,7 +34,7 @@ class StoreStudentService
                     'sex' => $data['sex'],
                     'document_id' => $data['document_id'] ?? null,
                     'birth_date' => $data['birth_date'],
-                    'is_active' => true,
+                    'is_active' => false,
                 ]);
 
                 $user->assignRole(Role::Student->value);
