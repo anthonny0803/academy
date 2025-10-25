@@ -16,7 +16,6 @@ class StoreRepresentativeService
                 'name' => $data['name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
-                'password' => $data['password'],
                 'sex' => $data['sex'],
                 'document_id' => $data['document_id'],
                 'birth_date' => $data['birth_date'],

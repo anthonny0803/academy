@@ -96,7 +96,7 @@
 
                             <div class="w-full sm:w-1/3 px-2 mb-4">
                                 <x-input-label for="academic_period_id" :value="__('Periodo Académico')" />
-                                <select id="academic_period_id"
+                                <select id="academic_period_id" name="academic_period_id"
                                     class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm"
                                     required>
                                     <option value="">Selecciona un período</option>
@@ -106,6 +106,7 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                <x-input-error :messages="$errors->get('academic_period_id')" class="mt-2" />
                             </div>
 
                             <div class="w-full sm:w-1/3 px-2 mb-4">
@@ -119,10 +120,10 @@
                             </div>
                         </div>
 
-                        {{-- Campo oculto para is_self_represented --}}
+                        {{-- Hidden field para is_self_represented --}}
                         <input type="hidden" id="is_self_represented" name="is_self_represented" value="0">
 
-                        <div class="flex items-center justify-end mt-4 space-x-4">
+                        <div class="flex items-center justify-end">
                             <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
                                 href="{{ route('dashboard') }}">
                                 {{ __('Volver al Panel') }}
@@ -167,6 +168,15 @@
                                 birth_date: document.getElementById('birth_date'),
                             };
 
+                            // Función auxiliar para prevenir interacción con el select
+                            function preventSelectInteraction(e) {
+                                if (e.target.getAttribute('data-readonly') === 'true') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    return false;
+                                }
+                            }
+
                             relationshipType.addEventListener('change', function() {
                                 const isSelfRepresented = this.value === selfRepresentedValue;
                                 hiddenInput.value = isSelfRepresented ? '1' : '0';
@@ -177,10 +187,16 @@
                                         const field = studentFields[key];
                                         field.value = representativeData[key];
 
-                                        // Para select, usar disabled. Para input, usar readOnly
                                         if (field.tagName === 'SELECT') {
-                                            field.disabled = true;
+                                            // Para select: prevenir cambios pero mantener cursor
+                                            field.setAttribute('data-readonly', 'true');
+                                            field.setAttribute('tabindex', '-1');
+                                            
+                                            // Prevenir que se abra el dropdown
+                                            field.addEventListener('mousedown', preventSelectInteraction);
+                                            field.addEventListener('keydown', preventSelectInteraction);
                                         } else {
+                                            // Para inputs normales, usar readOnly
                                             field.readOnly = true;
                                         }
 
@@ -191,9 +207,15 @@
                                     Object.values(studentFields).forEach(field => {
                                         field.value = '';
 
-                                        // Remover tanto disabled como readOnly
-                                        field.disabled = false;
-                                        field.readOnly = false;
+                                        if (field.tagName === 'SELECT') {
+                                            // Restaurar interactividad del select
+                                            field.removeAttribute('data-readonly');
+                                            field.removeAttribute('tabindex');
+                                            field.removeEventListener('mousedown', preventSelectInteraction);
+                                            field.removeEventListener('keydown', preventSelectInteraction);
+                                        } else {
+                                            field.readOnly = false;
+                                        }
 
                                         field.classList.remove('cursor-not-allowed', 'opacity-60');
                                     });
@@ -204,6 +226,7 @@
                             const periodSelect = document.getElementById('academic_period_id');
                             const sectionSelect = document.getElementById('section_id');
                             const oldSectionId = '{{ old('section_id') }}';
+                            const oldPeriodId = '{{ old('academic_period_id') }}';
 
                             periodSelect.addEventListener('change', function() {
                                 const periodId = parseInt(this.value);
@@ -226,8 +249,9 @@
                                 }
                             });
 
-                            // Trigger inicial si hay old value
-                            if (periodSelect.value) {
+                            // Restaurar período académico si hay old value
+                            if (oldPeriodId) {
+                                periodSelect.value = oldPeriodId;
                                 periodSelect.dispatchEvent(new Event('change'));
                             }
 

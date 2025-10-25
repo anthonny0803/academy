@@ -34,7 +34,6 @@ class StoreRepresentativeRequest extends FormRequest
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:100', Rule::unique('users', 'email')],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'sex' => ['required', Rule::enum(Sex::class)],
             'document_id' => [
                 'required',
