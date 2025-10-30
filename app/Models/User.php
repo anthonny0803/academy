@@ -6,7 +6,7 @@ use App\Contracts\HasEntityName;
 use App\Enums\Role;
 use App\Enums\Sex;
 use App\Traits\Activatable;
-use Carbon\Carbon; 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -89,6 +89,17 @@ class User extends Authenticatable implements HasEntityName
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('last_name', 'like', "%{$term}%")
                 ->orWhere('email', 'like', "%{$term}%");
+        });
+    }
+
+    public function scopeEmployees($query)
+    {
+        return $query->whereHas('roles', function ($roleQuery) {
+            $roleQuery->whereIn('name', [
+                Role::Supervisor->value,
+                Role::Admin->value,
+                Role::Teacher->value,
+            ]);
         });
     }
 

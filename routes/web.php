@@ -11,6 +11,7 @@ use App\Http\Controllers\SectionController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\SubjectTeacherController;
 use App\Http\Controllers\SectionSubjectTeacherController;
+use App\Http\Controllers\RoleManagementController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -85,6 +86,15 @@ Route::middleware('auth')->group(function () {
             ->name('enrollments.promote.form');
         Route::patch('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])
             ->name('enrollments.promote');
+
+        Route::get('role-management', [RoleManagementController::class, 'index'])
+            ->name('role-management.index');
+        Route::get('role-management/{user}/assign', [RoleManagementController::class, 'showAssignOptions'])
+            ->name('role-management.show-assign-options');
+        Route::get('role-management/{user}/assign/{role}', [RoleManagementController::class, 'showForm'])
+            ->name('role-management.show-form');
+        Route::post('role-management/{user}/assign/{role}', [RoleManagementController::class, 'assign'])
+            ->name('role-management.assign');
     });
 });
 

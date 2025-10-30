@@ -18,6 +18,15 @@ class UserPolicy
         return null;
     }
 
+    private function cannotManageRoles(User $currentUser): ?Response
+    {
+        if (!$currentUser->isActive() || (!$currentUser->isDeveloper() && !$currentUser->isSupervisor() && !$currentUser->isAdmin())) {
+            return Response::deny('No tienes autorización para gestionar roles.');
+        }
+
+        return null;
+    }
+
     private function cannotManageDeveloper(User $targetUser): ?Response
     {
         if ($targetUser->isDeveloper()) {
@@ -71,6 +80,25 @@ class UserPolicy
         return null;
     }
 
+    private function cannotAssignRolesToUser(User $currentUser, User $targetUser): ?Response
+    {
+        if ($targetUser->isDeveloper()) {
+            return Response::deny('No se puede asignar roles a este usuario.');
+        }
+
+        if (!$currentUser->isActive() || (!$currentUser->isDeveloper() && !$currentUser->isSupervisor() && !$currentUser->isAdmin())) {
+            return Response::deny('No tienes autorización para gestionar roles.');
+        }
+
+        if (!$currentUser->isDeveloper() && $currentUser->isSupervisor()) {
+            if ($targetUser->isSupervisor()) {
+                return Response::deny('No tienes autorización para cambiar roles administrativos de usuarios con tu mismo rol.');
+            }
+        }
+
+        return null;
+    }
+
     // Policy Methods
 
     public function viewAny(User $currentUser): Response
@@ -118,6 +146,18 @@ class UserPolicy
             ?? $this->cannotModifySelf($currentUser, $targetUser)
             ?? $this->cannotManageSameRoleSupervisor($currentUser, $targetUser)
             ?? $this->cannotToggleWithoutAdministrativeRole($targetUser)
+            ?? Response::allow();
+    }
+
+    public function assignView(User $currentUser): Response
+    {
+        return $this->cannotManageRoles($currentUser)
+            ?? Response::allow();
+    }
+
+    public function assign(User $currentUser, User $targetUser): Response
+    {
+        return $this->cannotAssignRolesToUser($currentUser, $targetUser)
             ?? Response::allow();
     }
 }

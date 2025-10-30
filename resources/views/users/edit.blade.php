@@ -10,58 +10,33 @@
                         @method('PATCH')
 
                         {{-- Personal information --}}
-                        <div>
-                            <x-input-label for="name" :value="__('Nombre')" />
-                            <x-text-input id="name" class="block mt-1 w-full uppercase cursor-not-allowed opacity-60"
-                                type="text" name="name" :value="$user->name" disabled />
+                        <div class="mt-4">
+                            <x-input-label for="name" :value="__('Empleado')" class="text-white" />
+                            <p id="name" class="block mt-1 w-full uppercase dark:text-gray-400 font-semibold">
+                                {{ $user->FullName }}
+                            </p>
                         </div>
                         <div class="mt-4">
-                            <x-input-label for="last_name" :value="__('Apellido')" />
-                            <x-text-input id="last_name" class="block mt-1 w-full uppercase cursor-not-allowed opacity-60"
-                                type="text" name="last_name" :value="$user->last_name" disabled />
-                        </div>
-                        <div class="mt-4">
-                            <x-input-label for="email" :value="__('Correo')" />
+                            <x-input-label for="email" :value="__('Correo')" class="text-white" />
                             <x-text-input id="email" class="block mt-1 w-full lowercase" type="email"
                                 name="email" :value="$user->email" required autocomplete="off" />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
 
                         <div class="mt-4">
-                            <x-input-label for="sex" :value="__('Sexo')" />
-                            <select id="sex" name="sex"
-                                class="block mt-1 w-full border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm
-                                cursor-not-allowed opacity-60"
-                                disabled>
-                                @foreach ($sexes as $sex)
-                                    <option value="{{ $sex }}"
-                                        {{ old('sex', $user->sex) === $sex ? 'selected' : '' }}>
-                                        {{ ucfirst($sex) }}
-                                    </option>
+                            <x-input-label for="role" :value="__('Rol')" class="text-white" />
+                        <div class="mt-1">
+                            @if ($user->roles->isNotEmpty())
+                                @foreach ($user->roles as $role)
+                                    <span
+                                        class="inline-block bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 text-xs px-2 py-1 rounded mr-1">
+                                        {{ $role->name }}
+                                    </span>
                                 @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('sex')" class="mt-2" />
+                            @else
+                                <span class="text-gray-400 italic">Sin rol</span>
+                            @endif
                         </div>
-
-                        {{-- Assignable roles --}}
-                        <div class="mt-4 text-white">
-                            <x-input-label :value="__('Roles')" />
-
-                            {{-- Hidden input to allow unchecking all roles --}}
-                            <input type="hidden" name="roles[]" value="">
-
-                            <div class="mt-2 space-y-1">
-                                @foreach ($roles as $role)
-                                    <label class="flex items-center space-x-2 cursor-pointer">
-                                        <input type="radio" name="role" value="{{ $role->name }}"
-                                            {{ $user->hasRole($role->name) ? 'checked' : '' }}
-                                            class="border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500 cursor-pointer">
-
-                                        <span>{{ $role->name }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-                            <x-input-error :messages="$errors->get('roles')" class="mt-2" />
                         </div>
 
                         {{-- Action buttons --}}

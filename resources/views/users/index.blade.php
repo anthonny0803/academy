@@ -26,7 +26,7 @@
 
                             <select name="role"
                                 class="block rounded-md border-gray-300 dark:border-gray-700 bg-gray-800 dark:bg-gray-900 text-white p-2">
-                                <option value="">Todos los roles</option>
+                                <option value="">Todos los empleados</option>
                                 @foreach ($roles as $role)
                                     <option value="{{ $role->name }}"
                                         {{ request('role') === $role->name ? 'selected' : '' }}>

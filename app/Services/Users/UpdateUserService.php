@@ -18,21 +18,7 @@ class UpdateUserService
         return DB::transaction(function () use ($user, $data) {
             $user = $this->updateEmployeeService->handle($user, $data);
 
-            if (isset($data['role'])) {
-                $this->updateAdministrativeRole($user, $data['role']);
-            }
-
             return $user->fresh();
         });
-    }
-
-    private function updateAdministrativeRole(User $user, string $newAdministrativeRole): void
-    {
-        $profileRoles = $user->getRoleNames()
-            ->filter(fn($role) => in_array($role, Role::profileRoles()))
-            ->toArray();
-
-        $rolesToSync = array_merge([$newAdministrativeRole], $profileRoles);
-        $user->syncRoles($rolesToSync);
     }
 }
