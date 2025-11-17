@@ -4,6 +4,8 @@ namespace App\Http\Requests\Subjects;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreSubjectRequest extends FormRequest
 {
@@ -37,5 +39,16 @@ class StoreSubjectRequest extends FormRequest
             'description.required' => 'La descripción es obligatoria.',
             'description.max' => 'La descripción no puede superar los 255 caracteres.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('form', 'create') // <- marcamos que falló el modal de creación
+        );
     }
 }

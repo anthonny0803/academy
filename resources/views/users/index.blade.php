@@ -96,13 +96,6 @@
                                             <!-- Dropdown actions -->
                                             <div id="dropdown-template-{{ $user->id }}" class="hidden">
                                                 <ul class="py-1 text-sm text-gray-200">
-                                                    @if ($user->hasRole('Profesor'))
-                                                        <li>
-                                                            <a href="#"
-                                                                class="block px-4 py-2 hover:bg-gray-700">Asignar
-                                                                Materias</a>
-                                                        </li>
-                                                    @endif
                                                     <li><a href="{{ route('users.show', $user) }}"
                                                             class="block px-4 py-2 hover:bg-gray-700">Ver</a></li>
                                                     <li><a href="{{ route('users.edit', $user) }}"

@@ -4,6 +4,8 @@ namespace App\Http\Requests\AcademicPeriods;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreAcademicPeriodRequest extends FormRequest
 {
@@ -46,5 +48,16 @@ class StoreAcademicPeriodRequest extends FormRequest
             'end_date.date' => 'La fecha de fin debe ser una fecha válida.',
             'end_date.after' => 'La fecha de fin debe ser posterior a la fecha de inicio.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('form', 'create') // <- marcamos que falló el modal de creación
+        );
     }
 }

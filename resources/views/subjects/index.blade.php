@@ -183,6 +183,9 @@
                     <label for="edit-name" class="block mb-1 text-gray-700 dark:text-gray-200">Nombre</label>
                     <input type="text" name="name" id="edit-name"
                         class="w-full rounded-md border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white p-2">
+                    @error('name')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="mb-4">
@@ -190,6 +193,9 @@
                         class="block mb-1 text-gray-700 dark:text-gray-200">Descripción</label>
                     <textarea name="description" id="edit-description"
                         class="w-full rounded-md border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-900 text-black dark:text-white p-2"></textarea>
+                    @error('description')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="flex justify-end gap-2">
@@ -280,6 +286,36 @@
                     document.getElementById("editSubjectModal").classList.remove("hidden");
                 }
             });
+
+            @if ($errors->any() && session('form') === 'create')
+                const createModal = document.getElementById('subjectModal');
+                if (createModal) {
+                    createModal.classList.remove('hidden');
+                    createModal.classList.add('flex');
+                }
+            @endif
+
+            @if ($errors->any() && session('form') === 'edit')
+                @php
+                    $editId = session('edit_id');
+                @endphp
+                const editModal = document.getElementById('editSubjectModal');
+                const editForm = document.getElementById('editSubjectForm');
+
+                if (editModal && editForm && '{{ $editId }}') {
+                    // setear la acción correcta SIEMPRE que haya error en edición
+                    editForm.action = "/subjects/{{ $editId }}";
+
+                    // rellenar campos con los valores viejos
+                    document.getElementById('edit-name').value = @json(old('name'));
+                    document.getElementById('edit-description').value = @json(old('description'));
+
+                    // abrir modal
+                    editModal.classList.remove('hidden');
+                    editModal.classList.add('flex');
+                }
+            @endif
+
         });
     </script>
 

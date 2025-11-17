@@ -87,11 +87,23 @@
                                             <!-- Dropdown actions -->
                                             <div id="dropdown-template-{{ $teacher->id }}" class="hidden">
                                                 <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                                                    <li><a href="{{ route('teachers.show', $teacher) }}"
-                                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Ver</a>
+                                                    <li>
+                                                        <a href="{{ route('teachers.subjects.assign', $teacher) }}"
+                                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            Asignar Materias
+                                                        </a>
                                                     </li>
-                                                    <li><a href="{{ route('users.edit', $teacher->user) }}"
-                                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
+                                                    <li>
+                                                        <a href="{{ route('teachers.show', $teacher) }}"
+                                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            Ver
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="{{ route('users.edit', $teacher->user) }}"
+                                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            Editar
+                                                        </a>
                                                     </li>
                                                 </ul>
                                             </div>

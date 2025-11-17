@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Subjects;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
 class UpdateSubjectRequest extends FormRequest
@@ -47,5 +49,17 @@ class UpdateSubjectRequest extends FormRequest
             'description.required' => 'La descripción es obligatoria.',
             'description.max' => 'La descripción no puede superar los 255 caracteres.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('form', 'edit') // <- marcamos que falló el modal de creación
+                ->with('edit_id', $this->getSubjectId())
+        );
     }
 }
