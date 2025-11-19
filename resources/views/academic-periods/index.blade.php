@@ -396,6 +396,37 @@
                     });
                 }
             });
+
+            @if ($errors->any() && session('form') === 'create')
+                const createModal = document.getElementById('academicPeriodModal');
+                if (createModal) {
+                    createModal.classList.remove('hidden');
+                    createModal.classList.add('flex');
+                }
+            @endif
+
+            @if ($errors->any() && session('form') === 'edit')
+                @php
+                    $editId = session('edit_id');
+                @endphp
+                const editModal = document.getElementById('editAcademicPeriodModal');
+                const editForm = document.getElementById('editAcademicPeriodForm');
+
+                if (editModal && editForm && '{{ $editId }}') {
+                    // setear la acción correcta SIEMPRE que haya error en edición
+                    editForm.action = "/academic-periods/{{ $editId }}";
+
+                    // rellenar campos con los valores viejos
+                    document.getElementById('edit-name').value = @json(old('name'));
+                    document.getElementById('edit-notes').value = @json(old('notes'));
+                    document.getElementById('edit-start_date').value = @json(old('start_date'));
+                    document.getElementById('edit-end_date').value = @json(old('end_date'));
+
+                    // abrir modal
+                    editModal.classList.remove('hidden');
+                    editModal.classList.add('flex');
+                }
+            @endif
         });
     </script>
 </x-app-layout>

@@ -4,6 +4,8 @@ namespace App\Http\Requests\AcademicPeriods;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateAcademicPeriodRequest extends FormRequest
 {
@@ -56,5 +58,17 @@ class UpdateAcademicPeriodRequest extends FormRequest
             'end_date.date' => 'La fecha de fin debe ser una fecha válida.',
             'end_date.after' => 'La fecha de fin debe ser posterior a la fecha de inicio.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('form', 'edit') // <- marcamos que falló el modal de creación
+                ->with('edit_id', $this->getAcademicPeriodId())
+        );
     }
 }

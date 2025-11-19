@@ -4,6 +4,8 @@ namespace App\Http\Requests\Sections;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateSectionRequest extends FormRequest
 {
@@ -59,5 +61,17 @@ class UpdateSectionRequest extends FormRequest
             'capacity.integer' => 'La capacidad debe ser un número entero.',
             'capacity.min' => 'La capacidad debe ser al menos 1.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(
+            redirect()
+                ->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('form', 'edit') // <- marcamos que falló el modal de creación
+                ->with('edit_id', $this->getSectionId())
+        );
     }
 }

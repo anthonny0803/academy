@@ -363,6 +363,37 @@
                     });
                 }
             });
+
+            @if ($errors->any() && session('form') === 'create')
+                const createModal = document.getElementById('sectionModal');
+                if (createModal) {
+                    createModal.classList.remove('hidden');
+                    createModal.classList.add('flex');
+                }
+            @endif
+
+            @if ($errors->any() && session('form') === 'edit')
+                @php
+                    $editId = session('edit_id');
+                @endphp
+                const editModal = document.getElementById('editSectionModal');
+                const editForm = document.getElementById('editSectionForm');
+
+                if (editModal && editForm && '{{ $editId }}') {
+                    // setear la acción correcta SIEMPRE que haya error en edición
+                    editForm.action = "/sections/{{ $editId }}";
+
+                    // rellenar campos con los valores viejos
+                    document.getElementById('edit-academic_period_id').value = @json(old('academic_period_id'));
+                    document.getElementById('edit-name').value = @json(old('name'));
+                    document.getElementById('edit-capacity').value = @json(old('capacity'));
+                    document.getElementById('edit-description').value = @json(old('description'));
+
+                    // abrir modal
+                    editModal.classList.remove('hidden');
+                    editModal.classList.add('flex');
+                }
+            @endif
         });
     </script>
 </x-app-layout>
