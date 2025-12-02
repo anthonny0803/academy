@@ -19,6 +19,9 @@ class AcademicPeriod extends Model implements HasEntityName
         'notes',
         'start_date',
         'end_date',
+        'min_grade',
+        'max_grade',
+        'passing_grade',
         'is_active',
     ];
 
@@ -26,6 +29,9 @@ class AcademicPeriod extends Model implements HasEntityName
         'is_active' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
+        'min_grade' => 'decimal:2',
+        'max_grade' => 'decimal:2',
+        'passing_grade' => 'decimal:2',
     ];
 
     // Contracts Implementation
@@ -55,6 +61,27 @@ class AcademicPeriod extends Model implements HasEntityName
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('notes', 'like', "%{$term}%");
         });
+    }
+
+    // Helper Methods - Configuración de Notas
+
+    public function getGradeRange(): array
+    {
+        return [
+            'min' => (float) $this->min_grade,
+            'max' => (float) $this->max_grade,
+            'passing' => (float) $this->passing_grade,
+        ];
+    }
+
+    public function isGradeValid(float $grade): bool
+    {
+        return $grade >= $this->min_grade && $grade <= $this->max_grade;
+    }
+
+    public function isGradePassing(float $grade): bool
+    {
+        return $grade >= $this->passing_grade;
     }
 
     // Mutators

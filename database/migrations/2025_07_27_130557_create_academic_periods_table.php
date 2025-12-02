@@ -18,6 +18,9 @@ return new class extends Migration
             $table->date('start_date'); // Fecha de inicio del Período Académico
             $table->date('end_date'); // Fecha fin del Período Académico
             // Estado que indica si el Período Académico esta activo (falso por defecto)
+            $table->decimal('min_grade', 5, 2)->default(0)->after('end_date');
+            $table->decimal('max_grade', 5, 2)->default(100)->after('min_grade');
+            $table->decimal('passing_grade', 5, 2)->default(60)->after('max_grade');
             $table->boolean('is_active')->default(false);
             $table->timestamps(); // Columnas created_at y updated_at para auditoría
         });

@@ -12,6 +12,8 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\SubjectTeacherController;
 use App\Http\Controllers\SectionSubjectTeacherController;
 use App\Http\Controllers\RoleManagementController;
+use App\Http\Controllers\GradeColumnController;
+use App\Http\Controllers\GradeController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
@@ -96,6 +98,35 @@ Route::middleware('auth')->group(function () {
         Route::post('role-management/{user}/assign/{role}', [RoleManagementController::class, 'assign'])
             ->name('role-management.assign');
     });
+
+    // =====================================================
+    // GRADES - Sin middleware de rol, POLICIES controlan acceso
+    // Developer, Supervisor, Admin, Teacher (activo) pueden acceder
+    // =====================================================
+
+    // Dashboard de asignaciones (principalmente para Teacher)
+    Route::get('my-assignments', [GradeController::class, 'teacherAssignments'])
+        ->name('teacher.assignments');
+
+    // Grade Columns (Configuración de evaluaciones)
+    Route::get('section-subject-teacher/{sectionSubjectTeacher}/grade-columns', [GradeColumnController::class, 'index'])
+        ->name('grade-columns.index');
+    Route::post('section-subject-teacher/{sectionSubjectTeacher}/grade-columns', [GradeColumnController::class, 'store'])
+        ->name('grade-columns.store');
+    Route::put('grade-columns/{gradeColumn}', [GradeColumnController::class, 'update'])
+        ->name('grade-columns.update');
+    Route::delete('grade-columns/{gradeColumn}', [GradeColumnController::class, 'destroy'])
+        ->name('grade-columns.destroy');
+
+    // Grades (Calificaciones)
+    Route::get('section-subject-teacher/{sectionSubjectTeacher}/grades', [GradeController::class, 'index'])
+        ->name('grades.index');
+    Route::post('grade-columns/{gradeColumn}/grades', [GradeController::class, 'store'])
+        ->name('grades.store');
+    Route::put('grades/{grade}', [GradeController::class, 'update'])
+        ->name('grades.update');
+    Route::delete('grades/{grade}', [GradeController::class, 'destroy'])
+        ->name('grades.destroy');
 });
 
 require __DIR__ . '/auth.php';

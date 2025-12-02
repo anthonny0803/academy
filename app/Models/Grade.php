@@ -6,21 +6,23 @@ use App\Contracts\HasEntityName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Grade extends Model implements HasEntityName
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'enrollment_id',
-        'section_subject_teacher_id',
-        'grade_type',
-        'grade',
+        'grade_column_id',
+        'value',
         'observation',
+        'last_modified_by',
     ];
 
     protected $casts = [
-        'grade' => 'decimal:2',
+        'value' => 'decimal:2',
     ];
 
     // Contracts Implementation
@@ -37,9 +39,14 @@ class Grade extends Model implements HasEntityName
         return $this->belongsTo(Enrollment::class);
     }
 
-    public function sectionSubjectTeacher(): BelongsTo
+    public function gradeColumn(): BelongsTo
     {
-        return $this->belongsTo(SectionSubjectTeacher::class);
+        return $this->belongsTo(GradeColumn::class);
+    }
+
+    public function modifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'last_modified_by');
     }
 
     // Query Scopes
@@ -49,46 +56,79 @@ class Grade extends Model implements HasEntityName
         return $query->where('enrollment_id', $enrollmentId);
     }
 
+    public function scopeForColumn($query, int $columnId)
+    {
+        return $query->where('grade_column_id', $columnId);
+    }
+
+    public function scopeForAssignment($query, int $sstId)
+    {
+        return $query->whereHas('gradeColumn', function ($q) use ($sstId) {
+            $q->where('section_subject_teacher_id', $sstId);
+        });
+    }
+
     public function scopeForSubject($query, int $subjectId)
     {
-        return $query->whereHas('sectionSubjectTeacher', function ($q) use ($subjectId) {
+        return $query->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($subjectId) {
             $q->where('subject_id', $subjectId);
         });
     }
 
-    public function scopeByGradeType($query, string $gradeType)
+    public function scopeForSection($query, int $sectionId)
     {
-        return $query->where('grade_type', $gradeType);
+        return $query->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($sectionId) {
+            $q->where('section_id', $sectionId);
+        });
     }
 
     // Helper Methods
 
-    public function getSubject()
+    public function getStudent(): Student
     {
-        return $this->sectionSubjectTeacher->subject;
+        return $this->enrollment->student;
     }
 
-    public function getTeacher()
+    public function getSection(): Section
     {
-        return $this->sectionSubjectTeacher->teacher;
+        return $this->gradeColumn->sectionSubjectTeacher->section;
     }
 
-    public function getSection()
+    public function getSubject(): Subject
     {
-        return $this->sectionSubjectTeacher->section;
+        return $this->gradeColumn->sectionSubjectTeacher->subject;
     }
 
-    public function isPassing(float $minGrade = 10.0): bool
+    public function getTeacher(): Teacher
     {
-        return $this->grade >= $minGrade;
+        return $this->gradeColumn->sectionSubjectTeacher->teacher;
+    }
+
+    public function getColumnName(): string
+    {
+        return $this->gradeColumn->name;
+    }
+
+    public function getWeight(): float
+    {
+        return (float) $this->gradeColumn->weight;
+    }
+
+    public function isPassing(): bool
+    {
+        $passingGrade = $this->getSection()
+            ->academicPeriod
+            ->passing_grade;
+
+        return $this->value >= $passingGrade;
+    }
+
+    public function getWeightedValue(): float
+    {
+        return ($this->value * $this->getWeight()) / 100;
     }
 
     // Mutators
-
-    protected function setGradeTypeAttribute($value): void
-    {
-        $this->attributes['grade_type'] = strtoupper(trim($value));
-    }
 
     protected function setObservationAttribute($value): void
     {

@@ -4,18 +4,51 @@ namespace App\Policies;
 
 use App\Models\Enrollment;
 use App\Models\Grade;
+use App\Models\GradeColumn;
 use App\Models\User;
 use App\Models\SectionSubjectTeacher;
 use Illuminate\Auth\Access\Response;
 
 class GradePolicy
 {
+    // =========================================
+    // Helper: Verificar acceso según rol
+    // =========================================
+
+    private function isActiveForGrades(User $user): bool
+    {
+        // Developer, Supervisor, Admin → verificar user.is_active
+        if ($user->isDeveloper() || $user->isSupervisor() || $user->isAdmin()) {
+            return $user->isActive();
+        }
+
+        // Teacher → verificar teacher.is_active (no user.is_active)
+        if ($user->isTeacher() && $user->teacher) {
+            return $user->teacher->isActive();
+        }
+
+        return false;
+    }
+
+    // =========================================
     // Helper Methods
+    // =========================================
 
     private function cannotViewGrades(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
-            return Response::deny('No tienes autorización para ver el listado de calificaciones.');
+        if (!$this->isActiveForGrades($user)) {
+            if ($user->isTeacher()) {
+                return Response::deny('Tu perfil de profesor no está activo.');
+            }
+            return Response::deny('Tu usuario no está activo.');
+        }
+
+        if (!$user->isDeveloper() 
+            && !$user->isSupervisor() 
+            && !$user->isAdmin() 
+            && !$user->isTeacher()
+        ) {
+            return Response::deny('No tienes autorización para ver calificaciones.');
         }
 
         return null;
@@ -23,37 +56,41 @@ class GradePolicy
 
     private function cannotViewThisGrade(User $user, Grade $grade): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
-            return Response::deny('No tienes autorización para ver esta calificación.');
-        }
-
-        if ($user->isTeacher()) {
-            if ($grade->sectionSubjectTeacher->teacher_id !== $user->teacher->id) {
-                return Response::deny('Esta calificación no corresponde a tu asignación.');
-            }
-
+        // Developer, Supervisor, Admin pueden ver cualquier calificación
+        if ($user->isDeveloper() || $user->isSupervisor() || $user->isAdmin()) {
             return null;
         }
 
-        if ($user->isRepresentative()) {
+        // Teacher solo sus asignaciones
+        if ($user->isTeacher() && $user->teacher) {
+            $sst = $grade->gradeColumn->sectionSubjectTeacher;
+            if ($sst->teacher_id !== $user->teacher->id) {
+                return Response::deny('Esta calificación no corresponde a tu asignación.');
+            }
+            return null;
+        }
+
+        // Representative puede ver notas de sus estudiantes
+        if ($user->isRepresentative() && $user->representative) {
             $isHisStudent = $user->representative->students()
                 ->whereHas('enrollments', fn($q) => $q->where('id', $grade->enrollment_id))
                 ->exists();
 
-            $isOwnGrade = $user->isStudent() && $grade->enrollment->student_id === $user->student->id;
+            $isOwnGrade = $user->isStudent() 
+                && $user->student 
+                && $grade->enrollment->student_id === $user->student->id;
 
             if (!$isHisStudent && !$isOwnGrade) {
                 return Response::deny('Esta calificación no te corresponde a ti ni a tus estudiantes.');
             }
-
             return null;
         }
 
-        if ($user->isStudent()) {
+        // Student solo sus propias notas
+        if ($user->isStudent() && $user->student) {
             if ($grade->enrollment->student_id !== $user->student->id) {
                 return Response::deny('Esta calificación no es tuya.');
             }
-
             return null;
         }
 
@@ -62,70 +99,83 @@ class GradePolicy
 
     private function cannotManageGrades(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isTeacher())) {
-            return Response::deny('No tienes autorización para gestionar calificaciones.');
-        }
-
-        return null;
-    }
-
-    private function cannotModifyThisGrade(User $user, Grade $grade): ?Response
-    {
+        // Developer siempre puede (si user activo)
         if ($user->isDeveloper()) {
+            if (!$user->isActive()) {
+                return Response::deny('Tu usuario no está activo.');
+            }
             return null;
         }
 
+        // Teacher necesita teacher.is_active
         if ($user->isTeacher()) {
-            $sst = $grade->sectionSubjectTeacher;
-
-            if ($sst->teacher_id !== $user->teacher->id) {
-                return Response::deny('No eres el profesor asignado a esta materia/sección.');
+            if (!$user->teacher || !$user->teacher->isActive()) {
+                return Response::deny('Tu perfil de profesor no está activo.');
             }
-
-            if ($sst->status !== 'activo') {
-                return Response::deny('Esta asignación no está activa.');
-            }
-
             return null;
         }
 
-        return Response::deny('No tienes autorización para modificar esta calificación.');
+        return Response::deny('Solo los profesores pueden gestionar calificaciones.');
     }
 
-    private function cannotCreateGradeForAssignment(User $user, int $sectionSubjectTeacherId, int $enrollmentId): ?Response
+    private function cannotManageThisGrade(User $user, Grade $grade): ?Response
     {
         if ($user->isDeveloper()) {
             return null;
         }
 
-        if (!$user->isTeacher()) {
-            return Response::deny('Solo los profesores pueden calificar.');
-        }
+        $sst = $grade->gradeColumn->sectionSubjectTeacher;
 
-        $sst = SectionSubjectTeacher::find($sectionSubjectTeacherId);
-
-        if (!$sst || $sst->teacher_id !== $user->teacher->id) {
-            return Response::deny('No puedes calificar en esta asignatura/sección.');
+        if (!$user->teacher || $sst->teacher_id !== $user->teacher->id) {
+            return Response::deny('No eres el profesor asignado a esta materia/sección.');
         }
 
         if ($sst->status !== 'activo') {
             return Response::deny('Esta asignación no está activa.');
         }
 
-        $enrollment = Enrollment::find($enrollmentId);
+        return null;
+    }
 
-        if (!$enrollment || $enrollment->section_id !== $sst->section_id) {
+    private function cannotCreateGradeForColumn(User $user, GradeColumn $gradeColumn, Enrollment $enrollment): ?Response
+    {
+        if ($user->isDeveloper()) {
+            return null;
+        }
+
+        $sst = $gradeColumn->sectionSubjectTeacher;
+
+        // Verificar que es su asignación
+        if (!$user->teacher || $sst->teacher_id !== $user->teacher->id) {
+            return Response::deny('No puedes calificar en esta asignatura/sección.');
+        }
+
+        // Verificar asignación activa
+        if ($sst->status !== 'activo') {
+            return Response::deny('Esta asignación no está activa.');
+        }
+
+        // Verificar que el estudiante pertenece a esta sección
+        if ($enrollment->section_id !== $sst->section_id) {
             return Response::deny('El estudiante no pertenece a esta sección.');
         }
 
+        // Verificar inscripción activa
         if ($enrollment->status !== 'activo') {
             return Response::deny('La inscripción del estudiante no está activa.');
+        }
+
+        // Verificar que la configuración está completa (suma 100%)
+        if (!$sst->isConfigurationComplete()) {
+            return Response::deny('La configuración de evaluaciones debe sumar 100% antes de calificar.');
         }
 
         return null;
     }
 
+    // =========================================
     // Policy Methods
+    // =========================================
 
     public function viewAny(User $currentUser): Response
     {
@@ -135,6 +185,9 @@ class GradePolicy
 
     public function view(User $currentUser, Grade $grade): Response
     {
+        $denyView = $this->cannotViewGrades($currentUser);
+        if ($denyView) return $denyView;
+
         return $this->cannotViewThisGrade($currentUser, $grade)
             ?? Response::allow();
     }
@@ -145,22 +198,23 @@ class GradePolicy
             ?? Response::allow();
     }
 
-    public function createForAssignment(User $currentUser, int $sectionSubjectTeacherId, int $enrollmentId): Response
+    public function createForColumn(User $currentUser, GradeColumn $gradeColumn, Enrollment $enrollment): Response
     {
         return $this->cannotManageGrades($currentUser)
-            ?? $this->cannotCreateGradeForAssignment($currentUser, $sectionSubjectTeacherId, $enrollmentId)
+            ?? $this->cannotCreateGradeForColumn($currentUser, $gradeColumn, $enrollment)
             ?? Response::allow();
     }
 
     public function update(User $currentUser, Grade $grade): Response
     {
         return $this->cannotManageGrades($currentUser)
-            ?? $this->cannotModifyThisGrade($currentUser, $grade)
+            ?? $this->cannotManageThisGrade($currentUser, $grade)
             ?? Response::allow();
     }
 
-    public function delete(User $currentUser): Response
+    public function delete(User $currentUser, Grade $grade): Response
     {
+        // Solo Developer puede eliminar calificaciones
         if (!$currentUser->isActive() || !$currentUser->isDeveloper()) {
             return Response::deny('Solo los desarrolladores pueden eliminar calificaciones.');
         }
