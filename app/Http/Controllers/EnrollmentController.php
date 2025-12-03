@@ -72,29 +72,48 @@ class EnrollmentController extends Controller
         });
     }
 
+    /**
+     * Mostrar formulario de TRANSFERENCIA (estudiante se va a otra institución)
+     * 
+     * Solo necesita el motivo, NO selección de sección.
+     */
     public function showTransferForm(Enrollment $enrollment): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('transfer', $enrollment, function () use ($enrollment) {
+            $enrollment->load(['student.user', 'section.academicPeriod']);
+
+            return view('enrollments.transfer', compact('enrollment'));
+        });
+    }
+
+    /**
+     * Mostrar formulario de PROMOCIÓN (estudiante avanza de nivel en el MISMO período)
+     * 
+     * Muestra secciones del MISMO período académico (excepto la actual).
+     * Solo disponible si el período tiene is_promotable = true.
+     */
+    public function showPromoteForm(Enrollment $enrollment): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('promote', $enrollment, function () use ($enrollment) {
+            $enrollment->load(['student.user', 'section.academicPeriod']);
+
+            $academicPeriod = $enrollment->section->academicPeriod;
+
+            // Verificar si el período permite promociones
+            if (!$academicPeriod->isPromotable()) {
+                return redirect()
+                    ->route('enrollments.show', $enrollment)
+                    ->with('error', "El período académico '{$academicPeriod->name}' no permite promociones.");
+            }
+
+            // Obtener secciones del MISMO período (excluyendo la actual)
             $sections = Section::active()
-                ->where('academic_period_id', $enrollment->section->academic_period_id)
+                ->where('academic_period_id', $academicPeriod->id)
                 ->where('id', '!=', $enrollment->section_id)
                 ->orderBy('name')
                 ->get();
 
-            return view('enrollments.transfer', compact('enrollment', 'sections'));
-        });
-    }
-
-    public function showPromoteForm(Enrollment $enrollment): View|RedirectResponse
-    {
-        return $this->authorizeOrRedirect('promote', $enrollment, function () use ($enrollment) {
-            $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
-                ->where('id', '!=', $enrollment->section->academic_period_id)
-                ->orderBy('start_date', 'desc')
-                ->get();
-
-            return view('enrollments.promote', compact('enrollment', 'academicPeriods'));
+            return view('enrollments.promote', compact('enrollment', 'sections', 'academicPeriod'));
         });
     }
 
@@ -162,6 +181,11 @@ class EnrollmentController extends Controller
         });
     }
 
+    /**
+     * Transferir estudiante (se va a otra institución)
+     * 
+     * Solo cambia el status a "transferido". NO crea nueva inscripción.
+     */
     public function transfer(
         TransferEnrollmentRequest $request,
         TransferEnrollmentService $transferService,
@@ -170,17 +194,18 @@ class EnrollmentController extends Controller
         return $this->authorizeOrRedirect('transfer', $enrollment, function () use ($request, $transferService, $enrollment) {
             $validated = $request->validated();
 
-            $transferService->handle(
-                $enrollment,
-                $validated['section_id'],
-                $validated['reason']
-            );
+            $transferService->handle($enrollment, $validated['reason']);
 
             return redirect()->route('students.show', $enrollment->student)
-                ->with('success', '¡Estudiante transferido a nueva sección correctamente!');
+                ->with('success', '¡Estudiante transferido correctamente! El estudiante ha salido del sistema.');
         });
     }
 
+    /**
+     * Promover estudiante (avanza de nivel en el MISMO período)
+     * 
+     * Cambia status a "promovido" y crea nueva inscripción activa.
+     */
     public function promote(
         PromoteEnrollmentRequest $request,
         PromoteEnrollmentService $promoteService,
@@ -189,13 +214,10 @@ class EnrollmentController extends Controller
         return $this->authorizeOrRedirect('promote', $enrollment, function () use ($request, $promoteService, $enrollment) {
             $validated = $request->validated();
 
-            $promoteService->handle(
-                $enrollment,
-                $validated['section_id']
-            );
+            $newEnrollment = $promoteService->handle($enrollment, $validated['section_id']);
 
             return redirect()->route('students.show', $enrollment->student)
-                ->with('success', '¡Estudiante promovido correctamente!');
+                ->with('success', "¡Estudiante promovido a {$newEnrollment->section->name} correctamente!");
         });
     }
 }

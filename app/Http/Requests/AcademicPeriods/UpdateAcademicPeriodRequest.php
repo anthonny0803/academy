@@ -31,6 +31,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:255'],
             'start_date' => ['required', 'date', 'before:end_date'],
             'end_date' => ['required', 'date', 'after:start_date'],
+            'is_promotable' => ['nullable', 'boolean'],
         ];
     }
 
@@ -41,6 +42,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
             'notes' => 'notas',
             'start_date' => 'fecha de inicio',
             'end_date' => 'fecha de fin',
+            'is_promotable' => 'permite promoción',
         ];
     }
 
@@ -67,7 +69,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
                 ->back()
                 ->withErrors($validator)
                 ->withInput()
-                ->with('form', 'edit') // <- marcamos que falló el modal de creación
+                ->with('form', 'edit')
                 ->with('edit_id', $this->getAcademicPeriodId())
         );
     }

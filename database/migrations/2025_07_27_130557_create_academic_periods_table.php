@@ -22,6 +22,7 @@ return new class extends Migration
             $table->decimal('max_grade', 5, 2)->default(100)->after('min_grade');
             $table->decimal('passing_grade', 5, 2)->default(60)->after('max_grade');
             $table->boolean('is_active')->default(false);
+            $table->boolean('is_promotable');
             $table->timestamps(); // Columnas created_at y updated_at para auditoría
         });
     }

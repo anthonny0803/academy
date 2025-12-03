@@ -80,6 +80,17 @@ class Section extends Model implements HasEntityName
         return $query->where('academic_period_id', $academicPeriodId);
     }
 
+    // Helper Methods
+
+    public function isFull(): bool
+    {
+        $enrolledCount = $this->enrollments()
+            ->where('status', 'activo')
+            ->count();
+
+        return $enrolledCount >= $this->capacity;
+    }
+
     // Mutators
 
     protected function setNameAttribute($value): void

@@ -10,29 +10,33 @@ use Illuminate\Support\Facades\Log;
 
 class TransferEnrollmentService
 {
-    public function handle(Enrollment $enrollment, int $newSectionId, string $reason): Enrollment
+    /**
+     * Transferir estudiante a otra institución.
+     * 
+     * IMPORTANTE: "Transferir" significa que el estudiante se VA del sistema
+     * (a otra institución). Solo se marca la inscripción como "transferido"
+     * y NO se crea una nueva inscripción.
+     */
+    public function handle(Enrollment $enrollment, string $reason): Enrollment
     {
-        return DB::transaction(function () use ($enrollment, $newSectionId, $reason) {
-            $oldSectionId = $enrollment->section_id;
+        return DB::transaction(function () use ($enrollment, $reason) {
+            // Solo cambiar el status a transferido
             $enrollment->update(['status' => EnrollmentStatus::Transferred->value]);
-            $newEnrollment = Enrollment::create([
-                'student_id' => $enrollment->student_id,
-                'section_id' => $newSectionId,
-                'status' => EnrollmentStatus::Active->value,
-            ]);
 
-            Log::info('Student enrollment transfer', [
+            // Registrar en log para auditoría
+            Log::info('Student transferred out of institution', [
                 'student_id' => $enrollment->student_id,
-                'old_enrollment_id' => $enrollment->id,
-                'new_enrollment_id' => $newEnrollment->id,
-                'old_section_id' => $oldSectionId,
-                'new_section_id' => $newSectionId,
+                'student_code' => $enrollment->student->student_code,
+                'enrollment_id' => $enrollment->id,
+                'section_id' => $enrollment->section_id,
+                'section_name' => $enrollment->section->name,
+                'academic_period' => $enrollment->section->academicPeriod->name,
                 'reason' => $reason,
                 'performed_by' => Auth::id(),
                 'performed_at' => now(),
             ]);
 
-            return $newEnrollment->fresh(['student.user', 'section']);
+            return $enrollment->fresh(['student.user', 'section.academicPeriod']);
         });
     }
 }

@@ -24,8 +24,10 @@ class StoreEnrollmentRequest extends FormRequest
         ];
     }
 
-    // A student cannot be enrolled more than once in the same academic period
-    
+    /**
+     * Validación adicional: un estudiante no puede inscribirse
+     * más de una vez en el mismo período académico
+     */
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
@@ -42,6 +44,7 @@ class StoreEnrollmentRequest extends FormRequest
                 return;
             }
 
+            // Verificar si existe CUALQUIER inscripción del estudiante en este período
             $existsInPeriod = Enrollment::where('student_id', $student->id)
                 ->whereHas('section', fn($q) => $q->where('academic_period_id', $section->academic_period_id))
                 ->exists();

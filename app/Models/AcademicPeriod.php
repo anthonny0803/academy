@@ -22,11 +22,13 @@ class AcademicPeriod extends Model implements HasEntityName
         'min_grade',
         'max_grade',
         'passing_grade',
+        'is_promotable',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_promotable' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
         'min_grade' => 'decimal:2',
@@ -63,7 +65,12 @@ class AcademicPeriod extends Model implements HasEntityName
         });
     }
 
-    // Helper Methods - Configuración de Notas
+    public function scopePromotable(Builder $query): Builder
+    {
+        return $query->where('is_promotable', true);
+    }
+
+    // Helper Methods
 
     public function getGradeRange(): array
     {
@@ -82,6 +89,13 @@ class AcademicPeriod extends Model implements HasEntityName
     public function isGradePassing(float $grade): bool
     {
         return $grade >= $this->passing_grade;
+    }
+
+    // Helper Methods - Promoción
+
+    public function isPromotable(): bool
+    {
+        return $this->is_promotable;
     }
 
     // Mutators

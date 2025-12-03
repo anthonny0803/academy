@@ -24,7 +24,7 @@ class StoreStudentRequest extends FormRequest
 
     public function rules(): array
     {
-        $representativeUserId = $this->boolean('is_self_represented') 
+        $representativeUserId = $this->input('is_self_represented') 
             ? $this->route('representative')->user_id 
             : null;
 
@@ -55,17 +55,18 @@ class StoreStudentRequest extends FormRequest
         ];
     }
 
-    // Verify that a representative does not already have a student profile
-
+    /**
+     * Validación adicional: verificar que el representante no sea ya un estudiante
+     */
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            if ($this->boolean('is_self_represented')) {
+            if ($this->input('is_self_represented')) {
                 $representative = $this->route('representative');
 
                 if ($representative->user->student) {
                     $validator->errors()->add(
-                        'relationship_type',
+                        'is_self_represented',
                         'Este representante ya tiene un perfil de estudiante registrado.'
                     );
                 }
