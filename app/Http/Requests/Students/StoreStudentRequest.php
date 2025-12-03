@@ -24,6 +24,10 @@ class StoreStudentRequest extends FormRequest
 
     public function rules(): array
     {
+        $representativeUserId = $this->boolean('is_self_represented') 
+            ? $this->route('representative')->user_id 
+            : null;
+
         return [
             'name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
@@ -32,7 +36,7 @@ class StoreStudentRequest extends FormRequest
                 'string',
                 'email',
                 'max:100',
-                Rule::unique('users', 'email')->ignore($this->input('is_self_represented') ? $this->route('representative')->user_id : null),
+                Rule::unique('users', 'email')->ignore($representativeUserId),
             ],
             'sex' => ['required', Rule::in(Sex::toArray())],
             'document_id' => [
@@ -40,13 +44,33 @@ class StoreStudentRequest extends FormRequest
                 'string',
                 'max:20',
                 'regex:/^[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}$/',
-                Rule::unique('users', 'document_id')->whereNotNull('document_id'),
+                Rule::unique('users', 'document_id')
+                    ->whereNotNull('document_id')
+                    ->ignore($representativeUserId),
             ],
             'birth_date' => ['required', 'date', 'before:today'],
             'relationship_type' => ['required', Rule::in(RelationshipType::toArray())],
             'section_id' => ['required', 'integer', 'exists:sections,id'],
             'is_self_represented' => ['nullable', 'boolean'],
         ];
+    }
+
+    // Verify that a representative does not already have a student profile
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if ($this->boolean('is_self_represented')) {
+                $representative = $this->route('representative');
+
+                if ($representative->user->student) {
+                    $validator->errors()->add(
+                        'relationship_type',
+                        'Este representante ya tiene un perfil de estudiante registrado.'
+                    );
+                }
+            }
+        });
     }
 
     public function attributes(): array

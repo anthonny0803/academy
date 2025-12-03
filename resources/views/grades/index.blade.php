@@ -49,8 +49,8 @@
                         <table class="min-w-full text-white bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
                             <thead>
                                 <tr>
-                                    <th class="py-2 px-4 border-b text-left sticky left-0 bg-gray-900 z-10">Estudiante</th>
                                     <th class="py-2 px-4 border-b text-left sticky left-0 bg-gray-900 z-10">Código</th>
+                                    <th class="py-2 px-4 border-b text-left sticky left-0 bg-gray-900 z-10">Estudiante</th>
                                     @foreach ($gradeColumns as $column)
                                         <th class="py-2 px-3 border-b text-center min-w-[100px]" title="{{ $column->observation }}">
                                             <div class="text-xs text-gray-400">{{ number_format($column->weight, 0) }}%</div>
@@ -67,11 +67,11 @@
                                         $average = $sectionSubjectTeacher->calculateStudentAverage($enrollment->id);
                                     @endphp
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800" data-enrollment="{{ $enrollment->id }}">
-                                        <td class="py-2 px-4 border-b sticky left-0 bg-gray-900 font-medium">
-                                            {{ $enrollment->student->user->full_name }}
-                                        </td>
                                         <td class="py-2 px-4 border-b sticky left-0 bg-gray-900 text-gray-400 text-sm">
                                             {{ $enrollment->student->student_code }}
+                                        </td>
+                                        <td class="py-2 px-4 border-b sticky left-0 bg-gray-900 font-medium">
+                                            {{ $enrollment->student->user->full_name }}
                                         </td>
                                         @foreach ($gradeColumns as $column)
                                             @php

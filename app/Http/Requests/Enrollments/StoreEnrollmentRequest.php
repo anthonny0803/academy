@@ -2,8 +2,9 @@
 
 namespace App\Http\Requests\Enrollments;
 
+use App\Models\Enrollment;
+use App\Models\Section;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreEnrollmentRequest extends FormRequest
 {
@@ -14,18 +15,44 @@ class StoreEnrollmentRequest extends FormRequest
 
     public function rules(): array
     {
-        $studentId = $this->route('student')->id;
-
         return [
             'section_id' => [
                 'required',
                 'integer',
                 'exists:sections,id',
-                Rule::unique('enrollments')->where(function ($query) use ($studentId) {
-                    return $query->where('student_id', $studentId);
-                }),
             ],
         ];
+    }
+
+    // A student cannot be enrolled more than once in the same academic period
+    
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $sectionId = $this->input('section_id');
+            $student = $this->route('student');
+
+            if (!$sectionId || !$student) {
+                return;
+            }
+
+            $section = Section::find($sectionId);
+
+            if (!$section) {
+                return;
+            }
+
+            $existsInPeriod = Enrollment::where('student_id', $student->id)
+                ->whereHas('section', fn($q) => $q->where('academic_period_id', $section->academic_period_id))
+                ->exists();
+
+            if ($existsInPeriod) {
+                $validator->errors()->add(
+                    'section_id',
+                    'El estudiante ya tiene una inscripción en este período académico.'
+                );
+            }
+        });
     }
 
     public function attributes(): array
@@ -40,7 +67,6 @@ class StoreEnrollmentRequest extends FormRequest
         return [
             'section_id.required' => 'La sección es obligatoria.',
             'section_id.exists' => 'La sección seleccionada no existe.',
-            'section_id.unique' => 'El estudiante ya está inscrito en esta sección.',
         ];
     }
 }

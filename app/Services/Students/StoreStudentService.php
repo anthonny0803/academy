@@ -40,7 +40,7 @@ class StoreStudentService
                 $user->assignRole(Role::Student->value);
             }
 
-            $isChild = $user->getAge() < 18;
+            $isChild = $user->age < 18;
             $studentCode = $this->generateStudentCode($isChild);
 
             $student = Student::create([
