@@ -40,7 +40,7 @@ class EnrollmentPolicy
     private function cannotDeleteActiveEnrollment(Enrollment $enrollment): ?Response
     {
         if (!$enrollment->isActive()) {
-            return Response::deny('Solo se pueden eliminar inscripciones activas. Usa "Retirar" para cambiar el estado.');
+            return Response::deny('Solo se pueden eliminar inscripciones activas.');
         }
 
         return null;
@@ -55,19 +55,19 @@ class EnrollmentPolicy
         return null;
     }
 
-    private function cannotTransferNonActiveEnrollment(Enrollment $enrollment): ?Response
+    private function cannotActOnNonActiveEnrollment(Enrollment $enrollment, string $action): ?Response
     {
         if (!$enrollment->isActive()) {
-            return Response::deny('Solo se pueden transferir inscripciones activas.');
+            return Response::deny("Solo se pueden {$action} inscripciones activas.");
         }
 
         return null;
     }
 
-    private function cannotPromoteNonActiveEnrollment(Enrollment $enrollment): ?Response
+    private function cannotPromoteInNonPromotablePeriod(Enrollment $enrollment): ?Response
     {
-        if (!$enrollment->isActive()) {
-            return Response::deny('Solo se pueden promover inscripciones activas.');
+        if (!$enrollment->section->academicPeriod->isPromotable()) {
+            return Response::deny('Este período académico no permite promociones.');
         }
 
         return null;
@@ -93,12 +93,6 @@ class EnrollmentPolicy
             ?? Response::allow();
     }
 
-    public function update(User $currentUser): Response
-    {
-        return $this->cannotModifyEnrollments($currentUser)
-            ?? Response::allow();
-    }
-
     public function delete(User $currentUser, Enrollment $enrollment): Response
     {
         return $this->cannotModifyEnrollments($currentUser)
@@ -107,17 +101,34 @@ class EnrollmentPolicy
             ?? Response::allow();
     }
 
+    /**
+     * Transferir: estudiante se va a otra institución
+     */
     public function transfer(User $currentUser, Enrollment $enrollment): Response
     {
         return $this->cannotModifyEnrollments($currentUser)
-            ?? $this->cannotTransferNonActiveEnrollment($enrollment)
+            ?? $this->cannotActOnNonActiveEnrollment($enrollment, 'transferir')
             ?? Response::allow();
     }
 
+    /**
+     * Promover: estudiante avanza de nivel en el MISMO período
+     */
     public function promote(User $currentUser, Enrollment $enrollment): Response
     {
         return $this->cannotModifyEnrollments($currentUser)
-            ?? $this->cannotPromoteNonActiveEnrollment($enrollment)
+            ?? $this->cannotActOnNonActiveEnrollment($enrollment, 'promover')
+            ?? $this->cannotPromoteInNonPromotablePeriod($enrollment)
+            ?? Response::allow();
+    }
+
+    /**
+     * Retirar: estudiante abandona o es expulsado
+     */
+    public function withdraw(User $currentUser, Enrollment $enrollment): Response
+    {
+        return $this->cannotModifyEnrollments($currentUser)
+            ?? $this->cannotActOnNonActiveEnrollment($enrollment, 'retirar')
             ?? Response::allow();
     }
 }

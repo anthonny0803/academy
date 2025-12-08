@@ -157,10 +157,6 @@
 
                             <div id="dropdown-template-{{ $enrollment->id }}" class="hidden">
                                 <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                                    <li><a href="{{ route('enrollments.edit', $enrollment) }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Cambiar
-                                            Estado</a>
-                                    </li>
                                     <li><a href="{{ route('enrollments.transfer.form', $enrollment) }}"
                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Transferir
                                             Sección</a>

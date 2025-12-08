@@ -64,9 +64,12 @@ Route::middleware('auth')->group(function () {
         Route::patch('subjects/{subject}/toggle', [SubjectController::class, 'toggleActivation'])
             ->name('subjects.toggle');
 
-        Route::resource('academic-periods', AcademicPeriodController::class)->except(['show']);
+        // Academic Periods - con show y close
+        Route::resource('academic-periods', AcademicPeriodController::class);
         Route::patch('academic-periods/{academicPeriod}/toggle', [AcademicPeriodController::class, 'toggleActivation'])
             ->name('academic-periods.toggle');
+        Route::patch('academic-periods/{academicPeriod}/close', [AcademicPeriodController::class, 'close'])
+            ->name('academic-periods.close');
 
         Route::resource('sections', SectionController::class);
         Route::patch('sections/{section}/toggle', [SectionController::class, 'toggleActivation'])
@@ -75,19 +78,30 @@ Route::middleware('auth')->group(function () {
         Route::resource('section-subject-teacher', SectionSubjectTeacherController::class)
             ->except(['index', 'show', 'create', 'edit']);
 
+        // Enrollments - SIN edit/update, CON acciones específicas
         Route::resource('enrollments', EnrollmentController::class)
-            ->except(['create', 'store']);
+            ->only(['index', 'show', 'destroy']);
         Route::resource('students.enrollments', EnrollmentController::class)
             ->shallow()
             ->only(['create', 'store']);
+
+        // Transferir (estudiante se va a otra institución)
         Route::get('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'showTransferForm'])
             ->name('enrollments.transfer.form');
         Route::patch('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])
             ->name('enrollments.transfer');
+
+        // Promover (estudiante avanza de nivel en el MISMO período)
         Route::get('enrollments/{enrollment}/promote', [EnrollmentController::class, 'showPromoteForm'])
             ->name('enrollments.promote.form');
         Route::patch('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])
             ->name('enrollments.promote');
+
+        // Retirar (estudiante abandona o es expulsado)
+        Route::get('enrollments/{enrollment}/withdraw', [EnrollmentController::class, 'showWithdrawForm'])
+            ->name('enrollments.withdraw.form');
+        Route::patch('enrollments/{enrollment}/withdraw', [EnrollmentController::class, 'withdraw'])
+            ->name('enrollments.withdraw');
 
         Route::get('role-management', [RoleManagementController::class, 'index'])
             ->name('role-management.index');

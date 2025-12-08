@@ -109,10 +109,6 @@
                                                             Detalles</a>
                                                     </li>
                                                     @if ($enrollment->status === 'activo')
-                                                        <li><a href="{{ route('enrollments.edit', $enrollment) }}"
-                                                                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Cambiar
-                                                                Estado</a>
-                                                        </li>
                                                         <li><a href="{{ route('enrollments.transfer.form', $enrollment) }}"
                                                                 class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Transferir
                                                                 Sección</a>

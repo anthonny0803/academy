@@ -9,6 +9,7 @@ use App\Http\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
 use App\Services\AcademicPeriods\StoreAcademicPeriodService;
 use App\Services\AcademicPeriods\UpdateAcademicPeriodService;
 use App\Services\AcademicPeriods\DeleteAcademicPeriodService;
+use App\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -47,6 +48,55 @@ class AcademicPeriodController extends Controller
         });
     }
 
+    /**
+     * Vista de detalle del período académico
+     * Muestra estadísticas y permite acceder al cierre
+     */
+    public function show(
+        AcademicPeriod $academicPeriod,
+        CloseAcademicPeriodService $closeService
+    ): View|RedirectResponse {
+        return $this->authorizeOrRedirect('view', $academicPeriod, function () use ($academicPeriod, $closeService) {
+            // Cargar relaciones necesarias
+            $academicPeriod->load([
+                'sections' => fn($q) => $q->withCount([
+                    'enrollments',
+                    'enrollments as active_enrollments_count' => fn($q) => $q->where('status', 'activo'),
+                    'enrollments as completed_enrollments_count' => fn($q) => $q->where('status', 'completado'),
+                ]),
+            ]);
+
+            // Estadísticas generales
+            $stats = [
+                'total_sections' => $academicPeriod->sections->count(),
+                'active_sections' => $academicPeriod->sections->where('is_active', true)->count(),
+                'total_enrollments' => $academicPeriod->sections->sum('enrollments_count'),
+                'active_enrollments' => $academicPeriod->sections->sum('active_enrollments_count'),
+                'completed_enrollments' => $academicPeriod->sections->sum('completed_enrollments_count'),
+            ];
+
+            // Validación para cierre (solo si está activo)
+            $closeValidation = null;
+            $closePreview = null;
+            
+            if ($academicPeriod->isActive()) {
+                $closeValidation = $closeService->validateForClose($academicPeriod);
+                
+                // Si puede cerrar, obtener preview
+                if ($closeValidation['can_close']) {
+                    $closePreview = $closeService->getClosePreview($academicPeriod);
+                }
+            }
+
+            return view('academic-periods.show', compact(
+                'academicPeriod',
+                'stats',
+                'closeValidation',
+                'closePreview'
+            ));
+        });
+    }
+
     public function store(StoreAcademicPeriodRequest $request, StoreAcademicPeriodService $storeService): RedirectResponse
     {
         return $this->authorizeOrRedirect('create', AcademicPeriod::class, function () use ($request, $storeService) {
@@ -80,5 +130,31 @@ class AcademicPeriodController extends Controller
     public function toggleActivation(AcademicPeriod $academicPeriod): RedirectResponse
     {
         return $this->executeToggle($academicPeriod);
+    }
+
+    /**
+     * Cerrar período académico
+     * Acción masiva que completa todas las inscripciones activas
+     */
+    public function close(
+        AcademicPeriod $academicPeriod,
+        CloseAcademicPeriodService $closeService
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('close', $academicPeriod, function () use ($academicPeriod, $closeService) {
+            try {
+                $results = $closeService->handle($academicPeriod);
+
+                $message = "¡Período cerrado correctamente! " .
+                    "{$results['enrollments_completed']} inscripciones completadas " .
+                    "({$results['enrollments_passed']} aprobados, {$results['enrollments_failed']} reprobados). " .
+                    "{$results['sections_deactivated']} secciones desactivadas.";
+
+                return redirect()->route('academic-periods.index')
+                    ->with('success', $message);
+            } catch (\Exception $e) {
+                return redirect()->route('academic-periods.show', $academicPeriod)
+                    ->with('error', $e->getMessage());
+            }
+        });
     }
 }

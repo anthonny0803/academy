@@ -22,6 +22,7 @@ return new class extends Migration
             // Clave foránea a la Sección en la que se inscribe el Estudiante
             $table->foreignId('section_id')->constrained('sections')
                 ->onDelete('restrict'); // Impide borrar una Sección si tiene Inscripciones;
+            $table->boolean('passed')->nullable();
 
             // Estado de la Inscripción del Estudiante (Ej: 'activo', 'completado', 'retirado')
             $table->string('status', 100);

@@ -46,6 +46,24 @@ class AcademicPeriodPolicy
         return null;
     }
 
+    private function cannotCloseInactivePeriod(AcademicPeriod $academicPeriod): ?Response
+    {
+        if (!$academicPeriod->isActive()) {
+            return Response::deny('No puedes cerrar un período académico que ya está inactivo.');
+        }
+
+        return null;
+    }
+
+    private function cannotClosePeriodWithoutSections(AcademicPeriod $academicPeriod): ?Response
+    {
+        if (!$academicPeriod->sections()->exists()) {
+            return Response::deny('No puedes cerrar un período académico sin secciones.');
+        }
+
+        return null;
+    }
+
     // Policy Methods
 
     public function viewAny(User $currentUser): Response
@@ -83,6 +101,18 @@ class AcademicPeriodPolicy
     public function toggle(User $currentUser): Response
     {
         return $this->cannotManageAcademicPeriods($currentUser)
+            ?? Response::allow();
+    }
+
+    /**
+     * Cerrar período académico (acción masiva)
+     * Solo Developer y Supervisor pueden cerrar períodos
+     */
+    public function close(User $currentUser, AcademicPeriod $academicPeriod): Response
+    {
+        return $this->cannotManageAcademicPeriods($currentUser)
+            ?? $this->cannotCloseInactivePeriod($academicPeriod)
+            ?? $this->cannotClosePeriodWithoutSections($academicPeriod)
             ?? Response::allow();
     }
 }
