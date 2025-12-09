@@ -121,14 +121,4 @@ class EnrollmentPolicy
             ?? $this->cannotPromoteInNonPromotablePeriod($enrollment)
             ?? Response::allow();
     }
-
-    /**
-     * Retirar: estudiante abandona o es expulsado
-     */
-    public function withdraw(User $currentUser, Enrollment $enrollment): Response
-    {
-        return $this->cannotModifyEnrollments($currentUser)
-            ?? $this->cannotActOnNonActiveEnrollment($enrollment, 'retirar')
-            ?? Response::allow();
-    }
 }

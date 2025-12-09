@@ -57,6 +57,12 @@ Route::middleware('auth')->group(function () {
             ->only(['index', 'show', 'edit', 'update']);
         Route::patch('students/{student}/reassign-representative', [StudentController::class, 'reassignRepresentative'])
             ->name('students.reassign-representative');
+        Route::patch('students/{student}/situation', [StudentController::class, 'changeSituation'])
+            ->name('students.situation');
+        Route::get('students/{student}/withdraw', [StudentController::class, 'showWithdrawForm'])
+            ->name('students.withdraw.form');
+        Route::patch('students/{student}/withdraw', [StudentController::class, 'withdraw'])
+            ->name('students.withdraw');
         Route::patch('students/{student}/toggle', [StudentController::class, 'toggleActivation'])
             ->name('students.toggle');
 
@@ -64,7 +70,6 @@ Route::middleware('auth')->group(function () {
         Route::patch('subjects/{subject}/toggle', [SubjectController::class, 'toggleActivation'])
             ->name('subjects.toggle');
 
-        // Academic Periods - con show y close
         Route::resource('academic-periods', AcademicPeriodController::class);
         Route::patch('academic-periods/{academicPeriod}/toggle', [AcademicPeriodController::class, 'toggleActivation'])
             ->name('academic-periods.toggle');
@@ -78,30 +83,21 @@ Route::middleware('auth')->group(function () {
         Route::resource('section-subject-teacher', SectionSubjectTeacherController::class)
             ->except(['index', 'show', 'create', 'edit']);
 
-        // Enrollments - SIN edit/update, CON acciones específicas
         Route::resource('enrollments', EnrollmentController::class)
             ->only(['index', 'show', 'destroy']);
         Route::resource('students.enrollments', EnrollmentController::class)
             ->shallow()
             ->only(['create', 'store']);
 
-        // Transferir (estudiante se va a otra institución)
         Route::get('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'showTransferForm'])
             ->name('enrollments.transfer.form');
         Route::patch('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])
             ->name('enrollments.transfer');
 
-        // Promover (estudiante avanza de nivel en el MISMO período)
         Route::get('enrollments/{enrollment}/promote', [EnrollmentController::class, 'showPromoteForm'])
             ->name('enrollments.promote.form');
         Route::patch('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])
             ->name('enrollments.promote');
-
-        // Retirar (estudiante abandona o es expulsado)
-        Route::get('enrollments/{enrollment}/withdraw', [EnrollmentController::class, 'showWithdrawForm'])
-            ->name('enrollments.withdraw.form');
-        Route::patch('enrollments/{enrollment}/withdraw', [EnrollmentController::class, 'withdraw'])
-            ->name('enrollments.withdraw');
 
         Route::get('role-management', [RoleManagementController::class, 'index'])
             ->name('role-management.index');
@@ -113,16 +109,9 @@ Route::middleware('auth')->group(function () {
             ->name('role-management.assign');
     });
 
-    // =====================================================
-    // GRADES - Sin middleware de rol, POLICIES controlan acceso
-    // Developer, Supervisor, Admin, Teacher (activo) pueden acceder
-    // =====================================================
-
-    // Dashboard de asignaciones (principalmente para Teacher)
     Route::get('my-assignments', [GradeController::class, 'teacherAssignments'])
         ->name('teacher.assignments');
 
-    // Grade Columns (Configuración de evaluaciones)
     Route::get('section-subject-teacher/{sectionSubjectTeacher}/grade-columns', [GradeColumnController::class, 'index'])
         ->name('grade-columns.index');
     Route::post('section-subject-teacher/{sectionSubjectTeacher}/grade-columns', [GradeColumnController::class, 'store'])
@@ -132,7 +121,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('grade-columns/{gradeColumn}', [GradeColumnController::class, 'destroy'])
         ->name('grade-columns.destroy');
 
-    // Grades (Calificaciones)
     Route::get('section-subject-teacher/{sectionSubjectTeacher}/grades', [GradeController::class, 'index'])
         ->name('grades.index');
     Route::post('grade-columns/{gradeColumn}/grades', [GradeController::class, 'store'])

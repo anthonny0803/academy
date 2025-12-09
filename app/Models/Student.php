@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\HasEntityName;
 use App\Enums\RelationshipType;
+use App\Enums\StudentSituation;
 use App\Traits\Activatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,12 +23,14 @@ class Student extends Model implements HasEntityName
         'user_id',
         'representative_id',
         'student_code',
+        'situation',
         'relationship_type',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'situation' => StudentSituation::class,
     ];
 
     // Contracts Implementation
@@ -122,6 +125,11 @@ class Student extends Model implements HasEntityName
     public function getAddressAttribute(): ?string
     {
         return $this->user?->address ?? null;
+    }
+
+    public function getSituationLabelAttribute(): string
+    {
+        return $this->situation?->value ?? StudentSituation::Active->value;
     }
 
     // Helper Methods

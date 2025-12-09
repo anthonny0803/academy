@@ -8,13 +8,18 @@ use App\Models\Representative;
 use App\Models\AcademicPeriod;
 use App\Models\Section;
 use App\Enums\Sex;
+use App\Enums\StudentSituation;
 use App\Enums\RelationshipType;
 use App\Http\Requests\Students\StoreStudentRequest;
 use App\Http\Requests\Students\UpdateStudentRequest;
 use App\Http\Requests\Students\ReassignRepresentativeRequest;
+use App\Http\Requests\Students\ChangeSituationRequest;
+use App\Http\Requests\Students\WithdrawStudentRequest;
 use App\Services\Students\StoreStudentService;
 use App\Services\Students\UpdateStudentService;
 use App\Services\Students\ReassignRepresentativeService;
+use App\Services\Students\ChangeSituationService;
+use App\Services\Students\WithdrawStudentService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -153,6 +158,46 @@ class StudentController extends Controller
 
             return redirect()->route('students.show', $student)
                 ->with('success', '¡Representante reasignado correctamente!');
+        });
+    }
+
+    public function changeSituation(
+        ChangeSituationRequest $request,
+        ChangeSituationService $changeSituationService,
+        Student $student
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('changeSituation', $student, function () use ($request, $changeSituationService, $student) {
+            $situation = StudentSituation::from($request->validated()['situation']);
+            $changeSituationService->handle($student, $situation);
+
+            return redirect()->back()
+                ->with('success', '¡Situación del estudiante actualizada correctamente!');
+        });
+    }
+
+    public function showWithdrawForm(Student $student): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('withdraw', $student, function () use ($student) {
+            $student->load(['user', 'enrollments' => function ($q) {
+                $q->active()->with('section.academicPeriod');
+            }]);
+
+            $activeEnrollments = $student->enrollments;
+
+            return view('students.withdraw', compact('student', 'activeEnrollments'));
+        });
+    }
+
+    public function withdraw(
+        WithdrawStudentRequest $request,
+        WithdrawStudentService $withdrawService,
+        Student $student
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('withdraw', $student, function () use ($request, $withdrawService, $student) {
+            $result = $withdrawService->handle($student, $request->validated()['reason']);
+
+            return redirect()->route('students.show', $student)
+                ->with('success', "¡Estudiante retirado correctamente! Se actualizaron {$result['enrollments_withdrawn']} inscripción(es).");
         });
     }
 

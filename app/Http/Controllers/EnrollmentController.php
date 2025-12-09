@@ -11,11 +11,9 @@ use App\Enums\EnrollmentStatus;
 use App\Http\Requests\Enrollments\StoreEnrollmentRequest;
 use App\Http\Requests\Enrollments\TransferEnrollmentRequest;
 use App\Http\Requests\Enrollments\PromoteEnrollmentRequest;
-use App\Http\Requests\Enrollments\WithdrawEnrollmentRequest;
 use App\Services\Enrollments\StoreEnrollmentService;
 use App\Services\Enrollments\TransferEnrollmentService;
 use App\Services\Enrollments\PromoteEnrollmentService;
-use App\Services\Enrollments\WithdrawEnrollmentService;
 use App\Services\Enrollments\DeleteEnrollmentService;
 use App\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -199,22 +197,6 @@ class EnrollmentController extends Controller
             $enrollment->load(['student.user', 'section.academicPeriod']);
 
             return view('enrollments.withdraw', compact('enrollment'));
-        });
-    }
-
-    /**
-     * Ejecutar retiro
-     */
-    public function withdraw(
-        WithdrawEnrollmentRequest $request,
-        WithdrawEnrollmentService $withdrawService,
-        Enrollment $enrollment
-    ): RedirectResponse {
-        return $this->authorizeOrRedirect('withdraw', $enrollment, function () use ($request, $withdrawService, $enrollment) {
-            $withdrawService->handle($enrollment, $request->validated()['reason']);
-
-            return redirect()->route('students.show', $enrollment->student)
-                ->with('success', '¡Estudiante retirado correctamente!');
         });
     }
 }

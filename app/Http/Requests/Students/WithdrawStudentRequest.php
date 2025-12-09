@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Enrollments;
+namespace App\Http\Requests\Students;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class WithdrawEnrollmentRequest extends FormRequest
+class WithdrawStudentRequest extends FormRequest
 {
     public function authorize(): bool
     {
