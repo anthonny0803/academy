@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Enrollments;
 
+use App\Enums\EnrollmentStatus;
 use App\Models\Enrollment;
 use App\Models\Section;
 use Illuminate\Foundation\Http\FormRequest;
@@ -46,13 +47,14 @@ class StoreEnrollmentRequest extends FormRequest
 
             // Verificar si existe CUALQUIER inscripción del estudiante en este período
             $existsInPeriod = Enrollment::where('student_id', $student->id)
+                ->where('status', EnrollmentStatus::Active->value)  // ← Agregar esta línea
                 ->whereHas('section', fn($q) => $q->where('academic_period_id', $section->academic_period_id))
                 ->exists();
 
             if ($existsInPeriod) {
                 $validator->errors()->add(
                     'section_id',
-                    'El estudiante ya tiene una inscripción en este período académico.'
+                    'El estudiante ya tiene una inscripción activa en este período académico.'
                 );
             }
         });
