@@ -20,13 +20,15 @@ class TransferEnrollmentService
     public function handle(Enrollment $enrollment, string $reason): Enrollment
     {
         return DB::transaction(function () use ($enrollment, $reason) {
-            // Solo cambiar el status a transferido
+            $student = $enrollment->student;
+
+            // Cambiar status a transferido
             $enrollment->update(['status' => EnrollmentStatus::Transferred->value]);
 
             // Registrar en log para auditoría
             Log::info('Student transferred out of institution', [
-                'student_id' => $enrollment->student_id,
-                'student_code' => $enrollment->student->student_code,
+                'student_id' => $student->id,
+                'student_code' => $student->student_code,
                 'enrollment_id' => $enrollment->id,
                 'section_id' => $enrollment->section_id,
                 'section_name' => $enrollment->section->name,
@@ -35,6 +37,18 @@ class TransferEnrollmentService
                 'performed_by' => Auth::id(),
                 'performed_at' => now(),
             ]);
+
+            // Desactivar estudiante si no tiene más inscripciones activas
+            if (!$student->hasActiveEnrollments()) {
+                $student->update(['is_active' => false]);
+
+                Log::info('Student deactivated after transfer (no active enrollments)', [
+                    'student_id' => $student->id,
+                    'student_code' => $student->student_code,
+                    'performed_by' => Auth::id(),
+                    'performed_at' => now(),
+                ]);
+            }
 
             return $enrollment->fresh(['student.user', 'section.academicPeriod']);
         });

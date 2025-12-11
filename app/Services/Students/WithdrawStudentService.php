@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 
 class WithdrawStudentService
 {
-    public function handle(Student $student, string $reason): Student
+    public function handle(Student $student, string $reason): array
     {
         return DB::transaction(function () use ($student, $reason) {
             $activeEnrollments = $student->enrollments()
@@ -19,6 +19,7 @@ class WithdrawStudentService
                 ->get();
 
             $enrollmentIds = $activeEnrollments->pluck('id')->toArray();
+            $enrollmentsCount = $activeEnrollments->count();
             $sectionsInfo = $activeEnrollments->map(fn($e) => [
                 'enrollment_id' => $e->id,
                 'section' => $e->section->name,
@@ -42,7 +43,10 @@ class WithdrawStudentService
                 'performed_at' => now(),
             ]);
 
-            return $student->fresh(['user', 'representative', 'enrollments.section.academicPeriod']);
+            return [
+                'student' => $student->fresh(['user', 'representative', 'enrollments.section.academicPeriod']),
+                'enrollments_withdrawn' => $enrollmentsCount,
+            ];
         });
     }
 }

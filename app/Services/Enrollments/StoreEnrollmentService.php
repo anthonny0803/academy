@@ -12,6 +12,12 @@ class StoreEnrollmentService
     public function handle(Student $student, array $data): Enrollment
     {
         return DB::transaction(function () use ($student, $data) {
+            
+            // Reactive student if inactive
+            if (!$student->isActive()) {
+                $student->update(['is_active' => true]);
+            }
+
             return Enrollment::create([
                 'student_id' => $student->id,
                 'section_id' => $data['section_id'],

@@ -200,9 +200,4 @@ class StudentController extends Controller
                 ->with('success', "¡Estudiante retirado correctamente! Se actualizaron {$result['enrollments_withdrawn']} inscripción(es).");
         });
     }
-
-    public function toggleActivation(Student $student): RedirectResponse
-    {
-        return $this->executeToggle($student);
-    }
 }

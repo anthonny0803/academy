@@ -63,8 +63,6 @@ Route::middleware('auth')->group(function () {
             ->name('students.withdraw.form');
         Route::patch('students/{student}/withdraw', [StudentController::class, 'withdraw'])
             ->name('students.withdraw');
-        Route::patch('students/{student}/toggle', [StudentController::class, 'toggleActivation'])
-            ->name('students.toggle');
 
         Route::resource('subjects', SubjectController::class)->except(['show']);
         Route::patch('subjects/{subject}/toggle', [SubjectController::class, 'toggleActivation'])

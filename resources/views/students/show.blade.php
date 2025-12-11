@@ -190,18 +190,6 @@
                                 Estado Técnico
                             </label>
                             <div class="mt-1 flex items-center space-x-2">
-                                <form method="POST" action="{{ route('students.toggle', $student) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit"
-                                        class="relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer 
-                                        {{ $student->is_active ? 'bg-blue-600' : 'bg-gray-400' }}">
-                                        <span
-                                            class="inline-block h-4 w-4 transform rounded-full bg-white transition
-                                            {{ $student->is_active ? 'translate-x-6' : 'translate-x-1' }}">
-                                        </span>
-                                    </button>
-                                </form>
                                 <span
                                     class="inline-block {{ $student->is_active ? 'bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100' : 'bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-100' }} text-xs px-2 py-1 rounded">
                                     {{ $student->is_active ? 'Activo' : 'Inactivo' }}

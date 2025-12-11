@@ -4,6 +4,7 @@ namespace App\Services\AcademicPeriods;
 
 use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
+use App\Models\Student;
 use App\Enums\EnrollmentStatus;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -180,7 +181,17 @@ class CloseAcademicPeriodService
                 'enrollments_passed' => 0,
                 'enrollments_failed' => 0,
                 'sections_deactivated' => 0,
+                'students_deactivated' => 0,
             ];
+
+            // Obtener IDs de estudiantes del período ANTES de procesar
+            $studentIds = Enrollment::whereHas('section', function ($q) use ($academicPeriod) {
+                    $q->where('academic_period_id', $academicPeriod->id);
+                })
+                ->where('status', EnrollmentStatus::Active->value)
+                ->pluck('student_id')
+                ->unique()
+                ->toArray();
 
             // Obtener todas las secciones con sus inscripciones activas
             $sections = $academicPeriod->sections()
@@ -222,6 +233,27 @@ class CloseAcademicPeriodService
 
             // Desactivar período
             $academicPeriod->update(['is_active' => false]);
+
+            // BULK UPDATE: Desactivar estudiantes que quedaron sin inscripciones activas
+            $studentsDeactivated = Student::whereIn('id', $studentIds)
+                ->where('is_active', true)
+                ->whereDoesntHave('enrollments', function ($q) {
+                    $q->where('status', EnrollmentStatus::Active->value);
+                })
+                ->update(['is_active' => false]);
+
+            $results['students_deactivated'] = $studentsDeactivated;
+
+            // Log de estudiantes desactivados
+            if ($studentsDeactivated > 0) {
+                Log::info('Students deactivated on period close', [
+                    'academic_period_id' => $academicPeriod->id,
+                    'academic_period_name' => $academicPeriod->name,
+                    'students_deactivated' => $studentsDeactivated,
+                    'performed_by' => Auth::id(),
+                    'performed_at' => now(),
+                ]);
+            }
 
             // Log general del cierre
             Log::info('Academic period closed', [

@@ -80,6 +80,12 @@
                                             <div id="dropdown-template-{{ $academicPeriod->id }}" class="hidden">
                                                 <ul class="py-1 text-sm text-gray-200">
                                                     <li>
+                                                        <a href="{{ route('academic-periods.show', $academicPeriod) }}"
+                                                            class="block w-full text-left px-4 py-2 hover:bg-gray-700">
+                                                            Ver detalles
+                                                        </a>
+                                                    </li>
+                                                    <li>
                                                         <!-- EDIT button: ahora incluye notes, start-date y end-date -->
                                                         <button type="button" data-id="{{ $academicPeriod->id }}"
                                                             data-name="{{ e($academicPeriod->name) }}"

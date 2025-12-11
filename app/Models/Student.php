@@ -144,6 +144,13 @@ class Student extends Model implements HasEntityName
         return $this->relationship_type === RelationshipType::SelfRepresented->value;
     }
 
+    public function hasActiveEnrollments(): bool
+    {
+        return $this->enrollments()
+            ->where('status', 'activo')
+            ->exists();
+    }
+
     // Mutators
 
     protected function setStudentCodeAttribute($value): void

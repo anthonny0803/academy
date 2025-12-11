@@ -81,12 +81,6 @@ class StudentPolicy
             ?? Response::allow();
     }
 
-    public function toggle(User $currentUser): Response
-    {
-        return $this->cannotPerformSupervisorActions($currentUser)
-            ?? Response::allow();
-    }
-
     public function reassignRepresentative(User $currentUser): Response
     {
         return $this->cannotPerformSupervisorActions($currentUser)
