@@ -66,8 +66,44 @@ class EnrollmentController extends Controller
     public function show(Enrollment $enrollment): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('view', $enrollment, function () use ($enrollment) {
-            $enrollment->load(['student.user', 'student.representative.user', 'section.academicPeriod', 'grades.gradeColumn.sectionSubjectTeacher.subject']);
-            return view('enrollments.show', compact('enrollment'));
+            $enrollment->load([
+                'student.user',
+                'student.representative.user',
+                'section.academicPeriod',
+                'section.sectionSubjectTeachers' => fn($q) => $q->active()->with([
+                    'subject',
+                    'teacher.user',
+                    'gradeColumns' => fn($q) => $q->orderBy('display_order'),
+                ]),
+                'grades.gradeColumn',
+            ]);
+
+            $academicPeriod = $enrollment->section->academicPeriod;
+            $passingGrade = $academicPeriod->passing_grade ?? 60;
+
+            $subjectsData = $enrollment->section->sectionSubjectTeachers->map(function ($sst) use ($enrollment) {
+                $average = $sst->calculateStudentAverage($enrollment->id);
+                
+                $gradesDetail = $sst->gradeColumns->map(function ($column) use ($enrollment) {
+                    $grade = $enrollment->grades->firstWhere('grade_column_id', $column->id);
+                    return [
+                        'column_name' => $column->name,
+                        'weight' => $column->weight,
+                        'value' => $grade?->value,
+                        'observation' => $grade?->observation,
+                    ];
+                });
+
+                return [
+                    'sst_id' => $sst->id,
+                    'subject_name' => $sst->subject->name,
+                    'teacher_name' => $sst->teacher->user->full_name,
+                    'average' => $average,
+                    'grades_detail' => $gradesDetail,
+                ];
+            });
+
+            return view('enrollments.show', compact('enrollment', 'subjectsData', 'passingGrade'));
         });
     }
 
@@ -92,7 +128,7 @@ class EnrollmentController extends Controller
             $storeService->handle($student, $request->validated());
 
             return redirect()->route('students.show', $student)
-                ->with('success', '¡Estudiante inscrito correctamente!');
+                ->with('success', 'Â¡Estudiante inscrito correctamente!');
         });
     }
 
@@ -105,17 +141,17 @@ class EnrollmentController extends Controller
             $deleteService->handle($enrollment);
 
             return redirect()->route('students.show', $student)
-                ->with('success', '¡Inscripción eliminada correctamente!');
+                ->with('success', 'Â¡InscripciÃ³n eliminada correctamente!');
         });
     }
 
     // =========================================
-    // ACCIONES ESPECÍFICAS
+    // ACCIONES ESPECÃFICAS
     // =========================================
 
     /**
      * Mostrar formulario de TRANSFERENCIA
-     * El estudiante se va a otra institución educativa.
+     * El estudiante se va a otra instituciÃ³n educativa.
      */
     public function showTransferForm(Enrollment $enrollment): View|RedirectResponse
     {
@@ -138,13 +174,13 @@ class EnrollmentController extends Controller
             $transferService->handle($enrollment, $request->validated()['reason']);
 
             return redirect()->route('students.show', $enrollment->student)
-                ->with('success', '¡Estudiante transferido correctamente! El estudiante ha salido del sistema.');
+                ->with('success', 'Â¡Estudiante transferido correctamente! El estudiante ha salido del sistema.');
         });
     }
 
     /**
-     * Mostrar formulario de PROMOCIÓN
-     * El estudiante avanza de nivel dentro del MISMO período académico.
+     * Mostrar formulario de PROMOCIÃ“N
+     * El estudiante avanza de nivel dentro del MISMO perÃ­odo acadÃ©mico.
      */
     public function showPromoteForm(Enrollment $enrollment): View|RedirectResponse
     {
@@ -153,14 +189,14 @@ class EnrollmentController extends Controller
 
             $academicPeriod = $enrollment->section->academicPeriod;
 
-            // Verificar si el período permite promociones
+            // Verificar si el perÃ­odo permite promociones
             if (!$academicPeriod->isPromotable()) {
                 return redirect()
                     ->route('enrollments.show', $enrollment)
-                    ->with('error', "El período académico '{$academicPeriod->name}' no permite promociones.");
+                    ->with('error', "El perÃ­odo acadÃ©mico '{$academicPeriod->name}' no permite promociones.");
             }
 
-            // Secciones del MISMO período (excluyendo la actual)
+            // Secciones del MISMO perÃ­odo (excluyendo la actual)
             $sections = Section::active()
                 ->where('academic_period_id', $academicPeriod->id)
                 ->where('id', '!=', $enrollment->section_id)
@@ -172,7 +208,7 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Ejecutar promoción
+     * Ejecutar promociÃ³n
      */
     public function promote(
         PromoteEnrollmentRequest $request,
@@ -183,13 +219,13 @@ class EnrollmentController extends Controller
             $newEnrollment = $promoteService->handle($enrollment, $request->validated()['section_id']);
 
             return redirect()->route('students.show', $enrollment->student)
-                ->with('success', "¡Estudiante promovido a {$newEnrollment->section->name} correctamente!");
+                ->with('success', "Â¡Estudiante promovido a {$newEnrollment->section->name} correctamente!");
         });
     }
 
     /**
      * Mostrar formulario de RETIRO
-     * El estudiante abandona o es expulsado de la institución.
+     * El estudiante abandona o es expulsado de la instituciÃ³n.
      */
     public function showWithdrawForm(Enrollment $enrollment): View|RedirectResponse
     {

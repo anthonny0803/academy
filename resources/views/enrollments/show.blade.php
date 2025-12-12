@@ -96,40 +96,66 @@
                         </div>
                     </div>
 
-                    {{-- Calificaciones (si existen) --}}
-                    @if ($enrollment->grades->count() > 0)
-                        <div class="mt-6">
-                            <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Calificaciones</h2>
+                    {{-- Calificaciones por Asignatura --}}
+                    <div class="mt-6">
+                        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Calificaciones por Asignatura</h2>
+                        
+                        @if ($subjectsData->count() > 0)
                             <div class="overflow-x-auto">
-                                <table
-                                    class="min-w-full text-white bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                                <table class="min-w-full text-white bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
                                     <thead>
                                         <tr>
-                                            <th class="py-2 px-4 border-b text-left">Materia</th>
-                                            <th class="py-2 px-4 border-b text-left">Calificación</th>
-                                            <th class="py-2 px-4 border-b text-left">Fecha</th>
+                                            <th class="py-2 px-4 border-b text-left">Asignatura</th>
+                                            <th class="py-2 px-4 border-b text-left">Profesor</th>
+                                            <th class="py-2 px-4 border-b text-center">Promedio</th>
+                                            <th class="py-2 px-4 border-b text-center">Detalles</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($enrollment->grades as $grade)
+                                        @foreach ($subjectsData as $index => $subject)
                                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                                <td class="py-2 px-4 border-b">{{ $grade->getSubject()->name }}</td>
-                                                <td class="py-2 px-4 border-b">{{ $grade->value }}</td>
-                                                <td class="py-2 px-4 border-b">
-                                                    {{ $grade->created_at->format('d/m/Y') }}</td>
+                                                <td class="py-2 px-4 border-b font-medium text-gray-900 dark:text-gray-100">
+                                                    {{ $subject['subject_name'] }}
+                                                </td>
+                                                <td class="py-2 px-4 border-b text-gray-600 dark:text-gray-400">
+                                                    {{ $subject['teacher_name'] }}
+                                                </td>
+                                                <td class="py-2 px-4 border-b text-center">
+                                                    @if ($subject['average'] !== null)
+                                                        <span class="font-bold {{ $subject['average'] >= $passingGrade ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                                            {{ number_format($subject['average'], 2) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-gray-500">Sin notas</span>
+                                                    @endif
+                                                </td>
+                                                <td class="py-2 px-4 border-b text-center">
+                                                    <button type="button"
+                                                        onclick="openGradeModal({{ $index }})"
+                                                        class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
+                                                        Ver detalles
+                                                    </button>
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                    @else
-                        <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                            <p class="text-gray-700 dark:text-gray-300">
-                                No hay calificaciones registradas para esta inscripción.
-                            </p>
-                        </div>
-                    @endif
+
+                            {{-- Leyenda --}}
+                            <div class="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                                <span class="text-green-600 dark:text-green-400">■</span> Aprobado (≥ {{ $passingGrade }})
+                                <span class="mx-2">|</span>
+                                <span class="text-red-600 dark:text-red-400">■</span> Reprobado (&lt; {{ $passingGrade }})
+                            </div>
+                        @else
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <p class="text-gray-700 dark:text-gray-300">
+                                    No hay asignaturas asignadas a esta sección.
+                                </p>
+                            </div>
+                        @endif
+                    </div>
 
                     {{-- Acciones y enlaces --}}
                     <div class="mt-6 flex gap-4">
@@ -186,9 +212,125 @@
         </div>
     </div>
 
-    {{-- Dropdown script --}}
-    @if ($enrollment->status === 'activo')
-        <script>
+    {{-- Modales de calificaciones por asignatura --}}
+    @foreach ($subjectsData as $index => $subject)
+        <div id="gradeModal-{{ $index }}"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden">
+                {{-- Header --}}
+                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        {{ $subject['subject_name'] }}
+                    </h3>
+                    <button onclick="closeGradeModal({{ $index }})"
+                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl leading-none">
+                        &times;
+                    </button>
+                </div>
+                
+                {{-- Body --}}
+                <div class="p-4 overflow-y-auto max-h-[60vh]">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <strong>Profesor:</strong> {{ $subject['teacher_name'] }}
+                    </p>
+
+                    @if ($subject['grades_detail']->count() > 0)
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                                    <th class="py-2 text-left">Evaluación</th>
+                                    <th class="py-2 text-center">Ponderación</th>
+                                    <th class="py-2 text-center">Calificación</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-900 dark:text-gray-100">
+                                @foreach ($subject['grades_detail'] as $grade)
+                                    <tr class="border-b border-gray-100 dark:border-gray-700">
+                                        <td class="py-2">{{ $grade['column_name'] }}</td>
+                                        <td class="py-2 text-center text-gray-500 dark:text-gray-400">
+                                            {{ number_format($grade['weight'], 0) }}%
+                                        </td>
+                                        <td class="py-2 text-center font-medium">
+                                            @if ($grade['value'] !== null)
+                                                <span class="{{ $grade['value'] >= $passingGrade ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                                    {{ number_format($grade['value'], 2) }}
+                                                </span>
+                                            @else
+                                                <span class="text-gray-400">—</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr class="border-t-2 border-gray-300 dark:border-gray-600">
+                                    <td class="py-3 text-gray-600 dark:text-gray-300 font-bold text-lg">Promedio Ponderado</td>
+                                    <td class="py-3 text-center text-gray-500 dark:text-gray-400">100%</td>
+                                    <td class="py-3 text-center font-bold text-lg">
+                                        @if ($subject['average'] !== null)
+                                            <span class="{{ $subject['average'] >= $passingGrade ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                                {{ number_format($subject['average'], 2) }}
+                                            </span>
+                                        @else
+                                            <span class="text-gray-400">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    @else
+                        <p class="text-gray-500 text-center py-4">
+                            No hay evaluaciones configuradas para esta asignatura.
+                        </p>
+                    @endif
+                </div>
+
+                {{-- Footer --}}
+                <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-right">
+                    <button onclick="closeGradeModal({{ $index }})"
+                        class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    {{-- Scripts --}}
+    <script>
+        // Modal de calificaciones
+        function openGradeModal(index) {
+            document.getElementById('gradeModal-' + index).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeGradeModal(index) {
+            document.getElementById('gradeModal-' + index).classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('[id^="gradeModal-"]').forEach(modal => {
+                    modal.classList.add('hidden');
+                });
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('[id^="gradeModal-"]').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Dropdown de acciones (original)
+        @if ($enrollment->status === 'activo')
             document.addEventListener("DOMContentLoaded", () => {
                 document.querySelectorAll("[data-dropdown-enrollment]").forEach(btn => {
                     btn.addEventListener("click", () => {
@@ -230,6 +372,6 @@
                     }
                 });
             });
-        </script>
-    @endif
+        @endif
+    </script>
 </x-app-layout>
