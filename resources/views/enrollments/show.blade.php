@@ -113,8 +113,8 @@
                                     <tbody>
                                         @foreach ($enrollment->grades as $grade)
                                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                                <td class="py-2 px-4 border-b">{{ $grade->subject->name }}</td>
-                                                <td class="py-2 px-4 border-b">{{ $grade->grade }}</td>
+                                                <td class="py-2 px-4 border-b">{{ $grade->getSubject()->name }}</td>
+                                                <td class="py-2 px-4 border-b">{{ $grade->value }}</td>
                                                 <td class="py-2 px-4 border-b">
                                                     {{ $grade->created_at->format('d/m/Y') }}</td>
                                             </tr>
@@ -164,6 +164,17 @@
                                     <li><a href="{{ route('enrollments.promote.form', $enrollment) }}"
                                             class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Promover
                                             Grado</a>
+                                    </li>
+                                    <li class="border-t border-gray-200 dark:border-gray-600">
+                                        <form action="{{ route('enrollments.destroy', $enrollment) }}" method="POST"
+                                            onsubmit="return confirm('¿Estás seguro de eliminar esta inscripción?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="block w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
+                                                Eliminar Inscripción
+                                            </button>
+                                        </form>
                                     </li>
                                 </ul>
                             </div>

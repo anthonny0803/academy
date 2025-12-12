@@ -66,7 +66,7 @@ class EnrollmentController extends Controller
     public function show(Enrollment $enrollment): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('view', $enrollment, function () use ($enrollment) {
-            $enrollment->load(['student.user', 'student.representative.user', 'section.academicPeriod', 'grades']);
+            $enrollment->load(['student.user', 'student.representative.user', 'section.academicPeriod', 'grades.gradeColumn.sectionSubjectTeacher.subject']);
             return view('enrollments.show', compact('enrollment'));
         });
     }
