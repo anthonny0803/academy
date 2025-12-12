@@ -11,7 +11,6 @@ use App\Services\AcademicPeriods\UpdateAcademicPeriodService;
 use App\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Traits\AuthorizesRedirect;
-use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -22,7 +21,6 @@ class AcademicPeriodController extends Controller
 {
     use AuthorizesRequests;
     use AuthorizesRedirect;
-    use CanToggleActivation;
 
     protected function currentUser(): User
     {
@@ -125,11 +123,6 @@ class AcademicPeriodController extends Controller
             return redirect()->route('academic-periods.index')
                 ->with('success', '¡Período académico eliminado correctamente!');
         });
-    }
-
-    public function toggleActivation(AcademicPeriod $academicPeriod): RedirectResponse
-    {
-        return $this->executeToggle($academicPeriod);
     }
 
     /**

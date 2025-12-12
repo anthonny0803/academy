@@ -16,7 +16,7 @@ class StoreAcademicPeriodService
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
                 'is_promotable' => $data['is_promotable'] ?? true,
-                'is_active' => false,
+                'is_active' => true,
             ]);
         });
     }

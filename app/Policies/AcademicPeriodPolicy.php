@@ -31,7 +31,7 @@ class AcademicPeriodPolicy
     private function cannotDeleteActiveAcademicPeriod(AcademicPeriod $academicPeriod): ?Response
     {
         if ($academicPeriod->isActive()) {
-            return Response::deny('No puedes eliminar un período académico activo. Desactívalo primero.');
+            return Response::deny('No puedes eliminar un período académico activo. Ciérralo primero.');
         }
 
         return null;
@@ -95,12 +95,6 @@ class AcademicPeriodPolicy
         return $this->cannotManageAcademicPeriods($currentUser)
             ?? $this->cannotDeleteActiveAcademicPeriod($academicPeriod)
             ?? $this->cannotDeleteAcademicPeriodWithSections($academicPeriod)
-            ?? Response::allow();
-    }
-
-    public function toggle(User $currentUser): Response
-    {
-        return $this->cannotManageAcademicPeriods($currentUser)
             ?? Response::allow();
     }
 

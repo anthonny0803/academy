@@ -69,8 +69,6 @@ Route::middleware('auth')->group(function () {
             ->name('subjects.toggle');
 
         Route::resource('academic-periods', AcademicPeriodController::class);
-        Route::patch('academic-periods/{academicPeriod}/toggle', [AcademicPeriodController::class, 'toggleActivation'])
-            ->name('academic-periods.toggle');
         Route::patch('academic-periods/{academicPeriod}/close', [AcademicPeriodController::class, 'close'])
             ->name('academic-periods.close');
 
