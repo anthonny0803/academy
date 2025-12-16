@@ -5,6 +5,7 @@ namespace App\Services\Enrollments;
 use App\Models\Enrollment;
 use App\Models\Student;
 use App\Enums\EnrollmentStatus;
+use App\Enums\StudentSituation;
 use Illuminate\Support\Facades\DB;
 
 class StoreEnrollmentService
@@ -12,10 +13,20 @@ class StoreEnrollmentService
     public function handle(Student $student, array $data): Enrollment
     {
         return DB::transaction(function () use ($student, $data) {
-            
-            // Reactive student if inactive
+            $updates = [];
+
+            // Reactivar estudiante si estaba inactivo
             if (!$student->isActive()) {
-                $student->update(['is_active' => true]);
+                $updates['is_active'] = true;
+            }
+
+            // Cambiar situación a Cursando si estaba Sin actividad
+            if ($student->situation === StudentSituation::Inactive) {
+                $updates['situation'] = StudentSituation::Active;
+            }
+
+            if (!empty($updates)) {
+                $student->update($updates);
             }
 
             return Enrollment::create([

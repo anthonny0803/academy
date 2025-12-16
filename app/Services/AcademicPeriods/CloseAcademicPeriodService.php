@@ -6,17 +6,13 @@ use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
 use App\Models\Student;
 use App\Enums\EnrollmentStatus;
+use App\Enums\StudentSituation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CloseAcademicPeriodService
 {
-    /**
-     * Verificar si el período puede cerrarse y obtener reporte de pendientes
-     * 
-     * @return array ['can_close' => bool, 'issues' => [], 'summary' => []]
-     */
     public function validateForClose(AcademicPeriod $academicPeriod): array
     {
         $issues = [];
@@ -27,7 +23,6 @@ class CloseAcademicPeriodService
             'enrollments_with_issues' => 0,
         ];
 
-        // 1. Verificar fecha
         if (now()->lt($academicPeriod->end_date)) {
             $issues['date'] = [
                 'type' => 'warning',
@@ -36,7 +31,6 @@ class CloseAcademicPeriodService
             ];
         }
 
-        // 2. Verificar secciones y sus inscripciones
         $sections = $academicPeriod->sections()
             ->with([
                 'enrollments' => fn($q) => $q->active()->with('student.user'),
@@ -51,11 +45,9 @@ class CloseAcademicPeriodService
             $activeEnrollments = $section->enrollments;
             $summary['total_enrollments'] += $activeEnrollments->count();
 
-            // Verificar cada asignatura de la sección
             foreach ($section->sectionSubjectTeachers as $sst) {
                 $subjectIssues = [];
 
-                // Verificar configuración completa
                 if (!$sst->isConfigurationComplete()) {
                     $subjectIssues[] = [
                         'type' => 'configuration',
@@ -63,7 +55,6 @@ class CloseAcademicPeriodService
                     ];
                 }
 
-                // Verificar notas de cada estudiante
                 $studentsWithMissingGrades = [];
                 foreach ($activeEnrollments as $enrollment) {
                     $missingColumns = [];
@@ -114,9 +105,6 @@ class CloseAcademicPeriodService
         ];
     }
 
-    /**
-     * Obtener preview del cierre (cuántos aprueban/reprueban)
-     */
     public function getClosePreview(AcademicPeriod $academicPeriod): array
     {
         $preview = [
@@ -161,12 +149,8 @@ class CloseAcademicPeriodService
         return $preview;
     }
 
-    /**
-     * Ejecutar el cierre del período académico
-     */
     public function handle(AcademicPeriod $academicPeriod, bool $forceClose = false): array
     {
-        // Validar primero
         $validation = $this->validateForClose($academicPeriod);
         
         if (!$validation['can_close'] && !$forceClose) {
@@ -193,7 +177,6 @@ class CloseAcademicPeriodService
                 ->unique()
                 ->toArray();
 
-            // Obtener todas las secciones con sus inscripciones activas
             $sections = $academicPeriod->sections()
                 ->with([
                     'enrollments' => fn($q) => $q->active()->with('student.user'),
@@ -202,12 +185,9 @@ class CloseAcademicPeriodService
                 ->get();
 
             foreach ($sections as $section) {
-                // Procesar cada inscripción activa
                 foreach ($section->enrollments as $enrollment) {
-                    // Calcular si aprobó
                     $passed = $enrollment->calculatePassed() ?? false;
 
-                    // Actualizar inscripción
                     $enrollment->update([
                         'status' => EnrollmentStatus::Completed->value,
                         'passed' => $passed,
@@ -216,7 +196,6 @@ class CloseAcademicPeriodService
                     $results['enrollments_completed']++;
                     $passed ? $results['enrollments_passed']++ : $results['enrollments_failed']++;
 
-                    // Log individual
                     Log::info('Enrollment completed on period close', [
                         'enrollment_id' => $enrollment->id,
                         'student_id' => $enrollment->student_id,
@@ -226,25 +205,25 @@ class CloseAcademicPeriodService
                     ]);
                 }
 
-                // Desactivar sección
                 $section->update(['is_active' => false]);
                 $results['sections_deactivated']++;
             }
 
-            // Desactivar período
             $academicPeriod->update(['is_active' => false]);
 
-            // BULK UPDATE: Desactivar estudiantes que quedaron sin inscripciones activas
+            // BULK UPDATE: Desactivar estudiantes y cambiar situación
             $studentsDeactivated = Student::whereIn('id', $studentIds)
                 ->where('is_active', true)
                 ->whereDoesntHave('enrollments', function ($q) {
                     $q->where('status', EnrollmentStatus::Active->value);
                 })
-                ->update(['is_active' => false]);
+                ->update([
+                    'is_active' => false,
+                    'situation' => StudentSituation::Inactive,
+                ]);
 
             $results['students_deactivated'] = $studentsDeactivated;
 
-            // Log de estudiantes desactivados
             if ($studentsDeactivated > 0) {
                 Log::info('Students deactivated on period close', [
                     'academic_period_id' => $academicPeriod->id,
@@ -255,7 +234,6 @@ class CloseAcademicPeriodService
                 ]);
             }
 
-            // Log general del cierre
             Log::info('Academic period closed', [
                 'academic_period_id' => $academicPeriod->id,
                 'academic_period_name' => $academicPeriod->name,

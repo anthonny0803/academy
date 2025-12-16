@@ -4,6 +4,7 @@ namespace App\Services\Students;
 
 use App\Models\Student;
 use App\Enums\EnrollmentStatus;
+use App\Enums\StudentSituation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -30,7 +31,10 @@ class WithdrawStudentService
                 ->where('status', EnrollmentStatus::Active->value)
                 ->update(['status' => EnrollmentStatus::Withdrawn->value]);
 
-            $student->update(['is_active' => false]);
+            $student->update([
+                'is_active' => false,
+                'situation' => StudentSituation::Inactive,
+            ]);
 
             Log::info('Student withdrawn from institution', [
                 'student_id' => $student->id,

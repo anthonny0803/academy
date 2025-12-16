@@ -9,6 +9,7 @@ enum StudentSituation: string
     case MedicalLeave = 'Baja médica';
     case Suspended = 'Suspendido';
     case FamilySituation = 'Situación familiar';
+    case Inactive = 'Sin actividad';
 
     public static function toArray(): array
     {

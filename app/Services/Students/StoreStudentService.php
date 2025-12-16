@@ -8,8 +8,8 @@ use App\Models\Enrollment;
 use App\Models\Representative;
 use App\Enums\Role;
 use App\Enums\EnrollmentStatus;
+use App\Enums\StudentSituation;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class StoreStudentService
 {
@@ -25,7 +25,6 @@ class StoreStudentService
                     $user->assignRole(Role::Student->value);
                 }
             } else {
-
                 $user = User::create([
                     'name' => $data['name'],
                     'last_name' => $data['last_name'],
@@ -48,6 +47,7 @@ class StoreStudentService
                 'representative_id' => $representative->id,
                 'student_code' => $studentCode,
                 'relationship_type' => $data['relationship_type'],
+                'situation' => StudentSituation::Active,
                 'is_active' => true,
             ]);
 

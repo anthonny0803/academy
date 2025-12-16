@@ -4,19 +4,13 @@ namespace App\Services\Enrollments;
 
 use App\Models\Enrollment;
 use App\Enums\EnrollmentStatus;
+use App\Enums\StudentSituation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TransferEnrollmentService
 {
-    /**
-     * Transferir estudiante a otra institución.
-     * 
-     * IMPORTANTE: "Transferir" significa que el estudiante se VA del sistema
-     * (a otra institución). Solo se marca la inscripción como "transferido"
-     * y NO se crea una nueva inscripción.
-     */
     public function handle(Enrollment $enrollment, string $reason): Enrollment
     {
         return DB::transaction(function () use ($enrollment, $reason) {
@@ -40,7 +34,10 @@ class TransferEnrollmentService
 
             // Desactivar estudiante si no tiene más inscripciones activas
             if (!$student->hasActiveEnrollments()) {
-                $student->update(['is_active' => false]);
+                $student->update([
+                    'is_active' => false,
+                    'situation' => StudentSituation::Inactive,
+                ]);
 
                 Log::info('Student deactivated after transfer (no active enrollments)', [
                     'student_id' => $student->id,
