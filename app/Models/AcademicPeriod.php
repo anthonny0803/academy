@@ -23,12 +23,14 @@ class AcademicPeriod extends Model implements HasEntityName
         'max_grade',
         'passing_grade',
         'is_promotable',
+        'is_transferable',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'is_promotable' => 'boolean',
+        'is_transferable' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
         'min_grade' => 'decimal:2',
@@ -70,7 +72,12 @@ class AcademicPeriod extends Model implements HasEntityName
         return $query->where('is_promotable', true);
     }
 
-    // Helper Methods
+    public function scopeTransferable(Builder $query): Builder
+    {
+        return $query->where('is_transferable', true);
+    }
+
+    // Helper Methods - Calificaciones
 
     public function getGradeRange(): array
     {
@@ -91,11 +98,16 @@ class AcademicPeriod extends Model implements HasEntityName
         return $grade >= $this->passing_grade;
     }
 
-    // Helper Methods - Promoción
+    // Helper Methods - Promoción y Transferencia
 
     public function isPromotable(): bool
     {
         return $this->is_promotable;
+    }
+
+    public function isTransferable(): bool
+    {
+        return $this->is_transferable;
     }
 
     // Mutators

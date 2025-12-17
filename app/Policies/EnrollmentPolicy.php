@@ -73,6 +73,15 @@ class EnrollmentPolicy
         return null;
     }
 
+    private function cannotTransferInNonTransferablePeriod(Enrollment $enrollment): ?Response
+    {
+        if (!$enrollment->section->academicPeriod->isTransferable()) {
+            return Response::deny('Este período académico no permite transferencias.');
+        }
+
+        return null;
+    }
+
     // Policy Methods
 
     public function viewAny(User $currentUser): Response
@@ -101,19 +110,14 @@ class EnrollmentPolicy
             ?? Response::allow();
     }
 
-    /**
-     * Transferir: estudiante se va a otra institución
-     */
     public function transfer(User $currentUser, Enrollment $enrollment): Response
     {
         return $this->cannotModifyEnrollments($currentUser)
             ?? $this->cannotActOnNonActiveEnrollment($enrollment, 'transferir')
+            ?? $this->cannotTransferInNonTransferablePeriod($enrollment)
             ?? Response::allow();
     }
 
-    /**
-     * Promover: estudiante avanza de nivel en el MISMO período
-     */
     public function promote(User $currentUser, Enrollment $enrollment): Response
     {
         return $this->cannotModifyEnrollments($currentUser)

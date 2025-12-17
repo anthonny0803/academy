@@ -42,6 +42,7 @@
                                 <tr>
                                     <th class="py-2 px-4 border-b text-left">Código</th>
                                     <th class="py-2 px-4 border-b text-left">Nombre</th>
+                                    <th class="py-2 px-4 border-b text-left">Tipo</th>
                                     <th class="py-2 px-4 border-b text-left">Notas</th>
                                     <th class="py-2 px-4 border-b text-left">Estado</th>
                                     <th class="py-2 px-4 border-b text-left">Acciones</th>
@@ -52,6 +53,22 @@
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
                                         <td class="py-2 px-4 border-b">{{ $academicPeriod->id ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">{{ $academicPeriod->name }}</td>
+                                        <td class="py-2 px-4 border-b">
+                                            @if ($academicPeriod->is_promotable)
+                                                <span class="inline-block bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-blue-100 text-xs px-2 py-1 rounded">
+                                                    Período Académico
+                                                </span>
+                                                @if ($academicPeriod->is_transferable)
+                                                    <span class="inline-block bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100 text-xs px-1.5 py-0.5 rounded ml-1" title="Permite transferencias">
+                                                        T
+                                                    </span>
+                                                @endif
+                                            @else
+                                                <span class="inline-block bg-purple-100 dark:bg-purple-600 text-purple-800 dark:text-purple-100 text-xs px-2 py-1 rounded">
+                                                    Curso
+                                                </span>
+                                            @endif
+                                        </td>
                                         <td class="py-2 px-4 border-b">{{ $academicPeriod->notes ?? '-' }}</td>
                                         <td class="py-2 px-4 border-b">
                                             <span
@@ -76,12 +93,13 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <!-- EDIT button: ahora incluye notes, start-date y end-date -->
                                                         <button type="button" data-id="{{ $academicPeriod->id }}"
                                                             data-name="{{ e($academicPeriod->name) }}"
                                                             data-notes="{{ e($academicPeriod->notes) }}"
                                                             data-start-date="{{ $academicPeriod->start_date ? \Carbon\Carbon::parse($academicPeriod->start_date)->format('Y-m-d') : '' }}"
                                                             data-end-date="{{ $academicPeriod->end_date ? \Carbon\Carbon::parse($academicPeriod->end_date)->format('Y-m-d') : '' }}"
+                                                            data-is-promotable="{{ $academicPeriod->is_promotable ? '1' : '0' }}"
+                                                            data-is-transferable="{{ $academicPeriod->is_transferable ? '1' : '0' }}"
                                                             class="block w-full text-left px-4 py-2 hover:bg-gray-700 edit-btn">
                                                             Editar
                                                         </button>
@@ -103,7 +121,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="py-2 px-4 text-center text-gray-300">
+                                        <td colspan="6" class="py-2 px-4 text-center text-gray-300">
                                             @if (request()->filled('search'))
                                                 No se encontraron resultados
                                             @else
@@ -187,6 +205,40 @@
                     </div>
                 </div>
 
+                <!-- Checkbox is_promotable -->
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="hidden" name="is_promotable" value="0">
+                        <input type="checkbox" id="is_promotable" name="is_promotable" value="1"
+                            {{ old('is_promotable', '1') == '1' ? 'checked' : '' }}
+                            class="rounded border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                        <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                            Permite promoción <span class="text-xs">(Período Académico)</span>
+                        </span>
+                    </label>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Desmarcar si es un Curso donde los estudiantes no se promueven entre secciones.
+                    </p>
+                    <x-input-error :messages="$errors->get('is_promotable')" class="mt-2" />
+                </div>
+
+                <!-- Checkbox is_transferable (condicional) -->
+                <div id="is_transferable_container" class="mb-4" style="{{ old('is_promotable', '1') == '1' ? '' : 'display: none;' }}">
+                    <label class="flex items-center">
+                        <input type="hidden" name="is_transferable" value="0">
+                        <input type="checkbox" id="is_transferable" name="is_transferable" value="1"
+                            {{ old('is_transferable', '1') == '1' ? 'checked' : '' }}
+                            class="rounded border-gray-300 dark:border-gray-700 text-green-600 shadow-sm focus:ring-green-500 dark:focus:ring-green-600 dark:focus:ring-offset-gray-800">
+                        <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                            Permite transferencia
+                        </span>
+                    </label>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Permite que estudiantes se transfieran a otra institución educativa.
+                    </p>
+                    <x-input-error :messages="$errors->get('is_transferable')" class="mt-2" />
+                </div>
+
                 <div class="flex justify-end gap-2">
                     <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                         onclick="document.getElementById('academicPeriodModal').classList.add('hidden'); document.getElementById('academicPeriodModal').classList.remove('flex');">
@@ -258,6 +310,38 @@
                     </div>
                 </div>
 
+                <!-- Checkbox is_promotable -->
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        <input type="hidden" name="is_promotable" value="0">
+                        <input type="checkbox" id="edit-is_promotable" name="is_promotable" value="1"
+                            class="rounded border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800">
+                        <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                            Permite promoción <span class="text-xs">(Período Académico)</span>
+                        </span>
+                    </label>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Desmarcar si es un Curso donde los estudiantes no se promueven entre secciones.
+                    </p>
+                    <x-input-error :messages="$errors->get('is_promotable')" class="mt-2" />
+                </div>
+
+                <!-- Checkbox is_transferable (condicional) -->
+                <div id="edit-is_transferable_container" class="mb-4" style="display: none;">
+                    <label class="flex items-center">
+                        <input type="hidden" name="is_transferable" value="0">
+                        <input type="checkbox" id="edit-is_transferable" name="is_transferable" value="1"
+                            class="rounded border-gray-300 dark:border-gray-700 text-green-600 shadow-sm focus:ring-green-500 dark:focus:ring-green-600 dark:focus:ring-offset-gray-800">
+                        <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">
+                            Permite transferencia
+                        </span>
+                    </label>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Permite que estudiantes se transfieran a otra institución educativa.
+                    </p>
+                    <x-input-error :messages="$errors->get('is_transferable')" class="mt-2" />
+                </div>
+
                 <div class="flex justify-end gap-2">
                     <button type="button" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
                         onclick="document.getElementById('editAcademicPeriodModal').classList.add('hidden'); document.getElementById('editAcademicPeriodModal').classList.remove('flex');">
@@ -281,6 +365,35 @@
                 } else {
                     document.body.style.overflow = '';
                 }
+            }
+
+            // Toggle visibilidad de is_transferable según is_promotable
+            function toggleTransferableVisibility(isPromotableCheckbox, transferableContainerId, transferableCheckboxId) {
+                const container = document.getElementById(transferableContainerId);
+                const checkbox = document.getElementById(transferableCheckboxId);
+                
+                if (isPromotableCheckbox.checked) {
+                    container.style.display = '';
+                } else {
+                    container.style.display = 'none';
+                    if (checkbox) checkbox.checked = false;
+                }
+            }
+
+            // Listener para modal CREAR
+            const isPromotableCreate = document.getElementById('is_promotable');
+            if (isPromotableCreate) {
+                isPromotableCreate.addEventListener('change', function() {
+                    toggleTransferableVisibility(this, 'is_transferable_container', 'is_transferable');
+                });
+            }
+
+            // Listener para modal EDITAR
+            const isPromotableEdit = document.getElementById('edit-is_promotable');
+            if (isPromotableEdit) {
+                isPromotableEdit.addEventListener('change', function() {
+                    toggleTransferableVisibility(this, 'edit-is_transferable_container', 'edit-is_transferable');
+                });
             }
 
             // Observar cambios en los modales
@@ -362,6 +475,7 @@
                     const notes = btn.getAttribute('data-notes') || '';
                     const startDate = btn.getAttribute('data-start-date') || '';
                     const endDate = btn.getAttribute('data-end-date') || '';
+                    const isPromotable = btn.getAttribute('data-is-promotable') === '1';
 
                     const dropdown = btn.closest(".dropdown-clone");
                     if (dropdown) dropdown.remove();
@@ -373,6 +487,7 @@
                     document.getElementById("edit-notes").value = notes;
                     document.getElementById("edit-start_date").value = startDate;
                     document.getElementById("edit-end_date").value = endDate;
+                    document.getElementById("edit-is_promotable").checked = isPromotable;
 
                     const editModal = document.getElementById("editAcademicPeriodModal");
                     editModal.classList.remove("hidden");
@@ -409,16 +524,14 @@
                 const editForm = document.getElementById('editAcademicPeriodForm');
 
                 if (editModal && editForm && '{{ $editId }}') {
-                    // setear la acción correcta SIEMPRE que haya error en edición
                     editForm.action = "/academic-periods/{{ $editId }}";
 
-                    // rellenar campos con los valores viejos
                     document.getElementById('edit-name').value = @json(old('name'));
                     document.getElementById('edit-notes').value = @json(old('notes'));
                     document.getElementById('edit-start_date').value = @json(old('start_date'));
                     document.getElementById('edit-end_date').value = @json(old('end_date'));
+                    document.getElementById('edit-is_promotable').checked = @json(old('is_promotable')) == '1';
 
-                    // abrir modal
                     editModal.classList.remove('hidden');
                     editModal.classList.add('flex');
                 }

@@ -16,13 +16,20 @@ class StoreAcademicPeriodRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:100', Rule::unique('academic_periods')],
             'notes' => ['nullable', 'string', 'max:255'],
             'start_date' => ['required', 'date', 'before:end_date'],
             'end_date' => ['required', 'date', 'after:start_date'],
             'is_promotable' => ['nullable', 'boolean'],
         ];
+
+        // is_transferable only if is_promotable is true
+        if ($this->boolean('is_promotable')) {
+            $rules['is_transferable'] = ['nullable', 'boolean'];
+        }
+
+        return $rules;
     }
 
     public function attributes(): array
@@ -33,6 +40,7 @@ class StoreAcademicPeriodRequest extends FormRequest
             'start_date' => 'fecha de inicio',
             'end_date' => 'fecha de fin',
             'is_promotable' => 'permite promoción',
+            'is_transferable' => 'permite transferencia',
         ];
     }
 
