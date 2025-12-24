@@ -62,6 +62,8 @@ class RepresentativeController extends Controller
     public function show(Representative $representative): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('view', $representative, function () use ($representative) {
+            $representative->load(['user.roles', 'students.user']);
+
             return view('representatives.show', compact('representative'));
         });
     }

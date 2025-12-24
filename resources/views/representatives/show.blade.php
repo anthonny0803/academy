@@ -1,148 +1,202 @@
 <x-app-layout>
     <div class="py-12">
-        <div class="max-w-md mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <h1 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Detalles del Representante</h1>
-
-                    {{-- Nombre --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Nombre</label>
-                        <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->user->name }}
-                            {{ $representative->user->last_name }}</p>
+                    <div class="flex justify-between items-start mb-6">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                            Detalles del Representante
+                        </h1>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            {{ $representative->is_active 
+                                ? 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100' 
+                                : 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100' }}">
+                            {{ $representative->is_active ? 'Activo' : 'Inactivo' }}
+                        </span>
                     </div>
 
-                    {{-- Correo --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Correo</label>
-                        <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->user->email }}</p>
+                    {{-- Información Personal --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        {{-- Columna izquierda --}}
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Nombre completo</label>
+                                <p class="mt-1 text-lg text-gray-900 dark:text-gray-100">{{ $representative->full_name }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Correo electrónico</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->email }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Documento de identidad</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->document_id ?? 'No registrado' }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Sexo</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->sex }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Edad</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">
+                                    {{ $representative->age ? $representative->age . ' años' : 'No registrada' }}
+                                </p>
+                            </div>
+                        </div>
+
+                        {{-- Columna derecha --}}
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Teléfono</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->phone ?? 'No registrado' }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Dirección</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->address ?? 'No registrada' }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Ocupación</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->occupation ?? 'No registrada' }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de registro</label>
+                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->created_at->format('d/m/Y') }}</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Roles</label>
+                                <div class="mt-1 flex flex-wrap gap-1">
+                                    @forelse ($representative->user->roles as $role)
+                                        <span class="inline-block bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 text-xs px-2 py-1 rounded">
+                                            {{ $role->name }}
+                                        </span>
+                                    @empty
+                                        <span class="text-gray-400 italic text-sm">Sin rol</span>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- Sexo --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Sexo</label>
-                        <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $representative->user->sex }}</p>
-                    </div>
+                    <hr class="my-6 border-gray-200 dark:border-gray-700">
 
-                    {{-- Roles --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Rol</label>
-                        <div class="mt-1">
-                            @if ($representative->user->roles->isNotEmpty())
-                                @foreach ($representative->user->roles as $role)
-                                    <span
-                                        class="inline-block bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 text-xs px-2 py-1 rounded mr-1">
-                                        {{ $role->name }}
-                                    </span>
+                    {{-- Sección de Estudiantes --}}
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">Estudiantes asociados</h2>
+                                @php
+                                    $totalStudents = $representative->students->count();
+                                    $activeStudents = $representative->students->where('is_active', true)->count();
+                                    $inactiveStudents = $totalStudents - $activeStudents;
+                                @endphp
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ $totalStudents }} estudiante(s)
+                                    @if($totalStudents > 0)
+                                        <span class="text-green-600 dark:text-green-400">({{ $activeStudents }} activo(s)</span>,
+                                        <span class="text-yellow-600 dark:text-yellow-400">{{ $inactiveStudents }} inactivo(s))</span>
+                                    @endif
+                                </p>
+                            </div>
+                            <a href="{{ route('representatives.students.create', $representative) }}"
+                               class="inline-flex items-center px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                Agregar estudiante
+                            </a>
+                        </div>
+
+                        @if($representative->students->isEmpty())
+                            <div class="text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                                <p class="mt-2 text-gray-500 dark:text-gray-400">No hay estudiantes asociados</p>
+                            </div>
+                        @else
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                @foreach($representative->students as $student)
+                                    <a href="{{ route('students.show', $student) }}"
+                                       class="block p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:shadow-md transition-all">
+                                        
+                                        <div class="flex justify-between items-start mb-2">
+                                            <h3 class="font-medium text-gray-900 dark:text-gray-100 truncate">
+                                                {{ $student->full_name }}
+                                            </h3>
+                                            {{-- Estado técnico --}}
+                                            <span class="flex-shrink-0 ml-2 w-2 h-2 rounded-full {{ $student->is_active ? 'bg-green-500' : 'bg-yellow-500' }}"
+                                                  title="{{ $student->is_active ? 'Activo' : 'Inactivo' }}">
+                                            </span>
+                                        </div>
+
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                            {{ $student->student_code }}
+                                        </p>
+
+                                        <div class="flex flex-wrap gap-1 mb-2">
+                                            {{-- Parentesco --}}
+                                            <span class="inline-block bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 text-xs px-2 py-0.5 rounded">
+                                                {{ $student->relationship_type }}
+                                            </span>
+                                            {{-- Situación --}}
+                                            <span class="inline-block text-xs px-2 py-0.5 rounded
+                                                @switch($student->situation?->value)
+                                                    @case('Cursando')
+                                                        bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100
+                                                        @break
+                                                    @case('Pausado')
+                                                    @case('Baja médica')
+                                                    @case('Situación familiar')
+                                                        bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100
+                                                        @break
+                                                    @case('Suspendido')
+                                                        bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-100
+                                                        @break
+                                                    @case('Sin actividad')
+                                                        bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-100
+                                                        @break
+                                                    @default
+                                                        bg-gray-100 dark:bg-gray-600 text-gray-800 dark:text-gray-100
+                                                @endswitch">
+                                                {{ $student->situation?->value ?? 'Sin situación' }}
+                                            </span>
+                                        </div>
+
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ $student->age ? $student->age . ' años' : 'Edad no registrada' }}
+                                        </p>
+                                    </a>
                                 @endforeach
-                            @else
-                                <span class="text-gray-400 italic">Sin rol</span>
-                            @endif
-                        </div>
+                            </div>
+                        @endif
                     </div>
 
-                    {{-- Toggle active state --}}
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Estado de Representante
-                        </label>
-                        <div class="mt-1 flex items-center space-x-2">
-                            <form method="POST" action="{{ route('representatives.toggle', $representative) }}">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit"
-                                    class="relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer 
-                       {{ $representative->is_active ? 'bg-blue-600' : 'bg-gray-400' }}">
-                                    <span
-                                        class="inline-block h-4 w-4 transform rounded-full bg-white transition
-                           {{ $representative->is_active ? 'translate-x-6' : 'translate-x-1' }}">
-                                    </span>
-                                </button>
-                            </form>
-                            <span
-                                class="inline-block {{ $representative->is_active ? 'bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100 text-xs px-2 py-1 rounded mr-1' : 'bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-100 text-xs px-2 py-1 rounded mr-1' }}">
-                                {{ $representative->is_active ? 'Activo' : 'Inactivo' }}
-                            </span>
-                        </div>
-                    </div>
+                    <hr class="my-6 border-gray-200 dark:border-gray-700">
 
-                    {{-- Acciones y enlaces --}}
-                    <div class="mt-6">
+                    {{-- Acciones --}}
+                    <div class="flex flex-wrap items-center gap-4">
                         <a href="{{ route('representatives.index') }}"
-                            class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            Ir a la Lista
+                           class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline">
+                            ← Volver a la lista
                         </a>
                         <a href="{{ route('dashboard') }}"
-                            class="underline text-sm px-4 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            Volver al Panel
+                           class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 underline">
+                            Ir al Panel
                         </a>
-
-                        {{-- Dropdown --}}
-                        <button data-dropdown-representative="{{ $representative->id }}"
-                            class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
-                            Acciones
-                        </button>
-
-                        <div id="dropdown-template-{{ $representative->id }}" class="hidden">
-                            <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                                <li><a href="{{ route('representatives.students.create', $representative->id) }}"
-                                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Asignar
-                                        Estudiante</a>
-                                </li>
-                                <li><a href="{{ route('representatives.edit', $representative) }}"
-                                        class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Editar</a>
-                                </li>
-                            </ul>
-                        </div>
+                        <a href="{{ route('representatives.edit', $representative) }}"
+                           class="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700">
+                            Editar representante
+                        </a>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
-
-    {{-- Dropdown script --}}
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll("[data-dropdown-representative]").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const representativeId = btn.dataset.dropdownRepresentative;
-                    let existing = document.getElementById("dropdownMenu-" + representativeId);
-                    if (existing && !existing.classList.contains("hidden")) {
-                        existing.remove();
-                        return;
-                    }
-                    document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
-                    const tpl = document.getElementById("dropdown-template-" + representativeId);
-                    const clone = tpl.cloneNode(true);
-                    clone.id = "dropdownMenu-" + representativeId;
-                    clone.classList.remove("hidden");
-                    clone.classList.add("dropdown-clone", "fixed", "z-50", "w-40", "bg-white",
-                        "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700",
-                        "rounded", "shadow-lg");
-                    const rect = btn.getBoundingClientRect();
-                    const menuHeight = 160;
-                    const espacioAbajo = window.innerHeight - rect.bottom;
-                    const espacioArriba = rect.top;
-                    if (espacioAbajo >= menuHeight) {
-                        clone.style.top = rect.bottom + "px";
-                    } else if (espacioArriba >= menuHeight) {
-                        clone.style.top = (rect.top - menuHeight) + "px";
-                    } else {
-                        clone.style.top = rect.bottom + "px";
-                        clone.style.maxHeight = espacioAbajo + "px";
-                        clone.style.overflowY = "auto";
-                    }
-                    clone.style.left = rect.left + "px";
-                    document.body.appendChild(clone);
-                });
-            });
-            document.addEventListener("click", e => {
-                if (!e.target.closest("[data-dropdown-representative]") && !e.target.closest(
-                        ".dropdown-clone")) {
-                    document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
-                }
-            });
-        });
-    </script>
 </x-app-layout>
