@@ -107,17 +107,18 @@ class AcademicPeriodController extends Controller
 
         public function store(StoreAcademicPeriodRequest $request, StoreAcademicPeriodService $storeService): RedirectResponse
 {
-    // TEST DIRECTO - sin service, sin transacción
-    \App\Models\AcademicPeriod::create([
-        'name' => 'TEST DIRECTO',
-        'start_date' => '2025-01-01',
-        'end_date' => '2025-12-31',
-        'is_active' => true,
-        'is_promotable' => true,
-        'is_transferable' => true,
-    ]);
+    \DB::transaction(function () {
+        \App\Models\AcademicPeriod::create([
+            'name' => 'TEST CON TRANSACTION',
+            'start_date' => '2025-01-01',
+            'end_date' => '2025-12-31',
+            'is_active' => true,
+            'is_promotable' => true,
+            'is_transferable' => true,
+        ]);
+    });
     
-    dd('Insertado - revisa Neon');
+    dd('Transacción completada - revisa Neon');
 }
 
     public function update(UpdateAcademicPeriodRequest $request, UpdateAcademicPeriodService $updateService, AcademicPeriod $academicPeriod): RedirectResponse
