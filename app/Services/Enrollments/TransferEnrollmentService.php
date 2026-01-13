@@ -5,21 +5,25 @@ namespace App\Services\Enrollments;
 use App\Models\Enrollment;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
+use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TransferEnrollmentService
 {
+    public function __construct(
+        private SyncRepresentativeStatusService $syncRepresentativeStatus
+    ) {}
+
     public function handle(Enrollment $enrollment, string $reason): Enrollment
     {
         return DB::transaction(function () use ($enrollment, $reason) {
             $student = $enrollment->student;
+            $representativeId = $student->representative_id;
 
-            // Cambiar status a transferido
             $enrollment->update(['status' => EnrollmentStatus::Transferred->value]);
 
-            // Registrar en log para auditoría
             Log::info('Student transferred out of institution', [
                 'student_id' => $student->id,
                 'student_code' => $student->student_code,
@@ -32,7 +36,6 @@ class TransferEnrollmentService
                 'performed_at' => now(),
             ]);
 
-            // Desactivar estudiante si no tiene más inscripciones activas
             if (!$student->hasActiveEnrollments()) {
                 $student->update([
                     'is_active' => false,
@@ -45,6 +48,9 @@ class TransferEnrollmentService
                     'performed_by' => Auth::id(),
                     'performed_at' => now(),
                 ]);
+
+                // Synchronize representative status
+                $this->syncRepresentativeStatus->handle($representativeId);
             }
 
             return $enrollment->fresh(['student.user', 'section.academicPeriod']);

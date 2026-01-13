@@ -16,15 +16,6 @@ class RepresentativePolicy
         return null;
     }
 
-    private function cannotToggleRepresentatives(User $user): ?Response
-    {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor())) {
-            return Response::deny('No tienes autorización para cambiar el estado de representantes.');
-        }
-
-        return null;
-    }
-
     public function viewAny(User $currentUser): Response
     {
         return $this->cannotManageRepresentatives($currentUser)
@@ -46,12 +37,6 @@ class RepresentativePolicy
     public function update(User $currentUser): Response
     {
         return $this->cannotManageRepresentatives($currentUser)
-            ?? Response::allow();
-    }
-
-    public function toggle(User $currentUser): Response
-    {
-        return $this->cannotToggleRepresentatives($currentUser)
             ?? Response::allow();
     }
 }

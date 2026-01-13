@@ -115,9 +115,4 @@ class RepresentativeController extends Controller
                 : $route->with('success', '¡Representante actualizado correctamente!');
         });
     }
-
-    public function toggleActivation(Representative $representative): RedirectResponse
-    {
-        return $this->executeToggle($representative);
-    }
 }

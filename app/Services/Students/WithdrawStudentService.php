@@ -5,15 +5,22 @@ namespace App\Services\Students;
 use App\Models\Student;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
+use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class WithdrawStudentService
 {
+    public function __construct(
+        private SyncRepresentativeStatusService $syncRepresentativeStatus
+    ) {}
+
     public function handle(Student $student, string $reason): array
     {
         return DB::transaction(function () use ($student, $reason) {
+            $representativeId = $student->representative_id;
+
             $activeEnrollments = $student->enrollments()
                 ->where('status', EnrollmentStatus::Active->value)
                 ->with('section.academicPeriod')
@@ -46,6 +53,9 @@ class WithdrawStudentService
                 'performed_by' => Auth::id(),
                 'performed_at' => now(),
             ]);
+
+            // Synchronize representative status
+            $this->syncRepresentativeStatus->handle($representativeId);
 
             return [
                 'student' => $student->fresh(['user', 'representative', 'enrollments.section.academicPeriod']),

@@ -29,7 +29,7 @@ class StoreRepresentativeService
 
             $representative = Representative::create([
                 'user_id' => $user->id,
-                'is_active' => true,
+                'is_active' => false, // Inactive until store a student associated
             ]);
 
             return $representative->fresh(['user']);

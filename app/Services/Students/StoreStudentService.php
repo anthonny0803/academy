@@ -9,10 +9,15 @@ use App\Models\Representative;
 use App\Enums\Role;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
+use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\DB;
 
 class StoreStudentService
 {
+    public function __construct(
+        private SyncRepresentativeStatusService $syncRepresentativeStatus
+    ) {}
+
     public function handle(Representative $representative, array $data): Student
     {
         return DB::transaction(function () use ($representative, $data) {
@@ -56,6 +61,9 @@ class StoreStudentService
                 'section_id' => $data['section_id'],
                 'status' => EnrollmentStatus::Active->value,
             ]);
+
+            // Synchronize representative status (it is going to be active)
+            $this->syncRepresentativeStatus->handle($representative->id);
 
             return $student->fresh(['user', 'representative', 'enrollments']);
         });

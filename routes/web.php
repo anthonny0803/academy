@@ -47,8 +47,6 @@ Route::middleware('auth')->group(function () {
             ->name('subject-teacher.index');
 
         Route::resource('representatives', RepresentativeController::class);
-        Route::patch('representatives/{representative}/toggle', [RepresentativeController::class, 'toggleActivation'])
-            ->name('representatives.toggle');
         Route::resource('representatives.students', StudentController::class)
             ->shallow()
             ->only(['create', 'store']);

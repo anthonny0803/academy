@@ -4,22 +4,27 @@ namespace App\Services\Enrollments;
 
 use App\Models\Enrollment;
 use App\Enums\StudentSituation;
+use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DeleteEnrollmentService
 {
+    public function __construct(
+        private SyncRepresentativeStatusService $syncRepresentativeStatus
+    ) {}
+
     public function handle(Enrollment $enrollment): void
     {
         DB::transaction(function () use ($enrollment) {
             $student = $enrollment->student;
+            $representativeId = $student->representative_id;
             $enrollmentId = $enrollment->id;
             $sectionName = $enrollment->section->name;
 
             $enrollment->delete();
 
-            // Desactivar estudiante si queda sin inscripciones activas
             if (!$student->hasActiveEnrollments()) {
                 $student->update([
                     'is_active' => false,
@@ -34,6 +39,9 @@ class DeleteEnrollmentService
                     'performed_by' => Auth::id(),
                     'performed_at' => now(),
                 ]);
+
+                // Synchronize representative status
+                $this->syncRepresentativeStatus->handle($representativeId);
             }
         });
     }

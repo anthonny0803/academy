@@ -7,12 +7,17 @@ use App\Models\Enrollment;
 use App\Models\Student;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
+use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CloseAcademicPeriodService
 {
+    public function __construct(
+        private SyncRepresentativeStatusService $syncRepresentativeStatus
+    ) {}
+
     public function validateForClose(AcademicPeriod $academicPeriod): array
     {
         $issues = [];
@@ -166,14 +171,21 @@ class CloseAcademicPeriodService
                 'enrollments_failed' => 0,
                 'sections_deactivated' => 0,
                 'students_deactivated' => 0,
+                'representatives_deactivated' => 0,
             ];
 
-            // Obtener IDs de estudiantes del período ANTES de procesar
+            // Get student IDs affected
             $studentIds = Enrollment::whereHas('section', function ($q) use ($academicPeriod) {
                     $q->where('academic_period_id', $academicPeriod->id);
                 })
                 ->where('status', EnrollmentStatus::Active->value)
                 ->pluck('student_id')
+                ->unique()
+                ->toArray();
+
+            // Get representative IDs associated
+            $representativeIds = Student::whereIn('id', $studentIds)
+                ->pluck('representative_id')
                 ->unique()
                 ->toArray();
 
@@ -211,7 +223,7 @@ class CloseAcademicPeriodService
 
             $academicPeriod->update(['is_active' => false]);
 
-            // BULK UPDATE: Desactivar estudiantes y cambiar situación
+            // BULK UPDATE: Deactivate students without active enrollments
             $studentsDeactivated = Student::whereIn('id', $studentIds)
                 ->where('is_active', true)
                 ->whereDoesntHave('enrollments', function ($q) {
@@ -233,6 +245,10 @@ class CloseAcademicPeriodService
                     'performed_at' => now(),
                 ]);
             }
+
+            // Synchronize representative statuses (after student deactivations)
+            $syncResults = $this->syncRepresentativeStatus->handle($representativeIds);
+            $results['representatives_deactivated'] = $syncResults['deactivated'];
 
             Log::info('Academic period closed', [
                 'academic_period_id' => $academicPeriod->id,
