@@ -70,6 +70,7 @@ class PublicGradesService
                 'code' => $student->student_code,
                 'name' => $student->user->full_name,
                 'situation' => $student->situation?->value ?? 'N/A',
+                'relationship_type' => $student->relationship_type,
                 'is_active' => $student->is_active,
             ],
             'enrollments' => $student->enrollments

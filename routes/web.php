@@ -19,6 +19,8 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 
 Route::get('/', fn() => view('auth.login'));
 
+Route::get('/health', fn() => response('OK', 200));
+
 Route::get('/dashboard', fn() => view('dashboard'))
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
