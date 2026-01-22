@@ -1,3 +1,16 @@
+# === ETAPA 1: Compilación de Assets (Node) ===
+FROM node:20-slim AS assets_builder
+WORKDIR /app
+
+# Copiamos solo los archivos de dependencias primero para aprovechar la caché de Docker
+COPY package*.json ./
+RUN npm install
+
+# Copiamos el resto del código y compilamos
+COPY . .
+RUN npm run build
+
+# === ETAPA 2: Configuración del Servidor (PHP) ===
 FROM php:8.2-apache
 
 # Instalar extensiones PHP necesarias
@@ -27,11 +40,17 @@ RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/Allo
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar proyecto
+# Configurar directorio de trabajo
 WORKDIR /var/www/html
+
+# Copiamos todo el código fuente del proyecto
 COPY . .
 
-# Instalar dependencias
+# IMPORTANTE: Traemos la carpeta compilada de la ETAPA 1
+# Esto sobrescribe cualquier carpeta vacía que se haya copiado en el paso anterior
+COPY --from=assets_builder /app/public/build ./public/build
+
+# Instalar dependencias de Composer (Backend)
 RUN composer install --no-dev --optimize-autoloader
 
 # Permisos para storage y cache
