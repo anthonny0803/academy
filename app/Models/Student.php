@@ -73,15 +73,17 @@ class Student extends Model implements HasEntityName
 
     public function scopeSearch(Builder $query, string $term): Builder
     {
-        $term = strtoupper($term);
+        $upperTerm = strtoupper($term);
+        $lowerTerm = strtolower($term);
 
         return $query
             ->join('users', 'students.user_id', '=', 'users.id')
-            ->where(function ($q) use ($term) {
-                $q->where('users.name', 'like', "%{$term}%")
-                    ->orWhere('users.last_name', 'like', "%{$term}%")
-                    ->orWhere('users.document_id', 'like', "%{$term}%")
-                    ->orWhere('students.student_code', 'like', "%{$term}%");
+            ->where(function ($q) use ($upperTerm, $lowerTerm) {
+                $q->where('users.name', 'like', "%{$upperTerm}%")
+                    ->orWhere('users.last_name', 'like', "%{$upperTerm}%")
+                    ->orWhere('users.document_id', 'like', "%{$upperTerm}%")
+                    ->orWhere('users.email', 'like', "%{$lowerTerm}%")
+                    ->orWhere('students.student_code', 'like', "%{$upperTerm}%");
             });
     }
 

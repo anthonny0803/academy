@@ -92,15 +92,6 @@
                                         inscripciones.</p>
                                 </div>
 
-                                {{-- Grades card (NUEVO) --}}
-                                <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
-                                    onclick="openModal('gradesModal')">
-                                    <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Modulo
-                                        de calificaciones</h5>
-                                    <p class="font-normal text-gray-700 dark:text-gray-400">Configurar evaluaciones y
-                                        registrar calificaciones.</p>
-                                </div>
-
                                 {{-- RoleAssignment card --}}
                                 <div class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 cursor-pointer"
                                     onclick="openModal('roleAssignmentsModal')">
@@ -114,7 +105,7 @@
                                 <a href="#"
                                     class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                        Configuración del Sistema</h5>
+                                        Configuración del Sistema (proximamente)</h5>
                                     <p class="font-normal text-gray-700 dark:text-gray-400">Acceder a las opciones de
                                         configuración global.</p>
                                 </a>
@@ -123,7 +114,7 @@
                                 <a href="#"
                                     class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                        Informes y Estadísticas</h5>
+                                        Informes y Estadísticas (proximamente)</h5>
                                     <p class="font-normal text-gray-700 dark:text-gray-400">Visualizar datos y reportes de
                                         la academia.</p>
                                 </a>
@@ -135,14 +126,14 @@
                     {{-- Render content for Profesor --}}
                     @role('Profesor')
                         @if (auth()->user()->teacher?->isActive())
-                            <h4 class="text-xl font-semibold mb-4 text-white">Mis Asignaciones</h4>
+                        <br>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 
                                 {{-- Card para ir a Mis Asignaciones --}}
                                 <a href="{{ route('teacher.assignments') }}"
                                     class="block p-4 bg-white border border-gray-200 rounded-lg shadow-md hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700">
                                     <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                        📚 Mis Materias</h5>
+                                        📚 Mis Asignaturas</h5>
                                     <p class="font-normal text-gray-700 dark:text-gray-400">Ver mis asignaciones, 
                                         configurar evaluaciones y calificar estudiantes.</p>
                                 </a>

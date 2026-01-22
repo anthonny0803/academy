@@ -85,10 +85,13 @@ class User extends Authenticatable implements HasEntityName
 
     public function scopeSearch($query, string $term)
     {
-        return $query->where(function ($q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-                ->orWhere('last_name', 'like', "%{$term}%")
-                ->orWhere('email', 'like', "%{$term}%");
+        $upperTerm = strtoupper($term);
+        $lowerTerm = strtolower($term);
+        
+        return $query->where(function ($q) use ($upperTerm, $lowerTerm) {
+            $q->where('name', 'like', "%{$upperTerm}%")
+                ->orWhere('last_name', 'like', "%{$upperTerm}%")
+                ->orWhere('email', 'like', "%{$lowerTerm}%");
         });
     }
 

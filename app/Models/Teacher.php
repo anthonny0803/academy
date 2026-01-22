@@ -60,10 +60,13 @@ class Teacher extends Model implements HasEntityName
 
     public function scopeSearch($query, string $term)
     {
-        return $query->whereHas('user', function ($q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-                ->orWhere('last_name', 'like', "%{$term}%")
-                ->orWhere('email', 'like', "%{$term}%");
+        $upperTerm = strtoupper($term);
+        $lowerTerm = strtolower($term);
+
+        return $query->whereHas('user', function ($q) use ($upperTerm, $lowerTerm) {
+            $q->where('name', 'like', "%{$upperTerm}%")
+                ->orWhere('last_name', 'like', "%{$upperTerm}%")
+                ->orWhere('email', 'like', "%{$lowerTerm}%");
         });
     }
 

@@ -69,6 +69,8 @@ class Subject extends Model implements HasEntityName
 
     public function scopeSearch(Builder $query, string $term): Builder
     {
+        $term = strtoupper($term);
+        
         return $query->where(function ($q) use ($term) {
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('description', 'like', "%{$term}%");

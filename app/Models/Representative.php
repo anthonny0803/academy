@@ -47,12 +47,15 @@ class Representative extends Model implements HasEntityName
 
     public function scopeSearch($query, string $term)
     {
-        return $query->whereHas('user', function ($userQuery) use ($term) {
-            $userQuery->where('name', 'like', "%{$term}%")
-                ->orWhere('last_name', 'like', "%{$term}%")
-                ->orWhere('email', 'like', "%{$term}%")
-                ->orWhere('document_id', 'like', "%{$term}%")
-                ->orWhere('phone', 'like', "%{$term}%");
+        $upperTerm = strtoupper($term);
+        $lowerTerm = strtolower($term);
+
+        return $query->whereHas('user', function ($userQuery) use ($upperTerm, $lowerTerm) {
+            $userQuery->where('name', 'like', "%{$upperTerm}%")
+                ->orWhere('last_name', 'like', "%{$upperTerm}%")
+                ->orWhere('email', 'like', "%{$lowerTerm}%")
+                ->orWhere('document_id', 'like', "%{$upperTerm}%")
+                ->orWhere('phone', 'like', "%{$lowerTerm}%");
         });
     }
 

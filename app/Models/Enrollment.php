@@ -54,6 +54,8 @@ class Enrollment extends Model implements HasEntityName
 
     public function scopeSearch(Builder $query, string $term): Builder
     {
+        $term = strtoupper($term);
+        
         return $query->whereHas('student.user', function ($q) use ($term) {
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('last_name', 'like', "%{$term}%");
