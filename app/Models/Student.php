@@ -73,6 +73,8 @@ class Student extends Model implements HasEntityName
 
     public function scopeSearch(Builder $query, string $term): Builder
     {
+        $term = strtoupper($term);
+
         return $query
             ->join('users', 'students.user_id', '=', 'users.id')
             ->where(function ($q) use ($term) {
