@@ -73,11 +73,13 @@ class Student extends Model implements HasEntityName
 
     public function scopeSearch(Builder $query, string $term): Builder
     {
-        return $query->whereHas('user', function ($q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-                ->orWhere('last_name', 'like', "%{$term}%")
-                ->orWhere('document_id', 'like', "%{$term}%");
-        })->orWhere('student_code', 'like', "%{$term}%");
+        return $query->where(function ($q) use ($term) {
+            $q->whereHas('user', function ($userQuery) use ($term) {
+                $userQuery->where('name', 'like', "%{$term}%")
+                    ->orWhere('last_name', 'like', "%{$term}%")
+                    ->orWhere('document_id', 'like', "%{$term}%");
+            })->orWhere('student_code', 'like', "%{$term}%");
+        });
     }
 
     public function scopeForRepresentative(Builder $query, int $representativeId): Builder
