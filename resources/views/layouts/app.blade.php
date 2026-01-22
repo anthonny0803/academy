@@ -44,8 +44,7 @@
         <footer class="py-6 mt-auto">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <p class="text-center text-sm text-slate-500 dark:text-slate-400">
-                    © {{ date('Y') }} Academy Management System. Desarrollado con 
-                    <span class="text-red-500">♥</span> por 
+                    © {{ date('Y') }} Academy Management System. Desarrollado por 
                     <a href="https://ybanez.dev" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">Anthonny Ybáñez</a>
                 </p>
             </div>
