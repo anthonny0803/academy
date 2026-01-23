@@ -13,7 +13,7 @@
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Correo electrónico')"
+            <x-input-label for="email" :value="__('Correo')"
                 class="text-sm font-medium text-gray-700 dark:text-gray-300" />
             <div class="mt-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -23,7 +23,7 @@
                     </svg>
                 </div>
                 <x-text-input id="email"
-                    class="block w-full pl-10 pr-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200"
+                    class="block w-full pl-10 pr-4 py-3 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder:text-gray-400/50"
                     type="email" name="email" :value="old('email')" required autofocus autocomplete="username"
                     placeholder="tu@correo.com" />
             </div>
