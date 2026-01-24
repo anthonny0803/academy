@@ -8,7 +8,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
-                    Volver al listado
+                    Ir al listado
                 </a>
                 <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Editar Usuario</h1>
                 <p class="mt-2 text-gray-600 dark:text-gray-400">Modifica la información de la cuenta</p>
@@ -108,7 +108,7 @@
                             Ver detalles completos
                         </a>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <a href="{{ route('users.index') }}"
+                            <a href="{{ route('dashboard') }}"
                                class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300">
                                 Cancelar
                             </a>
