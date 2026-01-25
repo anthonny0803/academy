@@ -1,256 +1,353 @@
 <x-app-layout>
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Detalles de la Inscripción</h1>
+    <div class="py-8 sm:py-12">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Información del Estudiante --}}
-                        <div>
-                            <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Estudiante</h2>
+            {{-- Header Card --}}
+            <div class="relative overflow-hidden bg-gradient-to-r from-violet-600 via-violet-600 to-purple-700 dark:from-violet-800 dark:via-violet-800 dark:to-purple-900 rounded-2xl shadow-xl">
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full"></div>
+                    <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-white rounded-full"></div>
+                </div>
+                <div class="relative px-6 py-8 sm:px-8">
+                    {{-- Back link --}}
+                    <a href="{{ route('enrollments.index') }}" class="inline-flex items-center gap-2 text-violet-200 hover:text-white transition-colors mb-6">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Volver a Inscripciones
+                    </a>
 
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Nombre
-                                    Completo</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $enrollment->student->user->name }} {{ $enrollment->student->user->last_name }}
-                                </p>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Código de
-                                    Estudiante</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $enrollment->student->student_code }}</p>
-                            </div>
-
-                            <div class="mb-4">
-                                <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-400">Documento</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $enrollment->student->user->document_id ?? 'Sin documento' }}
-                                </p>
-                            </div>
-
-                            <div class="mb-4">
-                                <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-400">Representante</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $enrollment->student->representative?->user?->name ?? 'Sin representante' }}
-                                    {{ $enrollment->student->representative?->user?->last_name ?? '' }}
-                                </p>
-                            </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+                        <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl border border-white/30">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
                         </div>
-
-                        {{-- Información de la Inscripción --}}
-                        <div>
-                            <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Datos de Inscripción
-                            </h2>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Período
-                                    Académico</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $enrollment->section->academicPeriod->name }}
-                                </p>
-                            </div>
-
-                            <div class="mb-4">
-                                <label
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-400">Sección</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">{{ $enrollment->section->name }}</p>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Estado</label>
-                                <p class="mt-1">
-                                    <span
-                                        class="inline-block 
-                                        @if ($enrollment->status === 'activo') bg-green-100 dark:bg-green-600 text-green-800 dark:text-green-100
-                                        @elseif($enrollment->status === 'completado') bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-blue-100
-                                        @elseif($enrollment->status === 'retirado') bg-red-100 dark:bg-red-600 text-red-800 dark:text-red-100
-                                        @elseif($enrollment->status === 'transferido') bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-100
-                                        @else bg-purple-100 dark:bg-purple-600 text-purple-800 dark:text-purple-100 @endif
-                                        text-xs px-3 py-1 rounded">
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center gap-3 mb-2">
+                                <h1 class="text-2xl sm:text-3xl font-bold text-white">Detalles de Inscripción</h1>
+                                @if ($enrollment->status === 'activo')
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-100 border border-green-400/30">
+                                        <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                                        Activo
+                                    </span>
+                                @elseif ($enrollment->status === 'completado')
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-100 border border-blue-400/30">
+                                        Completado
+                                    </span>
+                                @elseif ($enrollment->status === 'retirado')
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-500/20 text-red-100 border border-red-400/30">
+                                        Retirado
+                                    </span>
+                                @elseif ($enrollment->status === 'transferido')
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-amber-500/20 text-amber-100 border border-amber-400/30">
+                                        Transferido
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-500/20 text-purple-100 border border-purple-400/30">
                                         {{ ucfirst($enrollment->status) }}
                                     </span>
-                                </p>
+                                @endif
                             </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Fecha de
-                                    Inscripción</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $enrollment->created_at->format('d/m/Y H:i') }}
-                                </p>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-400">Última
-                                    Actualización</label>
-                                <p class="mt-1 text-gray-900 dark:text-gray-100">
-                                    {{ $enrollment->updated_at->format('d/m/Y H:i') }}
-                                </p>
+                            <div class="flex flex-wrap items-center gap-4 text-violet-100">
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                    </svg>
+                                    {{ $enrollment->section->name }}
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    {{ $enrollment->section->academicPeriod->name }}
+                                </span>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Calificaciones por Asignatura --}}
-                    <div class="mt-6">
-                        <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Calificaciones por Asignatura</h2>
-                        
-                        @if ($subjectsData->count() > 0)
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full text-white bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-                                    <thead>
-                                        <tr>
-                                            <th class="py-2 px-4 border-b text-left">Asignatura</th>
-                                            <th class="py-2 px-4 border-b text-left">Profesor</th>
-                                            <th class="py-2 px-4 border-b text-center">Promedio</th>
-                                            <th class="py-2 px-4 border-b text-center">Detalles</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($subjectsData as $index => $subject)
-                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
-                                                <td class="py-2 px-4 border-b font-medium text-gray-900 dark:text-gray-100">
-                                                    {{ $subject['subject_name'] }}
-                                                </td>
-                                                <td class="py-2 px-4 border-b text-gray-600 dark:text-gray-400">
-                                                    {{ $subject['teacher_name'] }}
-                                                </td>
-                                                <td class="py-2 px-4 border-b text-center">
-                                                    @if ($subject['average'] !== null)
-                                                        <span class="font-bold {{ $subject['average'] >= $passingGrade ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
-                                                            {{ number_format($subject['average'], 2) }}
-                                                        </span>
-                                                    @else
-                                                        <span class="text-gray-500">Sin notas</span>
-                                                    @endif
-                                                </td>
-                                                <td class="py-2 px-4 border-b text-center">
-                                                    <button type="button"
-                                                        onclick="openGradeModal({{ $index }})"
-                                                        class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
-                                                        Ver detalles
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {{-- Leyenda --}}
-                            <div class="mt-3 text-sm text-gray-600 dark:text-gray-400">
-                                <span class="text-green-600 dark:text-green-400">■</span> Aprobado (≥ {{ $passingGrade }})
-                                <span class="mx-2">|</span>
-                                <span class="text-red-600 dark:text-red-400">■</span> Reprobado (&lt; {{ $passingGrade }})
-                            </div>
-                        @else
-                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <p class="text-gray-700 dark:text-gray-300">
-                                    No hay asignaturas asignadas a esta sección.
-                                </p>
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- Acciones y enlaces --}}
-                    <div class="mt-6 flex gap-4">
-                        <a href="{{ route('enrollments.index') }}"
-                            class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            Ir a la Lista
-                        </a>
-
-                        <a href="{{ route('students.show', $enrollment->student) }}"
-                            class="underline text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            Ver Estudiante
-                        </a>
-
-                        <a href="{{ route('dashboard') }}"
-                            class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            Volver al Panel
-                        </a>
-
-                        {{-- Dropdown de acciones --}}
+                        {{-- Actions button --}}
                         @if ($enrollment->status === 'activo')
-                            <button data-dropdown-enrollment="{{ $enrollment->id }}"
-                                class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700">
-                                Acciones
-                            </button>
+                            <div class="relative">
+                                <button data-dropdown-enrollment="{{ $enrollment->id }}"
+                                        class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl border border-white/20 transition-all duration-300">
+                                    <span>Acciones</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
 
-                            <div id="dropdown-template-{{ $enrollment->id }}" class="hidden">
-                                <ul class="py-1 text-sm text-gray-700 dark:text-gray-200">
-                                    <li><a href="{{ route('enrollments.transfer.form', $enrollment) }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Transferir
-                                            Sección</a>
-                                    </li>
-                                    <li><a href="{{ route('enrollments.promote.form', $enrollment) }}"
-                                            class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Promover
-                                            Grado</a>
-                                    </li>
-                                    <li class="border-t border-gray-200 dark:border-gray-600">
+                                <div id="dropdown-template-{{ $enrollment->id }}" class="hidden">
+                                    <div class="py-2">
+                                        <a href="{{ route('enrollments.transfer.form', $enrollment) }}"
+                                           class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-700 dark:hover:text-amber-300 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                            </svg>
+                                            Transferir Sección
+                                        </a>
+                                        <a href="{{ route('enrollments.promote.form', $enrollment) }}"
+                                           class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-700 dark:hover:text-green-300 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                            </svg>
+                                            Promover Grado
+                                        </a>
+                                        <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
                                         <form action="{{ route('enrollments.destroy', $enrollment) }}" method="POST"
-                                            onsubmit="return confirm('¿Estás seguro de eliminar esta inscripción?');">
+                                              onsubmit="return confirm('¿Estás seguro de eliminar esta inscripción?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="block w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
+                                                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
                                                 Eliminar Inscripción
                                             </button>
                                         </form>
-                                    </li>
-                                </ul>
+                                    </div>
+                                </div>
                             </div>
                         @endif
                     </div>
-
                 </div>
             </div>
+
+            {{-- Info Grid --}}
+            <div class="grid gap-6 lg:grid-cols-2">
+                {{-- Student Information --}}
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                        <h3 class="text-sm font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Estudiante
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                {{ strtoupper(substr($enrollment->student->user->name, 0, 1) . substr($enrollment->student->user->last_name, 0, 1)) }}
+                            </div>
+                            <div>
+                                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                                    {{ $enrollment->student->user->name }} {{ $enrollment->student->user->last_name }}
+                                </p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 font-mono">{{ $enrollment->student->student_code }}</p>
+                            </div>
+                        </div>
+                        <dl class="space-y-3">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Documento</dt>
+                                <dd class="mt-1 text-gray-900 dark:text-white">{{ $enrollment->student->user->document_id ?? 'Sin documento' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Representante</dt>
+                                <dd class="mt-1 text-gray-900 dark:text-white">
+                                    {{ $enrollment->student->representative?->user?->name ?? 'Sin representante' }}
+                                    {{ $enrollment->student->representative?->user?->last_name ?? '' }}
+                                </dd>
+                            </div>
+                        </dl>
+                        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <a href="{{ route('students.show', $enrollment->student) }}"
+                               class="inline-flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                                Ver perfil del estudiante
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Enrollment Information --}}
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                        <h3 class="text-sm font-semibold text-violet-600 dark:text-violet-400 uppercase tracking-wider flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Datos de Inscripción
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <dl class="space-y-4">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Período Académico</dt>
+                                <dd class="mt-1">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-300">
+                                        {{ $enrollment->section->academicPeriod->name }}
+                                    </span>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Sección</dt>
+                                <dd class="mt-1 text-gray-900 dark:text-white font-medium">{{ $enrollment->section->name }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Fecha de Inscripción</dt>
+                                <dd class="mt-1 text-gray-900 dark:text-white">{{ $enrollment->created_at->format('d/m/Y H:i') }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Última Actualización</dt>
+                                <dd class="mt-1 text-gray-900 dark:text-white">{{ $enrollment->updated_at->format('d/m/Y H:i') }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Grades by Subject --}}
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                    <h3 class="text-sm font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Calificaciones por Asignatura
+                    </h3>
+                </div>
+
+                @if ($subjectsData->count() > 0)
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-900/50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Asignatura</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Profesor</th>
+                                    <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Promedio</th>
+                                    <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Detalles</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach ($subjectsData as $index => $subject)
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-violet-500 rounded-lg flex items-center justify-center text-white font-semibold text-xs shadow-md">
+                                                    {{ strtoupper(substr($subject['subject_name'], 0, 2)) }}
+                                                </div>
+                                                <span class="font-medium text-gray-900 dark:text-white">{{ $subject['subject_name'] }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                            {{ $subject['teacher_name'] }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            @if ($subject['average'] !== null)
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold {{ $subject['average'] >= $passingGrade ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' }}">
+                                                    {{ number_format($subject['average'], 2) }}
+                                                </span>
+                                            @else
+                                                <span class="text-gray-400 dark:text-gray-500 text-sm">Sin notas</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                                            <button type="button" onclick="openGradeModal({{ $index }})"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 rounded-lg transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                                Ver detalles
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Legend --}}
+                    <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                        <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+                                Aprobado (≥ {{ $passingGrade }})
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                                Reprobado (&lt; {{ $passingGrade }})
+                            </span>
+                        </div>
+                    </div>
+                @else
+                    <div class="p-12 text-center">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                            <p class="text-gray-500 dark:text-gray-400">No hay asignaturas asignadas a esta sección.</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Quick Links --}}
+            <div class="flex justify-center gap-6">
+                <a href="{{ route('enrollments.index') }}"
+                   class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                    </svg>
+                    Ir a la Lista
+                </a>
+                <a href="{{ route('dashboard') }}"
+                   class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Volver al Panel
+                </a>
+            </div>
+
         </div>
     </div>
 
-    {{-- Modales de calificaciones por asignatura --}}
+    {{-- Grade Detail Modals --}}
     @foreach ($subjectsData as $index => $subject)
-        <div id="gradeModal-{{ $index }}"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[80vh] overflow-hidden">
+        <div id="gradeModal-{{ $index }}" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden border-t-4 border-amber-500">
                 {{-- Header --}}
-                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
-                        {{ $subject['subject_name'] }}
-                    </h3>
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-500 rounded-lg flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                            {{ strtoupper(substr($subject['subject_name'], 0, 2)) }}
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ $subject['subject_name'] }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ $subject['teacher_name'] }}</p>
+                        </div>
+                    </div>
                     <button onclick="closeGradeModal({{ $index }})"
-                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-2xl leading-none">
-                        &times;
+                            class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
                     </button>
                 </div>
-                
-                {{-- Body --}}
-                <div class="p-4 overflow-y-auto max-h-[60vh]">
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        <strong>Profesor:</strong> {{ $subject['teacher_name'] }}
-                    </p>
 
+                {{-- Body --}}
+                <div class="p-6 overflow-y-auto max-h-[60vh]">
                     @if ($subject['grades_detail']->count() > 0)
                         <table class="w-full text-sm">
                             <thead>
                                 <tr class="text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                                    <th class="py-2 text-left">Evaluación</th>
-                                    <th class="py-2 text-center">Ponderación</th>
-                                    <th class="py-2 text-center">Calificación</th>
+                                    <th class="py-3 text-left font-semibold">Evaluación</th>
+                                    <th class="py-3 text-center font-semibold">Ponderación</th>
+                                    <th class="py-3 text-center font-semibold">Calificación</th>
                                 </tr>
                             </thead>
                             <tbody class="text-gray-900 dark:text-gray-100">
                                 @foreach ($subject['grades_detail'] as $grade)
-                                    <tr class="border-b border-gray-100 dark:border-gray-700">
-                                        <td class="py-2">{{ $grade['column_name'] }}</td>
-                                        <td class="py-2 text-center text-gray-500 dark:text-gray-400">
+                                    <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                        <td class="py-3">{{ $grade['column_name'] }}</td>
+                                        <td class="py-3 text-center text-gray-500 dark:text-gray-400">
                                             {{ number_format($grade['weight'], 0) }}%
                                         </td>
-                                        <td class="py-2 text-center font-medium">
+                                        <td class="py-3 text-center font-medium">
                                             @if ($grade['value'] !== null)
                                                 <span class="{{ $grade['value'] >= $passingGrade ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
                                                     {{ number_format($grade['value'], 2) }}
@@ -264,9 +361,9 @@
                             </tbody>
                             <tfoot>
                                 <tr class="border-t-2 border-gray-300 dark:border-gray-600">
-                                    <td class="py-3 text-gray-600 dark:text-gray-300 font-bold text-lg">Promedio Ponderado</td>
-                                    <td class="py-3 text-center text-gray-500 dark:text-gray-400">100%</td>
-                                    <td class="py-3 text-center font-bold text-lg">
+                                    <td class="py-4 text-gray-700 dark:text-gray-300 font-bold text-base">Promedio Ponderado</td>
+                                    <td class="py-4 text-center text-gray-500 dark:text-gray-400">100%</td>
+                                    <td class="py-4 text-center font-bold text-lg">
                                         @if ($subject['average'] !== null)
                                             <span class="{{ $subject['average'] >= $passingGrade ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
                                                 {{ number_format($subject['average'], 2) }}
@@ -279,16 +376,19 @@
                             </tfoot>
                         </table>
                     @else
-                        <p class="text-gray-500 text-center py-4">
-                            No hay evaluaciones configuradas para esta asignatura.
-                        </p>
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <p class="text-gray-500 dark:text-gray-400">No hay evaluaciones configuradas para esta asignatura.</p>
+                        </div>
                     @endif
                 </div>
 
                 {{-- Footer --}}
-                <div class="p-4 border-t border-gray-200 dark:border-gray-700 text-right">
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-right">
                     <button onclick="closeGradeModal({{ $index }})"
-                        class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                            class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-xl transition-colors">
                         Cerrar
                     </button>
                 </div>
@@ -298,7 +398,7 @@
 
     {{-- Scripts --}}
     <script>
-        // Modal de calificaciones
+        // Grade modals
         function openGradeModal(index) {
             document.getElementById('gradeModal-' + index).classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -309,7 +409,7 @@
             document.body.style.overflow = '';
         }
 
-        // Cerrar modal con Escape
+        // Close modal with Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 document.querySelectorAll('[id^="gradeModal-"]').forEach(modal => {
@@ -319,7 +419,7 @@
             }
         });
 
-        // Cerrar modal al hacer clic fuera
+        // Close modal on backdrop click
         document.querySelectorAll('[id^="gradeModal-"]').forEach(modal => {
             modal.addEventListener('click', function(e) {
                 if (e.target === this) {
@@ -329,48 +429,59 @@
             });
         });
 
-        // Dropdown de acciones (original)
+        // Dropdown handling
         @if ($enrollment->status === 'activo')
             document.addEventListener("DOMContentLoaded", () => {
+                const closeAllDropdowns = () => {
+                    document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
+                };
+
                 document.querySelectorAll("[data-dropdown-enrollment]").forEach(btn => {
-                    btn.addEventListener("click", () => {
+                    btn.addEventListener("click", (e) => {
+                        e.stopPropagation();
                         const enrollmentId = btn.dataset.dropdownEnrollment;
                         let existing = document.getElementById("dropdownMenu-" + enrollmentId);
+
                         if (existing && !existing.classList.contains("hidden")) {
                             existing.remove();
                             return;
                         }
-                        document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
+
+                        closeAllDropdowns();
+
                         const tpl = document.getElementById("dropdown-template-" + enrollmentId);
                         const clone = tpl.cloneNode(true);
                         clone.id = "dropdownMenu-" + enrollmentId;
                         clone.classList.remove("hidden");
-                        clone.classList.add("dropdown-clone", "fixed", "z-50", "w-48", "bg-white",
-                            "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700",
-                            "rounded", "shadow-lg");
+                        clone.classList.add(
+                            "dropdown-clone", "fixed", "z-50", "w-52",
+                            "bg-white", "dark:bg-gray-800", "border", "border-gray-200",
+                            "dark:border-gray-700", "rounded-xl", "shadow-xl"
+                        );
+
                         const rect = btn.getBoundingClientRect();
-                        const menuHeight = 120;
+                        const menuHeight = 160;
                         const espacioAbajo = window.innerHeight - rect.bottom;
-                        if (espacioAbajo >= menuHeight + 10) {
-                            clone.style.top = (rect.bottom + 5) + "px";
+
+                        if (espacioAbajo >= menuHeight) {
+                            clone.style.top = (rect.bottom + 4) + "px";
                         } else {
-                            clone.style.top = (rect.top - menuHeight - 5) + "px";
+                            clone.style.top = (rect.top - menuHeight - 4) + "px";
                         }
-                        clone.style.left = rect.left + "px";
+
+                        clone.style.left = Math.min(rect.left, window.innerWidth - 220) + "px";
                         document.body.appendChild(clone);
-                        const scrollHandler = () => {
-                            clone.remove();
-                            window.removeEventListener('scroll', scrollHandler, true);
-                        };
-                        window.addEventListener('scroll', scrollHandler, true);
                     });
                 });
+
                 document.addEventListener("click", e => {
-                    if (!e.target.closest("[data-dropdown-enrollment]") && !e.target.closest(
-                            ".dropdown-clone")) {
-                        document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
+                    if (!e.target.closest("[data-dropdown-enrollment]") && !e.target.closest(".dropdown-clone")) {
+                        closeAllDropdowns();
                     }
                 });
+
+                window.addEventListener("scroll", closeAllDropdowns, true);
+                window.addEventListener("resize", closeAllDropdowns);
             });
         @endif
     </script>
