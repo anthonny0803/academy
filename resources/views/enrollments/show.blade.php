@@ -14,7 +14,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
-                        Volver a Inscripciones
+                        Ir a Inscripciones
                     </a>
 
                     <div class="flex flex-col sm:flex-row sm:items-center gap-6">
@@ -93,18 +93,13 @@
                                             Promover Grado
                                         </a>
                                         <div class="border-t border-gray-200 dark:border-gray-600 my-1"></div>
-                                        <form action="{{ route('enrollments.destroy', $enrollment) }}" method="POST"
-                                              onsubmit="return confirm('¿Estás seguro de eliminar esta inscripción?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                    class="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
-                                                Eliminar Inscripción
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="openDeleteModal()"
+                                                class="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Eliminar Inscripción
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -310,7 +305,6 @@
     @foreach ($subjectsData as $index => $subject)
         <div id="gradeModal-{{ $index }}" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[85vh] overflow-hidden border-t-4 border-amber-500">
-                {{-- Header --}}
                 <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-500 rounded-lg flex items-center justify-center text-white font-semibold text-sm shadow-md">
@@ -329,7 +323,6 @@
                     </button>
                 </div>
 
-                {{-- Body --}}
                 <div class="p-6 overflow-y-auto max-h-[60vh]">
                     @if ($subject['grades_detail']->count() > 0)
                         <table class="w-full text-sm">
@@ -344,9 +337,7 @@
                                 @foreach ($subject['grades_detail'] as $grade)
                                     <tr class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                         <td class="py-3">{{ $grade['column_name'] }}</td>
-                                        <td class="py-3 text-center text-gray-500 dark:text-gray-400">
-                                            {{ number_format($grade['weight'], 0) }}%
-                                        </td>
+                                        <td class="py-3 text-center text-gray-500 dark:text-gray-400">{{ number_format($grade['weight'], 0) }}%</td>
                                         <td class="py-3 text-center font-medium">
                                             @if ($grade['value'] !== null)
                                                 <span class="{{ $grade['value'] >= $passingGrade ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
@@ -380,12 +371,11 @@
                             <svg class="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                             </svg>
-                            <p class="text-gray-500 dark:text-gray-400">No hay evaluaciones configuradas para esta asignatura.</p>
+                            <p class="text-gray-500 dark:text-gray-400">No hay evaluaciones configuradas.</p>
                         </div>
                     @endif
                 </div>
 
-                {{-- Footer --}}
                 <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-right">
                     <button onclick="closeGradeModal({{ $index }})"
                             class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-xl transition-colors">
@@ -396,9 +386,55 @@
         </div>
     @endforeach
 
-    {{-- Scripts --}}
+    {{-- Modal ELIMINAR --}}
+    @if ($enrollment->status === 'activo')
+        <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md my-8 border-t-4 border-red-500 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Eliminar Inscripción</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">
+                        ¿Estás seguro de que deseas eliminar la inscripción de:
+                    </p>
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl mb-4">
+                        <p class="font-semibold text-gray-900 dark:text-white">
+                            {{ $enrollment->student->user->name }} {{ $enrollment->student->user->last_name }}
+                        </p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Sección: {{ $enrollment->section->name }}</p>
+                    </div>
+                    <p class="text-sm text-red-600 dark:text-red-400">
+                        <strong>Advertencia:</strong> Esta acción no se puede deshacer y se perderán todas las calificaciones asociadas.
+                    </p>
+                </div>
+
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+                    <button type="button" onclick="closeDeleteModal()"
+                            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <form action="{{ route('enrollments.destroy', $enrollment) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium rounded-xl shadow-lg shadow-red-500/25 transition-all duration-300">
+                            Sí, Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <script>
-        // Grade modals
         function openGradeModal(index) {
             document.getElementById('gradeModal-' + index).classList.remove('hidden');
             document.body.style.overflow = 'hidden';
@@ -409,17 +445,33 @@
             document.body.style.overflow = '';
         }
 
-        // Close modal with Escape
+        function openDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+                document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
+            }
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+        }
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                document.querySelectorAll('[id^="gradeModal-"]').forEach(modal => {
-                    modal.classList.add('hidden');
-                });
+                document.querySelectorAll('[id^="gradeModal-"]').forEach(modal => modal.classList.add('hidden'));
+                closeDeleteModal();
                 document.body.style.overflow = '';
             }
         });
 
-        // Close modal on backdrop click
         document.querySelectorAll('[id^="gradeModal-"]').forEach(modal => {
             modal.addEventListener('click', function(e) {
                 if (e.target === this) {
@@ -429,57 +481,41 @@
             });
         });
 
-        // Dropdown handling
+        const deleteModal = document.getElementById('deleteModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('click', function(e) {
+                if (e.target === this) closeDeleteModal();
+            });
+        }
+
         @if ($enrollment->status === 'activo')
             document.addEventListener("DOMContentLoaded", () => {
-                const closeAllDropdowns = () => {
-                    document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
-                };
+                const closeAllDropdowns = () => document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
 
                 document.querySelectorAll("[data-dropdown-enrollment]").forEach(btn => {
                     btn.addEventListener("click", (e) => {
                         e.stopPropagation();
-                        const enrollmentId = btn.dataset.dropdownEnrollment;
-                        let existing = document.getElementById("dropdownMenu-" + enrollmentId);
-
-                        if (existing && !existing.classList.contains("hidden")) {
-                            existing.remove();
-                            return;
-                        }
-
+                        const id = btn.dataset.dropdownEnrollment;
+                        let existing = document.getElementById("dropdownMenu-" + id);
+                        if (existing && !existing.classList.contains("hidden")) { existing.remove(); return; }
                         closeAllDropdowns();
 
-                        const tpl = document.getElementById("dropdown-template-" + enrollmentId);
+                        const tpl = document.getElementById("dropdown-template-" + id);
                         const clone = tpl.cloneNode(true);
-                        clone.id = "dropdownMenu-" + enrollmentId;
+                        clone.id = "dropdownMenu-" + id;
                         clone.classList.remove("hidden");
-                        clone.classList.add(
-                            "dropdown-clone", "fixed", "z-50", "w-52",
-                            "bg-white", "dark:bg-gray-800", "border", "border-gray-200",
-                            "dark:border-gray-700", "rounded-xl", "shadow-xl"
-                        );
+                        clone.classList.add("dropdown-clone", "fixed", "z-50", "w-52", "bg-white", "dark:bg-gray-800", "border", "border-gray-200", "dark:border-gray-700", "rounded-xl", "shadow-xl");
 
                         const rect = btn.getBoundingClientRect();
-                        const menuHeight = 160;
-                        const espacioAbajo = window.innerHeight - rect.bottom;
-
-                        if (espacioAbajo >= menuHeight) {
-                            clone.style.top = (rect.bottom + 4) + "px";
-                        } else {
-                            clone.style.top = (rect.top - menuHeight - 4) + "px";
-                        }
-
+                        clone.style.top = (rect.bottom + 4) + "px";
                         clone.style.left = Math.min(rect.left, window.innerWidth - 220) + "px";
                         document.body.appendChild(clone);
                     });
                 });
 
                 document.addEventListener("click", e => {
-                    if (!e.target.closest("[data-dropdown-enrollment]") && !e.target.closest(".dropdown-clone")) {
-                        closeAllDropdowns();
-                    }
+                    if (!e.target.closest("[data-dropdown-enrollment]") && !e.target.closest(".dropdown-clone")) closeAllDropdowns();
                 });
-
                 window.addEventListener("scroll", closeAllDropdowns, true);
                 window.addEventListener("resize", closeAllDropdowns);
             });

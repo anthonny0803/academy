@@ -252,7 +252,7 @@
                             Nombre <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="name" name="name" value="{{ old('name') }}" required autocomplete="off"
-                               class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200"
+                               class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 placeholder:text-gray-400/50 transition-all duration-200"
                                placeholder="Ej: 2024-2025">
                         @error('name')
                             <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -265,7 +265,7 @@
                             Notas
                         </label>
                         <textarea id="notes" name="notes" rows="2"
-                                  class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200 resize-none"
+                                  class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 placeholder:text-gray-400/50 transition-all duration-200 resize-none"
                                   placeholder="Notas opcionales">{{ old('notes') }}</textarea>
                         @error('notes')
                             <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
