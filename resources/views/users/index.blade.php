@@ -164,17 +164,14 @@
                                                     </svg>
                                                     Editar
                                                 </a>
-                                                <form method="POST" action="{{ route('users.destroy', $user) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                            class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                        </svg>
-                                                        Eliminar
-                                                    </button>
-                                                </form>
+                                                <button type="button"
+                                                        onclick="openDeleteModal({{ $user->id }}, '{{ e($user->full_name) }}')"
+                                                        class="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                    Eliminar
+                                                </button>
                                             </div>
                                         </div>
                                     </td>
@@ -213,8 +210,67 @@
         </div>
     </div>
 
+    {{-- Modal ELIMINAR --}}
+    <div id="deleteUserModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm my-8 border-t-4 border-red-500 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                        <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">Confirmar Eliminación</h2>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <p class="text-gray-600 dark:text-gray-300">
+                    ¿Estás seguro de eliminar al usuario "<span id="deleteUserName" class="font-semibold text-gray-900 dark:text-white"></span>"?
+                </p>
+                <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+                    Esta acción no se puede deshacer.
+                </p>
+            </div>
+
+            <form id="deleteUserForm" method="POST" action="">
+                @csrf
+                @method('DELETE')
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex items-center justify-end gap-3">
+                    <button type="button" onclick="closeDeleteModal()"
+                            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                            class="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium rounded-xl shadow-lg shadow-red-500/25 transition-all duration-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Eliminar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     {{-- Dropdown Script --}}
     <script>
+        // Modal functions
+        function openDeleteModal(id, name) {
+            document.getElementById('deleteUserForm').action = `/users/${id}`;
+            document.getElementById('deleteUserName').textContent = name;
+            document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
+            const modal = document.getElementById('deleteUserModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteUserModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             // Función para cerrar todos los dropdowns
             const closeAllDropdowns = () => {
@@ -286,8 +342,19 @@
             document.addEventListener("keydown", (e) => {
                 if (e.key === "Escape") {
                     closeAllDropdowns();
+                    closeDeleteModal();
                 }
             });
+
+            // Cerrar modal en backdrop click
+            const deleteModal = document.getElementById('deleteUserModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('click', (e) => {
+                    if (e.target === deleteModal) {
+                        closeDeleteModal();
+                    }
+                });
+            }
         });
     </script>
 </x-app-layout>
