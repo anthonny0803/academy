@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Student;
 use App\Models\Representative;
 use App\Models\AcademicPeriod;
-use App\Models\Section;
 use App\Enums\Sex;
 use App\Enums\StudentSituation;
 use App\Enums\RelationshipType;
@@ -15,11 +14,13 @@ use App\Http\Requests\Students\UpdateStudentRequest;
 use App\Http\Requests\Students\ReassignRepresentativeRequest;
 use App\Http\Requests\Students\ChangeSituationRequest;
 use App\Http\Requests\Students\WithdrawStudentRequest;
+use App\Http\Requests\Students\ConvertToSelfRepresentedRequest;
 use App\Services\Students\StoreStudentService;
 use App\Services\Students\UpdateStudentService;
 use App\Services\Students\ReassignRepresentativeService;
 use App\Services\Students\ChangeSituationService;
 use App\Services\Students\WithdrawStudentService;
+use App\Services\Students\ConvertToSelfRepresentedService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -141,6 +142,32 @@ class StudentController extends Controller
         });
     }
 
+    public function showReassignForm(Request $request, Student $student): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('view', $student, function () use ($request, $student) {
+            $student->load(['user', 'representative.user']);
+
+            $search = trim((string) $request->input('search', ''));
+            $representatives = collect();
+
+            if (!empty($search)) {
+                $representatives = Representative::with('user')
+                    ->search($search)
+                    ->join('users', 'representatives.user_id', '=', 'users.id')
+                    ->orderBy('users.name')
+                    ->orderBy('users.last_name')
+                    ->select('representatives.*')
+                    ->paginate(5)
+                    ->withQueryString();
+            }
+
+            $canReassign = $this->currentUser()->isDeveloper() || $this->currentUser()->isSupervisor();
+            $isSelfRepresented = $student->user_id === $student->representative?->user_id;
+
+            return view('students.reassign-representative', compact('student', 'representatives', 'canReassign', 'isSelfRepresented'));
+        });
+    }
+
     public function reassignRepresentative(
         ReassignRepresentativeRequest $request,
         ReassignRepresentativeService $reassignService,
@@ -152,11 +179,38 @@ class StudentController extends Controller
             $reassignService->handle(
                 $student,
                 $validated['representative_id'],
+                $validated['relationship_type'],
                 $validated['reason']
-            );
+            );;
 
             return redirect()->route('students.show', $student)
                 ->with('success', '¡Representante reasignado correctamente!');
+        });
+    }
+
+    public function showConvertToSelfRepresentedForm(Student $student): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('convertToSelfRepresented', $student, function () use ($student) {
+            $student->load(['user', 'representative.user']);
+
+            $canConvert = $this->currentUser()->isDeveloper() || $this->currentUser()->isSupervisor();
+            $isSelfRepresented = $student->user_id === $student->representative?->user_id;
+            $isOfAge = $student->age !== null && $student->age >= 18;
+
+            return view('students.convert-to-self-represented', compact('student', 'canConvert', 'isSelfRepresented', 'isOfAge'));
+        });
+    }
+
+    public function convertToSelfRepresented(
+        ConvertToSelfRepresentedRequest $request,
+        ConvertToSelfRepresentedService $convertService,
+        Student $student
+    ): RedirectResponse {
+        return $this->authorizeOrRedirect('convertToSelfRepresented', $student, function () use ($request, $convertService, $student) {
+            $convertService->handle($student, $request->validated()['reason'] ?? null);
+
+            return redirect()->route('students.show', $student)
+                ->with('success', '¡El estudiante ahora es auto-representante!');
         });
     }
 

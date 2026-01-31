@@ -55,8 +55,14 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('students', StudentController::class)
             ->only(['index', 'show', 'edit', 'update']);
+        Route::get('students/{student}/reassign-representative', [StudentController::class, 'showReassignForm'])
+            ->name('students.reassign-representative.form');
         Route::patch('students/{student}/reassign-representative', [StudentController::class, 'reassignRepresentative'])
             ->name('students.reassign-representative');
+        Route::get('students/{student}/convert-to-self-represented', [StudentController::class, 'showConvertToSelfRepresentedForm'])
+            ->name('students.convert-to-self-represented.form');
+        Route::patch('students/{student}/convert-to-self-represented', [StudentController::class, 'convertToSelfRepresented'])
+            ->name('students.convert-to-self-represented');
         Route::patch('students/{student}/situation', [StudentController::class, 'changeSituation'])
             ->name('students.situation');
         Route::get('students/{student}/withdraw', [StudentController::class, 'showWithdrawForm'])

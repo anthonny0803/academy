@@ -81,8 +81,22 @@ class StudentPolicy
             ?? Response::allow();
     }
 
-    public function reassignRepresentative(User $currentUser): Response
+    public function reassignRepresentative(User $currentUser, Student $student): Response
     {
+        if ($student->user_id === $student->representative?->user_id) {
+            return Response::deny('No se puede cambiar el representante de un estudiante auto-representado.');
+        }
+
+        return $this->cannotPerformSupervisorActions($currentUser)
+            ?? Response::allow();
+    }
+
+    public function convertToSelfRepresented(User $currentUser, Student $student): Response
+    {
+        if ($student->user_id === $student->representative?->user_id) {
+            return Response::deny('El estudiante ya es auto-representado.');
+        }
+
         return $this->cannotPerformSupervisorActions($currentUser)
             ?? Response::allow();
     }
