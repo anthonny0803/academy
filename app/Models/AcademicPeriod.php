@@ -79,6 +79,38 @@ class AcademicPeriod extends Model implements HasEntityName
         return $query->where('is_transferable', true);
     }
 
+    // Helper Methods - Relaciones
+
+    public function hasSections(): bool
+    {
+        return $this->sections()->exists();
+    }
+
+    public function hasActiveSections(): bool
+    {
+        return $this->sections()->where('is_active', true)->exists();
+    }
+
+    public function hasOnlyInactiveSections(): bool
+    {
+        return $this->hasSections() && !$this->hasActiveSections();
+    }
+
+    /**
+     * Determina si el período puede ser eliminado
+     * - No puede eliminarse si está cerrado (inactivo)
+     * - No puede eliminarse si tiene secciones activas
+     * - Puede eliminarse si no tiene secciones o solo tiene secciones inactivas
+     */
+    public function canBeDeleted(): bool
+    {
+        if (!$this->isActive()) {
+            return false;
+        }
+
+        return !$this->hasActiveSections();
+    }
+
     // Helper Methods - Calificaciones
 
     public function getGradeRange(): array

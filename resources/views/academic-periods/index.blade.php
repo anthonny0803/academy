@@ -172,6 +172,10 @@
                                                             data-end-date="{{ $academicPeriod->end_date->format('Y-m-d') }}"
                                                             data-is-promotable="{{ $academicPeriod->is_promotable ? '1' : '0' }}"
                                                             data-is-transferable="{{ $academicPeriod->is_transferable ? '1' : '0' }}"
+                                                            data-min-grade="{{ $academicPeriod->min_grade }}"
+                                                            data-passing-grade="{{ $academicPeriod->passing_grade }}"
+                                                            data-max-grade="{{ $academicPeriod->max_grade }}"
+                                                            data-sections-count="{{ $academicPeriod->sections_count }}"
                                                             class="edit-btn flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 hover:text-amber-700 dark:hover:text-amber-300 transition-colors">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -241,7 +245,20 @@
 
             <form action="{{ route('academic-periods.store') }}" method="POST">
                 @csrf
-                <div class="p-6 space-y-4">
+                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+
+                    {{-- Advertencia de campos inmutables --}}
+                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <p class="text-xs text-blue-700 dark:text-blue-300">
+                                <strong>Importante:</strong> Las fechas, escala de calificaciones y configuración de promoción/transferencia no podrán ser modificadas después de crear el período.
+                            </p>
+                        </div>
+                    </div>
+
                     {{-- Nombre --}}
                     <div class="space-y-1">
                         <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -275,6 +292,8 @@
                                 Fecha inicio <span class="text-red-500">*</span>
                             </label>
                             <input type="date" id="start_date" name="start_date" value="{{ old('start_date') }}" required
+                                   min="{{ now()->format('Y-m-d') }}"
+                                   max="{{ now()->addYears(4)->format('Y-m-d') }}"
                                    class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200 dark:[color-scheme:dark]">
                             @error('start_date')
                                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -289,6 +308,61 @@
                             @error('end_date')
                                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
+                        </div>
+                    </div>
+
+                    {{-- Escala de Calificaciones --}}
+                    <div class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                        <div class="flex items-center gap-2 mb-3">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span class="text-sm font-medium text-amber-800 dark:text-amber-200">Escala de Calificaciones</span>
+                            <span class="text-xs text-amber-600 dark:text-amber-400">(opcional)</span>
+                        </div>
+                        <p class="text-xs text-amber-700 dark:text-amber-300 mb-3">
+                            Si no se especifica, se usará la escala por defecto: Mín: 1, Aprob: 60, Máx: 100
+                        </p>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <label for="min_grade" class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                    Nota Mínima
+                                </label>
+                                <input type="number" id="min_grade" name="min_grade" 
+                                       value="{{ old('min_grade') }}" 
+                                       step="0.01" min="0" max="1000"
+                                       placeholder="1"
+                                       class="block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                @error('min_grade')
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-1">
+                                <label for="passing_grade" class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                    Nota Aprobación
+                                </label>
+                                <input type="number" id="passing_grade" name="passing_grade" 
+                                       value="{{ old('passing_grade') }}" 
+                                       step="0.01" min="0" max="1000"
+                                       placeholder="60"
+                                       class="block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                @error('passing_grade')
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-1">
+                                <label for="max_grade" class="block text-xs font-medium text-gray-700 dark:text-gray-300">
+                                    Nota Máxima
+                                </label>
+                                <input type="number" id="max_grade" name="max_grade" 
+                                       value="{{ old('max_grade') }}" 
+                                       step="0.01" min="0" max="1000"
+                                       placeholder="100"
+                                       class="block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                @error('max_grade')
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
@@ -356,8 +430,21 @@
             <form id="editAcademicPeriodForm" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="p-6 space-y-4">
-                    {{-- Nombre --}}
+                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+
+                    {{-- Aviso condicional (se muestra/oculta por JS) --}}
+                    <div id="edit-locked-notice" class="hidden p-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl">
+                        <div class="flex items-start gap-2">
+                            <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <p class="text-xs text-gray-600 dark:text-gray-300">
+                                Este período tiene secciones asociadas. Solo se pueden modificar el nombre y las notas.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Nombre (siempre editable) --}}
                     <div class="space-y-1">
                         <label for="edit-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Nombre <span class="text-red-500">*</span>
@@ -369,7 +456,7 @@
                         @enderror
                     </div>
 
-                    {{-- Notas --}}
+                    {{-- Notas (siempre editable) --}}
                     <div class="space-y-1">
                         <label for="edit-notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                             Notas
@@ -381,52 +468,102 @@
                         @enderror
                     </div>
 
-                    {{-- Fechas --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    {{-- Fechas (condicional) --}}
+                    <div id="edit-dates-container" class="grid grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label for="edit-start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Fecha inicio <span class="text-red-500">*</span>
+                                Fecha inicio <span class="text-red-500 edit-required-mark">*</span>
+                                <svg class="edit-lock-icon hidden inline w-4 h-4 text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
                             </label>
-                            <input type="date" id="edit-start_date" name="start_date" required
-                                   class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 dark:[color-scheme:dark]">
+                            <input type="date" id="edit-start_date" name="start_date"
+                                   class="edit-sensitive-field block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 dark:[color-scheme:dark]">
                             @error('start_date')
                                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
                         </div>
                         <div class="space-y-1">
                             <label for="edit-end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Fecha fin <span class="text-red-500">*</span>
+                                Fecha fin <span class="text-red-500 edit-required-mark">*</span>
+                                <svg class="edit-lock-icon hidden inline w-4 h-4 text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
                             </label>
-                            <input type="date" id="edit-end_date" name="end_date" required
-                                   class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 dark:[color-scheme:dark]">
+                            <input type="date" id="edit-end_date" name="end_date"
+                                   class="edit-sensitive-field block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200 dark:[color-scheme:dark]">
                             @error('end_date')
                                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
-                    {{-- Checkbox is_promotable --}}
-                    <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl space-y-3">
-                        <label class="flex items-start gap-3 cursor-pointer">
-                            <input type="hidden" name="is_promotable" value="0">
+                    {{-- Escala de Calificaciones (condicional) --}}
+                    <div id="edit-grades-container" class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+                        <div class="flex items-center gap-2 mb-3">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span class="text-sm font-medium text-amber-800 dark:text-amber-200">Escala de Calificaciones</span>
+                            <svg class="edit-lock-icon hidden w-4 h-4 text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="space-y-1">
+                                <label for="edit-min_grade" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Nota Mínima</label>
+                                <input type="number" id="edit-min_grade" name="min_grade" step="0.01" min="0" max="1000"
+                                       class="edit-sensitive-field block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                @error('min_grade')
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-1">
+                                <label for="edit-passing_grade" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Nota Aprobación</label>
+                                <input type="number" id="edit-passing_grade" name="passing_grade" step="0.01" min="0" max="1000"
+                                       class="edit-sensitive-field block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                @error('passing_grade')
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-1">
+                                <label for="edit-max_grade" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Nota Máxima</label>
+                                <input type="number" id="edit-max_grade" name="max_grade" step="0.01" min="0" max="1000"
+                                       class="edit-sensitive-field block w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-lg shadow-sm focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all duration-200">
+                                @error('max_grade')
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Checkboxes (condicional) --}}
+                    <div id="edit-checkboxes-container" class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl space-y-3">
+                        <label class="flex items-start gap-3 cursor-pointer edit-checkbox-label">
+                            <input type="hidden" name="is_promotable" value="0" class="edit-sensitive-hidden">
                             <input type="checkbox" id="edit-is_promotable" name="is_promotable" value="1"
-                                   class="mt-1 rounded border-gray-300 dark:border-gray-600 text-violet-600 shadow-sm focus:ring-violet-500 dark:bg-gray-800">
+                                   class="edit-sensitive-field mt-1 rounded border-gray-300 dark:border-gray-600 text-violet-600 shadow-sm focus:ring-violet-500 dark:bg-gray-800">
                             <div>
                                 <span class="text-sm font-medium text-gray-900 dark:text-white">Permite promoción</span>
+                                <svg class="edit-lock-icon hidden inline w-4 h-4 text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                     Marcar si es un Período Académico.
                                 </p>
                             </div>
                         </label>
 
-                        {{-- Checkbox is_transferable (condicional) --}}
                         <div id="edit-is_transferable_container" class="ml-6 pt-2 border-t border-gray-200 dark:border-gray-700">
-                            <label class="flex items-start gap-3 cursor-pointer">
-                                <input type="hidden" name="is_transferable" value="0">
+                            <label class="flex items-start gap-3 cursor-pointer edit-checkbox-label">
+                                <input type="hidden" name="is_transferable" value="0" class="edit-sensitive-hidden">
                                 <input type="checkbox" id="edit-is_transferable" name="is_transferable" value="1"
-                                       class="mt-1 rounded border-gray-300 dark:border-gray-600 text-green-600 shadow-sm focus:ring-green-500 dark:bg-gray-800">
+                                       class="edit-sensitive-field mt-1 rounded border-gray-300 dark:border-gray-600 text-green-600 shadow-sm focus:ring-green-500 dark:bg-gray-800">
                                 <div>
                                     <span class="text-sm font-medium text-gray-900 dark:text-white">Permite transferencia</span>
+                                    <svg class="edit-lock-icon hidden inline w-4 h-4 text-gray-400 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
                                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                         Permite que estudiantes se transfieran a otra institución.
                                     </p>
@@ -511,7 +648,6 @@
         function openDeleteModal(id, name) {
             document.getElementById('deleteAcademicPeriodForm').action = `/academic-periods/${id}`;
             document.getElementById('deletePeriodName').textContent = name;
-            // Close any open dropdowns
             document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
             openModal('deleteAcademicPeriodModal');
         }
@@ -521,7 +657,7 @@
                 document.querySelectorAll(".dropdown-clone").forEach(el => el.remove());
             };
 
-            // Toggle is_transferable visibility based on is_promotable (Create modal)
+            // Toggle is_transferable visibility based on is_promotable (Create modal only)
             const isPromotable = document.getElementById('is_promotable');
             const transferableContainer = document.getElementById('is_transferable_container');
             
@@ -530,19 +666,6 @@
                     transferableContainer.style.display = this.checked ? '' : 'none';
                     if (!this.checked) {
                         document.getElementById('is_transferable').checked = false;
-                    }
-                });
-            }
-
-            // Toggle is_transferable visibility based on is_promotable (Edit modal)
-            const editIsPromotable = document.getElementById('edit-is_promotable');
-            const editTransferableContainer = document.getElementById('edit-is_transferable_container');
-            
-            if (editIsPromotable && editTransferableContainer) {
-                editIsPromotable.addEventListener('change', function() {
-                    editTransferableContainer.style.display = this.checked ? '' : 'none';
-                    if (!this.checked) {
-                        document.getElementById('edit-is_transferable').checked = false;
                     }
                 });
             }
@@ -622,7 +745,7 @@
                 }
             });
 
-            // Edit button handler
+            // Edit button handler - habilitar/deshabilitar campos según sections_count
             document.addEventListener("click", (e) => {
                 const btn = e.target.closest(".edit-btn");
                 if (btn) {
@@ -633,20 +756,91 @@
                     const endDate = btn.getAttribute('data-end-date') || '';
                     const isPromotable = btn.getAttribute('data-is-promotable') === '1';
                     const isTransferable = btn.getAttribute('data-is-transferable') === '1';
+                    const minGrade = btn.getAttribute('data-min-grade') || '';
+                    const passingGrade = btn.getAttribute('data-passing-grade') || '';
+                    const maxGrade = btn.getAttribute('data-max-grade') || '';
+                    const sectionsCount = parseInt(btn.getAttribute('data-sections-count') || '0');
+
+                    const hasSections = sectionsCount > 0;
 
                     closeAllDropdowns();
 
                     const form = document.getElementById("editAcademicPeriodForm");
                     form.action = `/academic-periods/${id}`;
 
+                    // Campos siempre editables
                     document.getElementById("edit-name").value = name;
                     document.getElementById("edit-notes").value = notes;
+
+                    // Campos sensibles - establecer valores
                     document.getElementById("edit-start_date").value = startDate;
                     document.getElementById("edit-end_date").value = endDate;
                     document.getElementById("edit-is_promotable").checked = isPromotable;
                     document.getElementById("edit-is_transferable").checked = isTransferable;
+                    document.getElementById("edit-min_grade").value = minGrade;
+                    document.getElementById("edit-passing_grade").value = passingGrade;
+                    document.getElementById("edit-max_grade").value = maxGrade;
 
-                    // Toggle transferable visibility
+                    // Obtener elementos para habilitar/deshabilitar
+                    const sensitiveFields = document.querySelectorAll('.edit-sensitive-field');
+                    const sensitiveHiddens = document.querySelectorAll('.edit-sensitive-hidden');
+                    const lockIcons = document.querySelectorAll('.edit-lock-icon');
+                    const requiredMarks = document.querySelectorAll('.edit-required-mark');
+                    const lockedNotice = document.getElementById('edit-locked-notice');
+                    const datesContainer = document.getElementById('edit-dates-container');
+                    const gradesContainer = document.getElementById('edit-grades-container');
+                    const checkboxesContainer = document.getElementById('edit-checkboxes-container');
+                    const checkboxLabels = document.querySelectorAll('.edit-checkbox-label');
+
+                    if (hasSections) {
+                        // BLOQUEADO: tiene secciones
+                        sensitiveFields.forEach(field => {
+                            field.disabled = true;
+                            field.classList.add('cursor-not-allowed', 'bg-gray-100', 'dark:bg-gray-800');
+                        });
+                        sensitiveHiddens.forEach(hidden => hidden.disabled = true);
+                        lockIcons.forEach(icon => icon.classList.remove('hidden'));
+                        requiredMarks.forEach(mark => mark.classList.add('hidden'));
+                        lockedNotice.classList.remove('hidden');
+                        datesContainer.classList.add('opacity-60');
+                        gradesContainer.classList.add('opacity-60');
+                        checkboxesContainer.classList.add('opacity-60');
+                        checkboxLabels.forEach(label => label.classList.remove('cursor-pointer'));
+                        
+                        // Quitar min de fecha
+                        document.getElementById("edit-start_date").removeAttribute('min');
+                    } else {
+                        // DESBLOQUEADO: sin secciones
+                        sensitiveFields.forEach(field => {
+                            field.disabled = false;
+                            field.classList.remove('cursor-not-allowed', 'bg-gray-100', 'dark:bg-gray-800');
+                        });
+                        sensitiveHiddens.forEach(hidden => hidden.disabled = false);
+                        lockIcons.forEach(icon => icon.classList.add('hidden'));
+                        requiredMarks.forEach(mark => mark.classList.remove('hidden'));
+                        lockedNotice.classList.add('hidden');
+                        datesContainer.classList.remove('opacity-60');
+                        gradesContainer.classList.remove('opacity-60');
+                        checkboxesContainer.classList.remove('opacity-60');
+                        checkboxLabels.forEach(label => label.classList.add('cursor-pointer'));
+
+                        // Establecer min de fecha = fecha original (no puede ir hacia atrás)
+                        document.getElementById("edit-start_date").setAttribute('min', startDate);
+
+                        // Configurar listener para is_promotable (solo si desbloqueado)
+                        const editIsPromotable = document.getElementById('edit-is_promotable');
+                        const editTransferableContainer = document.getElementById('edit-is_transferable_container');
+                        
+                        // Remover listener anterior si existe
+                        editIsPromotable.onchange = function() {
+                            editTransferableContainer.style.display = this.checked ? '' : 'none';
+                            if (!this.checked) {
+                                document.getElementById('edit-is_transferable').checked = false;
+                            }
+                        };
+                    }
+
+                    // Mostrar/ocultar transferable según promotable
                     document.getElementById('edit-is_transferable_container').style.display = isPromotable ? '' : 'none';
 
                     openModal("editAcademicPeriodModal");
@@ -665,10 +859,6 @@
                     editForm.action = "/academic-periods/{{ $editId }}";
                     document.getElementById('edit-name').value = @json(old('name'));
                     document.getElementById('edit-notes').value = @json(old('notes'));
-                    document.getElementById('edit-start_date').value = @json(old('start_date'));
-                    document.getElementById('edit-end_date').value = @json(old('end_date'));
-                    document.getElementById('edit-is_promotable').checked = @json(old('is_promotable')) == '1';
-                    document.getElementById('edit-is_transferable').checked = @json(old('is_transferable')) == '1';
                     openModal('editAcademicPeriodModal');
                 }
             @endif

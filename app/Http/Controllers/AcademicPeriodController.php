@@ -34,6 +34,7 @@ class AcademicPeriodController extends Controller
             $status = $request->input('status');
 
             $academicPeriods = AcademicPeriod::query()
+                ->withCount('sections') // Para saber si se pueden editar campos sensibles
                 ->when($search !== '', fn($q) => $q->search($search))
                 ->when($status && $status !== 'Todos', function ($q) use ($status) {
                     $status === 'Activo' ? $q->active() : $q->inactive();
@@ -118,10 +119,23 @@ class AcademicPeriodController extends Controller
     public function destroy(AcademicPeriod $academicPeriod, DeleteAcademicPeriodService $deleteService): RedirectResponse
     {
         return $this->authorizeOrRedirect('delete', $academicPeriod, function () use ($academicPeriod, $deleteService) {
-            $deleteService->handle($academicPeriod);
+            $results = $deleteService->handle($academicPeriod);
+
+            $message = '¡Período académico eliminado correctamente!';
+            
+            if ($results['sections_deleted'] > 0) {
+                $message .= " Se eliminaron {$results['sections_deleted']} secciones";
+                if ($results['enrollments_deleted'] > 0) {
+                    $message .= ", {$results['enrollments_deleted']} inscripciones";
+                }
+                if ($results['assignments_deleted'] > 0) {
+                    $message .= " y {$results['assignments_deleted']} asignaciones agregadas";
+                }
+                $message .= " asociadas.";
+            }
 
             return redirect()->route('academic-periods.index')
-                ->with('success', '¡Período académico eliminado correctamente!');
+                ->with('success', $message);
         });
     }
 

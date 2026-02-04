@@ -8,7 +8,7 @@ use Illuminate\Auth\Access\Response;
 
 class AcademicPeriodPolicy
 {
-    // Helper Methods
+    // Helper Methods - Permisos de usuario
 
     private function cannotViewAcademicPeriods(User $user): ?Response
     {
@@ -28,23 +28,38 @@ class AcademicPeriodPolicy
         return null;
     }
 
-    private function cannotDeleteActiveAcademicPeriod(AcademicPeriod $academicPeriod): ?Response
+    // Helper Methods - Reglas de eliminación
+
+    private function cannotDeleteClosedPeriod(AcademicPeriod $academicPeriod): ?Response
     {
-        if ($academicPeriod->isActive()) {
-            return Response::deny('No puedes eliminar un período académico activo. Ciérralo primero.');
+        if (!$academicPeriod->isActive()) {
+            return Response::deny('No puedes eliminar un período académico cerrado. Contiene datos históricos importantes.');
         }
 
         return null;
     }
 
-    private function cannotDeleteAcademicPeriodWithSections(AcademicPeriod $academicPeriod): ?Response
+    private function cannotDeletePeriodWithActiveSections(AcademicPeriod $academicPeriod): ?Response
     {
-        if ($academicPeriod->sections()->exists()) {
-            return Response::deny('No puedes eliminar un período académico con secciones asociadas.');
+        if ($academicPeriod->hasActiveSections()) {
+            return Response::deny('No puedes eliminar un período académico con secciones activas. Desactívalas primero.');
         }
 
         return null;
     }
+
+    // Helper Methods - Reglas de edición
+
+    private function cannotUpdateClosedPeriod(AcademicPeriod $academicPeriod): ?Response
+    {
+        if (!$academicPeriod->isActive()) {
+            return Response::deny('No puedes modificar un período académico cerrado.');
+        }
+
+        return null;
+    }
+
+    // Helper Methods - Reglas de cierre
 
     private function cannotCloseInactivePeriod(AcademicPeriod $academicPeriod): ?Response
     {
@@ -57,8 +72,8 @@ class AcademicPeriodPolicy
 
     private function cannotClosePeriodWithoutSections(AcademicPeriod $academicPeriod): ?Response
     {
-        if (!$academicPeriod->sections()->exists()) {
-            return Response::deny('No puedes cerrar un período académico sin secciones.');
+        if (!$academicPeriod->hasSections()) {
+            return Response::deny('No puedes cerrar un período académico sin secciones. Considera eliminarlo en su lugar.');
         }
 
         return null;
@@ -84,23 +99,31 @@ class AcademicPeriodPolicy
             ?? Response::allow();
     }
 
-    public function update(User $currentUser): Response
+    public function update(User $currentUser, AcademicPeriod $academicPeriod): Response
     {
         return $this->cannotManageAcademicPeriods($currentUser)
+            ?? $this->cannotUpdateClosedPeriod($academicPeriod)
             ?? Response::allow();
     }
 
+    /**
+     * Eliminar período académico
+     * - No se puede eliminar si está cerrado (datos históricos)
+     * - No se puede eliminar si tiene secciones activas
+     * - Se puede eliminar si no tiene secciones o solo tiene secciones inactivas (cascada)
+     */
     public function delete(User $currentUser, AcademicPeriod $academicPeriod): Response
     {
         return $this->cannotManageAcademicPeriods($currentUser)
-            ?? $this->cannotDeleteActiveAcademicPeriod($academicPeriod)
-            ?? $this->cannotDeleteAcademicPeriodWithSections($academicPeriod)
+            ?? $this->cannotDeleteClosedPeriod($academicPeriod)
+            ?? $this->cannotDeletePeriodWithActiveSections($academicPeriod)
             ?? Response::allow();
     }
 
     /**
      * Cerrar período académico (acción masiva)
      * Solo Developer y Supervisor pueden cerrar períodos
+     * Requiere que el período tenga secciones
      */
     public function close(User $currentUser, AcademicPeriod $academicPeriod): Response
     {

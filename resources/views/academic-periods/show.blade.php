@@ -116,6 +116,34 @@
                                     @endif
                                 </dd>
                             </div>
+
+                            {{-- Escala de Calificaciones --}}
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Escala de Calificaciones</dt>
+                                <dd>
+                                    <div class="grid grid-cols-3 gap-2 text-center">
+                                        <div class="bg-gray-50 dark:bg-gray-700 p-2 rounded-lg">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Mínima</div>
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                {{ number_format($academicPeriod->min_grade, 2) }}
+                                            </div>
+                                        </div>
+                                        <div class="bg-amber-50 dark:bg-amber-900/30 p-2 rounded-lg">
+                                            <div class="text-xs text-amber-600 dark:text-amber-400">Aprobación</div>
+                                            <div class="font-semibold text-amber-700 dark:text-amber-300">
+                                                {{ number_format($academicPeriod->passing_grade, 2) }}
+                                            </div>
+                                        </div>
+                                        <div class="bg-gray-50 dark:bg-gray-700 p-2 rounded-lg">
+                                            <div class="text-xs text-gray-500 dark:text-gray-400">Máxima</div>
+                                            <div class="font-semibold text-gray-900 dark:text-white">
+                                                {{ number_format($academicPeriod->max_grade, 2) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </dd>
+                            </div>
+
                             @if($academicPeriod->notes)
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Notas</dt>
@@ -175,148 +203,171 @@
                         </h3>
                     </div>
                     <div class="p-6">
-                        {{-- Date Warning --}}
-                        @if(isset($closeValidation['has_date_warning']) && $closeValidation['has_date_warning'])
-                            <div class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl flex items-start gap-3">
-                                <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                </svg>
-                                <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                    {{ $closeValidation['issues']['date']['message'] ?? '' }}
-                                </p>
+                        {{-- Sin secciones - No se puede cerrar --}}
+                        @if(!$academicPeriod->hasSections())
+                            <div class="p-5 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl">
+                                <div class="flex items-start gap-3">
+                                    <svg class="w-6 h-6 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-700 dark:text-gray-300">No hay secciones para cerrar</h4>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            Este período no tiene secciones asociadas. No hay inscripciones que procesar.
+                                        </p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                            Puedes <strong>editar</strong> el período o <strong>eliminarlo</strong> si ya no lo necesitas.
+                                        </p>
+                                    </div>
+                                </div>
+                                <button type="button" disabled
+                                        class="mt-4 w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-semibold rounded-xl cursor-not-allowed">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                    </svg>
+                                    Cerrar Período Académico
+                                </button>
                             </div>
-                        @endif
+                        @else
+                            {{-- Date Warning --}}
+                            @if(isset($closeValidation['has_date_warning']) && $closeValidation['has_date_warning'])
+                                <div class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl flex items-start gap-3">
+                                    <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    </svg>
+                                    <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                        {{ $closeValidation['issues']['date']['message'] ?? '' }}
+                                    </p>
+                                </div>
+                            @endif
 
-                        @if($closeValidation['can_close'])
-                            {{-- Close Preview --}}
-                            @if($closePreview)
-                                <div class="mb-6 p-5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-                                    <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-4 flex items-center gap-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                        </svg>
-                                        Vista previa del cierre
-                                    </h4>
-                                    <div class="grid grid-cols-3 gap-4 mb-4">
-                                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-sm">
-                                            <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $closePreview['passed'] }}</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400">Aprobarán</div>
+                            @if($closeValidation['can_close'])
+                                {{-- Close Preview --}}
+                                @if($closePreview)
+                                    <div class="mb-6 p-5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                                        <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-4 flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            Vista previa del cierre
+                                        </h4>
+                                        <div class="grid grid-cols-3 gap-4 mb-4">
+                                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-sm">
+                                                <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ $closePreview['passed'] }}</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Aprobarán</div>
+                                            </div>
+                                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-sm">
+                                                <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $closePreview['failed'] }}</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Reprobarán</div>
+                                            </div>
+                                            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-sm">
+                                                <div class="text-2xl font-bold text-gray-600 dark:text-gray-400">{{ $closePreview['sections_to_deactivate'] }}</div>
+                                                <div class="text-sm text-gray-600 dark:text-gray-400">Secciones a desactivar</div>
+                                            </div>
                                         </div>
-                                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-sm">
-                                            <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ $closePreview['failed'] }}</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400">Reprobarán</div>
-                                        </div>
-                                        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl text-center shadow-sm">
-                                            <div class="text-2xl font-bold text-gray-600 dark:text-gray-400">{{ $closePreview['sections_to_deactivate'] }}</div>
-                                            <div class="text-sm text-gray-600 dark:text-gray-400">Secciones a desactivar</div>
-                                        </div>
+
+                                        {{-- Section Details --}}
+                                        @if(count($closePreview['details']) > 0)
+                                            <details class="mt-4">
+                                                <summary class="cursor-pointer text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                                                    Ver detalle por sección
+                                                </summary>
+                                                <div class="mt-3 space-y-2 max-h-60 overflow-y-auto">
+                                                    @foreach($closePreview['details'] as $section)
+                                                        <div class="p-3 bg-white dark:bg-gray-700 rounded-lg text-sm flex items-center justify-between">
+                                                            <strong class="text-gray-900 dark:text-white">{{ $section['name'] }}</strong>
+                                                            <div class="flex gap-4">
+                                                                <span class="text-green-600 dark:text-green-400">
+                                                                    {{ count($section['passed']) }} aprobados
+                                                                </span>
+                                                                <span class="text-red-600 dark:text-red-400">
+                                                                    {{ count($section['failed']) }} reprobados
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </details>
+                                        @endif
                                     </div>
 
-                                    {{-- Section Details --}}
-                                    @if(count($closePreview['details']) > 0)
-                                        <details class="mt-4">
-                                            <summary class="cursor-pointer text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
-                                                Ver detalle por sección
-                                            </summary>
-                                            <div class="mt-3 space-y-2 max-h-60 overflow-y-auto">
-                                                @foreach($closePreview['details'] as $section)
-                                                    <div class="p-3 bg-white dark:bg-gray-700 rounded-lg text-sm flex items-center justify-between">
-                                                        <strong class="text-gray-900 dark:text-white">{{ $section['name'] }}</strong>
-                                                        <div class="flex gap-4">
-                                                            <span class="text-green-600 dark:text-green-400">
-                                                                {{ count($section['passed']) }} aprobados
-                                                            </span>
-                                                            <span class="text-red-600 dark:text-red-400">
-                                                                {{ count($section['failed']) }} reprobados
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </details>
-                                    @endif
-                                </div>
-
-                                {{-- Close Button --}}
-                                <form action="{{ route('academic-periods.close', $academicPeriod) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit"
-                                            class="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300"
-                                            onclick="return confirm('¿Está SEGURO de cerrar este período académico?\n\nEsta acción:\n- Completará {{ $closePreview['passed'] + $closePreview['failed'] }} inscripciones\n- Desactivará {{ $closePreview['sections_to_deactivate'] }} secciones\n- Desactivará el período académico\n\nEsta acción NO se puede deshacer.')">
+                                    {{-- Close Button - Opens Modal --}}
+                                    <button type="button"
+                                            onclick="openModal('closeAcademicPeriodModal')"
+                                            class="w-full inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl shadow-lg shadow-red-500/25 hover:shadow-red-500/40 transition-all duration-300">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                         </svg>
                                         Cerrar Período Académico
                                     </button>
-                                </form>
-                            @endif
-                        @else
-                            {{-- Cannot Close - Issues Report --}}
-                            <div class="p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                                <div class="flex items-start gap-3 mb-4">
-                                    <svg class="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <div>
-                                        <h4 class="font-semibold text-red-800 dark:text-red-200">No se puede cerrar el período</h4>
-                                        <p class="text-sm text-red-700 dark:text-red-300 mt-1">
-                                            Hay inscripciones con datos incompletos. Revise el siguiente reporte:
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {{-- Detailed Report --}}
-                                @if(isset($closeValidation['issues']['sections']))
-                                    <div class="space-y-4 max-h-96 overflow-y-auto">
-                                        @foreach($closeValidation['issues']['sections'] as $sectionName => $subjects)
-                                            <div class="bg-white dark:bg-gray-700 p-4 rounded-xl">
-                                                <h5 class="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                                                    <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-                                                    </svg>
-                                                    Sección: {{ $sectionName }}
-                                                </h5>
-                                                @foreach($subjects as $subjectName => $issues)
-                                                    <div class="ml-4 mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                                        <h6 class="font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                                                            <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                                            </svg>
-                                                            {{ $subjectName }}
-                                                        </h6>
-                                                        <ul class="space-y-1 text-sm">
-                                                            @foreach($issues as $issue)
-                                                                @if($issue['type'] === 'configuration')
-                                                                    <li class="text-orange-600 dark:text-orange-400 flex items-center gap-2">
-                                                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                                                        </svg>
-                                                                        {{ $issue['message'] }}
-                                                                    </li>
-                                                                @elseif($issue['type'] === 'grades')
-                                                                    @foreach($issue['students'] as $student)
-                                                                        <li class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                                                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                                                            </svg>
-                                                                            {{ $student['student'] }} - 
-                                                                            <span class="text-red-600 dark:text-red-400">
-                                                                                Falta: {{ implode(', ', $student['missing']) }}
-                                                                            </span>
-                                                                        </li>
-                                                                    @endforeach
-                                                                @endif
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endforeach
-                                    </div>
                                 @endif
-                            </div>
+                            @else
+                                {{-- Cannot Close - Issues Report --}}
+                                <div class="p-5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                                    <div class="flex items-start gap-3 mb-4">
+                                        <svg class="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <div>
+                                            <h4 class="font-semibold text-red-800 dark:text-red-200">No se puede cerrar el período</h4>
+                                            <p class="text-sm text-red-700 dark:text-red-300 mt-1">
+                                                Hay inscripciones con datos incompletos. Revise el siguiente reporte:
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {{-- Detailed Report --}}
+                                    @if(isset($closeValidation['issues']['sections']))
+                                        <div class="space-y-4 max-h-96 overflow-y-auto">
+                                            @foreach($closeValidation['issues']['sections'] as $sectionName => $subjects)
+                                                <div class="bg-white dark:bg-gray-700 p-4 rounded-xl">
+                                                    <h5 class="font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+                                                        <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                                                        </svg>
+                                                        Sección: {{ $sectionName }}
+                                                    </h5>
+                                                    @foreach($subjects as $subjectName => $issues)
+                                                        <div class="ml-4 mb-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                                                            <h6 class="font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
+                                                                <svg class="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                                                </svg>
+                                                                {{ $subjectName }}
+                                                            </h6>
+                                                            <ul class="space-y-1 text-sm">
+                                                                @foreach($issues as $issue)
+                                                                    @if($issue['type'] === 'configuration')
+                                                                        <li class="text-orange-600 dark:text-orange-400 flex items-center gap-2">
+                                                                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                                            </svg>
+                                                                            {{ $issue['message'] }}
+                                                                        </li>
+                                                                    @elseif($issue['type'] === 'grades')
+                                                                        @foreach($issue['students'] as $student)
+                                                                            <li class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                                                                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                                                                </svg>
+                                                                                {{ $student['student'] }} - 
+                                                                                <span class="text-red-600 dark:text-red-400">
+                                                                                    Falta: {{ implode(', ', $student['missing']) }}
+                                                                                </span>
+                                                                            </li>
+                                                                        @endforeach
+                                                                    @endif
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>
@@ -432,4 +483,132 @@
 
         </div>
     </div>
+
+    {{-- Modal de Confirmación de Cierre --}}
+    @if($academicPeriod->isActive() && $academicPeriod->hasSections() && isset($closeValidation['can_close']) && $closeValidation['can_close'] && $closePreview)
+        <div id="closeAcademicPeriodModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md my-8 border-t-4 border-red-500 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                            <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Confirmar Cierre de Período</h2>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div class="mb-4">
+                        <p class="text-gray-600 dark:text-gray-300">
+                            ¿Está <strong class="text-red-600 dark:text-red-400">SEGURO</strong> de cerrar el período académico 
+                            "<span class="font-semibold text-gray-900 dark:text-white">{{ $academicPeriod->name }}</span>"?
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl mb-4">
+                        <p class="text-sm font-medium text-red-800 dark:text-red-200 mb-3">Esta acción realizará lo siguiente:</p>
+                        <ul class="text-sm text-red-700 dark:text-red-300 space-y-2">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                </svg>
+                                Completará <strong>{{ $closePreview['passed'] + $closePreview['failed'] }}</strong> inscripciones
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                </svg>
+                                <strong>{{ $closePreview['passed'] }}</strong> estudiantes aprobarán
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                </svg>
+                                <strong>{{ $closePreview['failed'] }}</strong> estudiantes reprobarán
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                </svg>
+                                Desactivará <strong>{{ $closePreview['sections_to_deactivate'] }}</strong> secciones
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
+                                </svg>
+                                Desactivará el período académico
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                        <p class="text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2">
+                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <strong>Esta acción NO se puede deshacer.</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+                    <button type="button" onclick="closeModal('closeAcademicPeriodModal')"
+                            class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <form action="{{ route('academic-periods.close', $academicPeriod) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit"
+                                class="inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium rounded-xl shadow-lg shadow-red-500/25 transition-all duration-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            Sí, Cerrar Período
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Scripts --}}
+    <script>
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Close modal on backdrop click
+            const modal = document.getElementById('closeAcademicPeriodModal');
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal('closeAcademicPeriodModal');
+                    }
+                });
+            }
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal('closeAcademicPeriodModal');
+                }
+            });
+        });
+    </script>
 </x-app-layout>
