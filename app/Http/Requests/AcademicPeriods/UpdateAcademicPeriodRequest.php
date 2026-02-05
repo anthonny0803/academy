@@ -69,11 +69,37 @@ class UpdateAcademicPeriodRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            // Solo validar escala si no tiene secciones y se envían los campos
+            // Solo validar si no tiene secciones (campos editables)
             if (!$this->getAcademicPeriod()->hasSections()) {
                 $this->validateGradeScale($validator);
+                $this->validateEndDateMax($validator);
             }
         });
+    }
+
+    protected function validateEndDateMax($validator): void
+    {
+        $startDate = $this->input('start_date');
+        $endDate = $this->input('end_date');
+
+        if (!$startDate || !$endDate) {
+            return;
+        }
+
+        try {
+            $start = \Carbon\Carbon::parse($startDate);
+            $end = \Carbon\Carbon::parse($endDate);
+            $maxEnd = $start->copy()->addYears(5);
+
+            if ($end->greaterThan($maxEnd)) {
+                $validator->errors()->add(
+                    'end_date',
+                    'La fecha de fin no puede ser mayor a 5 años desde la fecha de inicio.'
+                );
+            }
+        } catch (\Exception $e) {
+            // Si las fechas no son válidas, otras validaciones lo capturarán
+        }
     }
 
     protected function validateGradeScale($validator): void

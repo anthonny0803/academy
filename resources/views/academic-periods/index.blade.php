@@ -293,7 +293,7 @@
                             </label>
                             <input type="date" id="start_date" name="start_date" value="{{ old('start_date') }}" required
                                    min="{{ now()->format('Y-m-d') }}"
-                                   max="{{ now()->addYears(4)->format('Y-m-d') }}"
+                                   max="{{ now()->addYear()->format('Y-m-d') }}"
                                    class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200 dark:[color-scheme:dark]">
                             @error('start_date')
                                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -304,6 +304,8 @@
                                 Fecha fin <span class="text-red-500">*</span>
                             </label>
                             <input type="date" id="end_date" name="end_date" value="{{ old('end_date') }}" required
+                                   min="{{ now()->format('Y-m-d') }}"
+                                   max="{{ now()->addYears(6)->format('Y-m-d') }}"
                                    class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all duration-200 dark:[color-scheme:dark]">
                             @error('end_date')
                                 <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
@@ -670,6 +672,43 @@
                 });
             }
 
+            // Función para calcular fecha máxima (start_date + años)
+            function addYearsToDate(dateString, years) {
+                const date = new Date(dateString);
+                date.setFullYear(date.getFullYear() + years);
+                return date.toISOString().split('T')[0];
+            }
+
+            // Actualizar min y max de end_date cuando cambie start_date (Modal Crear)
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            
+            if (startDateInput && endDateInput) {
+                startDateInput.addEventListener('change', function() {
+                    if (this.value) {
+                        // min de end_date = start_date seleccionado
+                        endDateInput.min = this.value;
+                        // max de end_date = start_date + 5 años
+                        endDateInput.max = addYearsToDate(this.value, 5);
+                        
+                        // Si end_date actual es menor que el nuevo min, limpiar
+                        if (endDateInput.value && endDateInput.value < this.value) {
+                            endDateInput.value = '';
+                        }
+                        // Si end_date actual es mayor que el nuevo max, limpiar
+                        if (endDateInput.value && endDateInput.value > endDateInput.max) {
+                            endDateInput.value = '';
+                        }
+                    }
+                });
+
+                // Inicializar si ya hay valor (por old())
+                if (startDateInput.value) {
+                    endDateInput.min = startDateInput.value;
+                    endDateInput.max = addYearsToDate(startDateInput.value, 5);
+                }
+            }
+
             // Dropdown handling
             document.querySelectorAll("[data-dropdown-academic-period]").forEach(btn => {
                 btn.addEventListener("click", (e) => {
@@ -825,7 +864,31 @@
                         checkboxLabels.forEach(label => label.classList.add('cursor-pointer'));
 
                         // Establecer min de fecha = fecha original (no puede ir hacia atrás)
-                        document.getElementById("edit-start_date").setAttribute('min', startDate);
+                        const editStartDateInput = document.getElementById("edit-start_date");
+                        const editEndDateInput = document.getElementById("edit-end_date");
+                        
+                        editStartDateInput.setAttribute('min', startDate);
+                        
+                        // Establecer min y max de end_date basándose en start_date actual
+                        editEndDateInput.setAttribute('min', startDate);
+                        editEndDateInput.setAttribute('max', addYearsToDate(startDate, 5));
+
+                        // Listener para actualizar end_date cuando cambie start_date
+                        editStartDateInput.onchange = function() {
+                            if (this.value) {
+                                editEndDateInput.min = this.value;
+                                editEndDateInput.max = addYearsToDate(this.value, 5);
+                                
+                                // Si end_date actual es menor que el nuevo min, limpiar
+                                if (editEndDateInput.value && editEndDateInput.value < this.value) {
+                                    editEndDateInput.value = '';
+                                }
+                                // Si end_date actual es mayor que el nuevo max, limpiar
+                                if (editEndDateInput.value && editEndDateInput.value > editEndDateInput.max) {
+                                    editEndDateInput.value = '';
+                                }
+                            }
+                        };
 
                         // Configurar listener para is_promotable (solo si desbloqueado)
                         const editIsPromotable = document.getElementById('edit-is_promotable');

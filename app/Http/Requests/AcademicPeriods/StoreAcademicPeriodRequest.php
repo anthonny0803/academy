@@ -19,7 +19,13 @@ class StoreAcademicPeriodRequest extends FormRequest
         $rules = [
             'name' => ['required', 'string', 'max:100', Rule::unique('academic_periods')],
             'notes' => ['nullable', 'string', 'max:255'],
-            'start_date' => ['required', 'date', 'after_or_equal:today', 'before:end_date', 'before_or_equal:' . now()->addYears(4)->toDateString()],
+            'start_date' => [
+                'required',
+                'date',
+                'after_or_equal:today',
+                'before:end_date',
+                'before_or_equal:' . now()->addYear()->toDateString(),
+            ],
             'end_date' => ['required', 'date', 'after:start_date'],
             'is_promotable' => ['nullable', 'boolean'],
 
@@ -41,7 +47,33 @@ class StoreAcademicPeriodRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $this->validateGradeScale($validator);
+            $this->validateEndDateMax($validator);
         });
+    }
+
+    protected function validateEndDateMax($validator): void
+    {
+        $startDate = $this->input('start_date');
+        $endDate = $this->input('end_date');
+
+        if (!$startDate || !$endDate) {
+            return;
+        }
+
+        try {
+            $start = \Carbon\Carbon::parse($startDate);
+            $end = \Carbon\Carbon::parse($endDate);
+            $maxEnd = $start->copy()->addYears(5);
+
+            if ($end->greaterThan($maxEnd)) {
+                $validator->errors()->add(
+                    'end_date',
+                    'La fecha de fin no puede ser mayor a 5 años desde la fecha de inicio.'
+                );
+            }
+        } catch (\Exception $e) {
+            // Si las fechas no son válidas, otras validaciones lo capturarán
+        }
     }
 
     protected function validateGradeScale($validator): void
@@ -50,18 +82,18 @@ class StoreAcademicPeriodRequest extends FormRequest
         $passing = $this->input('passing_grade');
         $max = $this->input('max_grade');
 
-        // If all are null, no custom scale is set and defaults by DB will be used
+        // Si ninguno está presente, usar defaults de BD
         if ($min === null && $passing === null && $max === null) {
             return;
         }
 
-        // If some are missing, return error
+        // Si alguno está presente, todos deben estar presentes
         if ($min === null || $passing === null || $max === null) {
             $validator->errors()->add('min_grade', 'Si personaliza la escala de calificaciones, debe completar los tres campos.');
             return;
         }
 
-        // Validate logical order
+        // Validar relaciones: min < passing <= max
         if ((float) $min >= (float) $passing) {
             $validator->errors()->add('min_grade', 'La nota mínima debe ser menor que la nota de aprobación.');
         }
@@ -97,7 +129,7 @@ class StoreAcademicPeriodRequest extends FormRequest
             'start_date.date' => 'La fecha de inicio debe ser una fecha válida.',
             'start_date.before' => 'La fecha de inicio debe ser anterior a la fecha de fin.',
             'start_date.after_or_equal' => 'La fecha de inicio no puede ser anterior a hoy.',
-            'start_date.before_or_equal' => 'La fecha de inicio no puede ser mayor a 4 años desde hoy.',
+            'start_date.before_or_equal' => 'La fecha de inicio no puede ser mayor a 1 año desde hoy.',
             'end_date.required' => 'La fecha de fin es obligatoria.',
             'end_date.date' => 'La fecha de fin debe ser una fecha válida.',
             'end_date.after' => 'La fecha de fin debe ser posterior a la fecha de inicio.',
