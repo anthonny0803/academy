@@ -43,6 +43,7 @@ class SectionController extends Controller
 
             $sections = Section::query()
                 ->with('academicPeriod')
+                ->withCount(['enrollments' => fn($q) => $q->active()])
                 ->when($search !== '', fn($q) => $q->search($search))
                 ->when($status && $status !== 'Todos', function ($q) use ($status) {
                     $status === 'Activo' ? $q->active() : $q->inactive();
@@ -57,6 +58,21 @@ class SectionController extends Controller
     }
 
     public function show(Section $section): View|RedirectResponse
+    {
+        return $this->authorizeOrRedirect('view', $section, function () use ($section) {
+            $section->load([
+                'academicPeriod',
+                'enrollments' => fn($q) => $q->active()->with('student.user'),
+                'sectionSubjectTeachers' => fn($q) => $q->with(['subject', 'teacher.user']),
+            ]);
+
+            $enrolledCount = $section->enrollments->count();
+
+            return view('sections.show', compact('section', 'enrolledCount'));
+        });
+    }
+
+    public function assignments(Section $section): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('view', $section, function () use ($section) {
             // Cargar relaciones necesarias
@@ -87,7 +103,7 @@ class SectionController extends Controller
                 })->toArray();
             }
 
-            return view('sections.show', compact('section', 'subjects', 'teachersBySubject'));
+            return view('sections.assignments', compact('section', 'subjects', 'teachersBySubject'));
         });
     }
 
