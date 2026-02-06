@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Enums\Role;
 use Illuminate\Auth\Access\Response;
 
 class UserPolicy
@@ -91,8 +92,28 @@ class UserPolicy
         }
 
         if (!$currentUser->isDeveloper() && $currentUser->isSupervisor()) {
-            if ($targetUser->isSupervisor()) {
+            if ($targetUser->isSupervisor() && $currentUser->id !== $targetUser->id) {
                 return Response::deny('No tienes autorización para cambiar roles administrativos de usuarios con tu mismo rol.');
+            }
+        }
+
+        return null;
+    }
+
+    private function cannotSelfDemote(User $currentUser, User $targetUser, Role $role): ?Response
+    {
+        if ($currentUser->id === $targetUser->id && $currentUser->isSupervisor() && $role === Role::Admin) {
+            return Response::deny('No puedes degradar tu propio rol administrativo.');
+        }
+
+        return null;
+    }
+
+    private function cannotAdminManageHigherOrEqualRole(User $currentUser, User $targetUser): ?Response
+    {
+        if (!$currentUser->isDeveloper() && !$currentUser->isSupervisor() && $currentUser->isAdmin()) {
+            if ($targetUser->isSupervisor() || $targetUser->isAdmin()) {
+                return Response::deny('No tienes autorización para gestionar roles de este usuario.');
             }
         }
 
@@ -155,9 +176,18 @@ class UserPolicy
             ?? Response::allow();
     }
 
-    public function assign(User $currentUser, User $targetUser): Response
+    public function assignManage(User $currentUser, User $targetUser): Response
+    {
+        return $this->cannotManageRoles($currentUser)
+            ?? $this->cannotManageDeveloper($targetUser)
+            ?? $this->cannotAdminManageHigherOrEqualRole($currentUser, $targetUser)
+            ?? Response::allow();
+    }
+
+    public function assign(User $currentUser, User $targetUser, ?Role $role = null): Response
     {
         return $this->cannotAssignRolesToUser($currentUser, $targetUser)
+            ?? ($role ? $this->cannotSelfDemote($currentUser, $targetUser, $role) : null)
             ?? Response::allow();
     }
 }

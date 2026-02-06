@@ -47,7 +47,7 @@ class RoleManagementController extends Controller
 
     public function showAssignOptions(User $user): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('assignView', $user, function () use ($user) {
+        return $this->authorizeOrRedirect('assignManage', $user, function () use ($user) {
             $user->load(['roles', 'teacher', 'representative', 'student']);
             $availableRoles = $this->getAvailableRoles($user);
 
@@ -57,7 +57,7 @@ class RoleManagementController extends Controller
 
     public function showForm(User $user, string $role): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('assignView', $user, function () use ($user, $role) {
+        return $this->authorizeOrRedirect('assignManage', $user, function () use ($user, $role) {
             $roleEnum = Role::from($role);
 
             $user->load(['roles', 'teacher', 'representative', 'student']);
@@ -91,7 +91,7 @@ class RoleManagementController extends Controller
     private function assignDirect(User $user, Role $role): RedirectResponse
     {
         // Validar con policy antes de asignar
-        $this->authorize('assign', $user);
+        $this->authorize('assign', [$user, $role]);
         
         app(AssignRoleService::class)->handle($user, $role, []);
 
