@@ -73,8 +73,8 @@ class UserPolicy
             return Response::deny('No puedes eliminar un usuario activo.');
         }
 
-        if ($targetUser->isRepresentative() && $targetUser->representative?->hasStudents()) {
-            return Response::deny('No puedes eliminar a un usuario que tiene estudiantes.');
+        if ($targetUser->hasEntity()) {
+            return Response::deny('No puedes eliminar un usuario que tiene perfiles asociados.');
         }
 
         return null;
