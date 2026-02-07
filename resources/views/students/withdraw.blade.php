@@ -106,7 +106,7 @@
                                 name="reason" 
                                 id="reason" 
                                 rows="4"
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none @error('reason') border-red-500 ring-red-500 @enderror"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 placeholder:text-gray-400/50 transition-all duration-200 resize-none @error('reason') border-red-500 ring-red-500 @enderror"
                                 placeholder="Ej: Abandono voluntario, Expulsión disciplinaria, Cambio de institución, Motivos personales..."
                                 required
                             >{{ old('reason') }}</textarea>

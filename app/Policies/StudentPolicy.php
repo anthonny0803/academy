@@ -109,7 +109,7 @@ class StudentPolicy
 
     public function withdraw(User $currentUser, Student $student): Response
     {
-        return $this->cannotPerformSupervisorActions($currentUser)
+        return $this->cannotManageStudents($currentUser)
             ?? $this->cannotWithdrawInactiveStudent($student)
             ?? $this->cannotWithdrawStudentWithoutActiveEnrollments($student)
             ?? Response::allow();

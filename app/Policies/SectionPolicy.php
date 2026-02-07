@@ -55,6 +55,33 @@ class SectionPolicy
         return null;
     }
 
+    private function cannotDeleteClosedPeriodSection(Section $section): ?Response
+    {
+        if (!$section->academicPeriod->isActive()) {
+            return Response::deny('No se puede eliminar una sección de un período cerrado.');
+        }
+
+        return null;
+    }
+
+    private function cannotToggleClosedPeriodSection(Section $section): ?Response
+    {
+        if (!$section->isActive() && !$section->academicPeriod->isActive()) {
+            return Response::deny('No se puede reactivar una sección de un período cerrado.');
+        }
+
+        return null;
+    }
+
+    private function cannotDeactivateWithActiveEnrollments(Section $section): ?Response
+    {
+        if ($section->isActive() && $section->enrollments()->active()->exists()) {
+            return Response::deny('No se puede desactivar una sección con inscripciones activas.');
+        }
+
+        return null;
+    }
+
     // Policy Methods
 
     public function viewAny(User $currentUser): Response
@@ -84,6 +111,7 @@ class SectionPolicy
     public function delete(User $currentUser, Section $section): Response
     {
         return $this->cannotManageSections($currentUser)
+            ?? $this->cannotDeleteClosedPeriodSection($section)
             ?? $this->cannotDeleteActiveSection($section)
             ?? $this->cannotDeleteSectionWithEnrollments($section)
             ?? $this->cannotDeleteSectionWithAssignments($section)
@@ -93,6 +121,8 @@ class SectionPolicy
     public function toggle(User $currentUser, Section $section): Response
     {
         return $this->cannotManageSections($currentUser)
+            ?? $this->cannotToggleClosedPeriodSection($section)
+            ?? $this->cannotDeactivateWithActiveEnrollments($section)
             ?? Response::allow();
     }
 }
