@@ -1,8 +1,10 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -29,8 +31,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
+            if ($e instanceof TokenMismatchException) {
+                return redirect()->route('login')
+                    ->with('error', 'Tu sesión ha expirado, inicia sesión nuevamente.');
+            }
+
             // Solo capturar otros errores
             if (!$request->expectsJson() && !app()->runningInConsole()) {
+                if (!Auth::check()) {
+                    return redirect()->route('login');
+                }
+
                 return redirect()
                     ->back()
                     ->withInput()

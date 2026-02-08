@@ -22,13 +22,41 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
+@auth
+    <script>
+        (function() {
+            const limitMinutes = {{ config('session.lifetime') }};
+            const limitMs = limitMinutes * 60 * 1000;
+            let timer;
+
+            function resetTimer() {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    window.location.href = '{{ route('login') }}';
+                }, limitMs);
+            }
+
+            ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(event => {
+                document.addEventListener(event, resetTimer, {
+                    passive: true
+                });
+            });
+
+            resetTimer();
+        })
+        ();
+    </script>
+@endauth
+
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div
+        class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         @include('layouts.navigation')
 
         {{-- Page Heading --}}
         @isset($header)
-            <header class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+            <header
+                class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm">
                 <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
@@ -44,8 +72,9 @@
         <footer class="py-6 mt-auto">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <p class="text-center text-sm text-slate-500 dark:text-slate-400">
-                    © {{ date('Y') }} Academy Management System. Desarrollado por 
-                    <a href="https://ybanez.dev" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline">Anthonny Ybáñez</a>
+                    © {{ date('Y') }} Academy Management System. Desarrollado por
+                    <a href="https://ybanez.dev" target="_blank"
+                        class="text-indigo-600 dark:text-indigo-400 hover:underline">Anthonny Ybáñez</a>
                 </p>
             </div>
         </footer>
@@ -59,9 +88,10 @@
     <x-modal name="alertModal" :show="$showModal" maxWidth="md">
         <div class="p-6 text-center">
             @if (session('success'))
-                <div class="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
+                <div
+                    class="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
                     <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                 </div>
                 <h3 class="text-xl font-semibold text-green-600 dark:text-green-400 mb-2">¡Éxito!</h3>
@@ -69,9 +99,11 @@
             @endif
 
             @if (session('error'))
-                <div class="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+                <div
+                    class="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
                     <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </div>
                 <h3 class="text-xl font-semibold text-red-600 dark:text-red-400 mb-2">¡Error!</h3>
@@ -79,9 +111,11 @@
             @endif
 
             @if (session('warning'))
-                <div class="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mb-4">
+                <div
+                    class="mx-auto w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mb-4">
                     <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                 </div>
                 <h3 class="text-xl font-semibold text-yellow-600 dark:text-yellow-400 mb-2">¡Advertencia!</h3>
