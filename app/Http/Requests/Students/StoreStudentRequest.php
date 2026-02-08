@@ -18,14 +18,14 @@ class StoreStudentRequest extends FormRequest
     {
         $this->merge([
             'email' => $this->filled('email') ? $this->email : null,
-            'document_id' => $this->filled('document_id') ? strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)) : null,
+            'document_id' => strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id ?? '')),
         ]);
     }
 
     public function rules(): array
     {
-        $representativeUserId = $this->input('is_self_represented') 
-            ? $this->route('representative')->user_id 
+        $representativeUserId = $this->input('is_self_represented')
+            ? $this->route('representative')->user_id
             : null;
 
         return [
@@ -40,7 +40,7 @@ class StoreStudentRequest extends FormRequest
             ],
             'sex' => ['required', Rule::in(Sex::toArray())],
             'document_id' => [
-                'nullable',
+                'required',
                 'string',
                 'max:20',
                 'regex:/^[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}$/',
@@ -66,8 +66,8 @@ class StoreStudentRequest extends FormRequest
 
                 if ($representative->user->student) {
                     $validator->errors()->add(
-                        'is_self_represented',
-                        'Este representante ya tiene un perfil de estudiante registrado.'
+                        'relationship_type',
+                        'Este representante ya tiene un perfil de estudiante registrado, puedes inscribirlo directamente en el módulo de estudiantes.'
                     );
                 }
             }
@@ -97,6 +97,7 @@ class StoreStudentRequest extends FormRequest
             'email.unique' => 'Este correo electrónico ya está registrado.',
             'sex.required' => 'El sexo es obligatorio.',
             'sex.in' => 'El sexo seleccionado no es válido.',
+            'document_id.required' => 'El documento de identidad es obligatorio.',
             'document_id.regex' => 'El formato del documento no es válido (ej: 12345678A o X1234567B).',
             'document_id.unique' => 'Este documento ya está registrado.',
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',

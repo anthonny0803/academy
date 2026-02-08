@@ -51,7 +51,7 @@
                                     </div>
                                     <input type="text" name="search" value="{{ request('search') }}"
                                         placeholder="Buscar por nombre, código, correo..."
-                                        class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 uppercase"
+                                        class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder:text-gray-400/50 transition-all duration-200 uppercase"
                                         autocomplete="off">
                                 </div>
                             </div>

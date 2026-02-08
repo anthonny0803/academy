@@ -23,7 +23,7 @@ class UpdateStudentRequest extends FormRequest
     {
         $this->merge([
             'email' => $this->filled('email') ? $this->email : null,
-            'document_id' => $this->filled('document_id') ? strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)) : null,
+            'document_id' => strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id ?? '')),
         ]);
     }
 
@@ -42,7 +42,7 @@ class UpdateStudentRequest extends FormRequest
             ],
             'sex' => ['sometimes', 'required', Rule::in(Sex::toArray())],
             'document_id' => [
-                'nullable',
+                'required',
                 'string',
                 'max:20',
                 'regex:/^[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}$/',
@@ -79,6 +79,7 @@ class UpdateStudentRequest extends FormRequest
             'sex.in' => 'El sexo seleccionado no es válido.',
             'document_id.regex' => 'El formato del documento no es válido (ej: 12345678A o X1234567B).',
             'document_id.unique' => 'Este documento ya está registrado.',
+            'document_id.required' => 'El documento de identidad es obligatorio.',
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'relationship_type.required' => 'El tipo de relación es obligatorio.',

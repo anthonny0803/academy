@@ -73,11 +73,11 @@
                                 {{-- DNI/NIE --}}
                                 <div class="space-y-1">
                                     <label for="document_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        DNI/NIE
+                                        DNI/NIE <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" id="document_id" name="document_id" 
                                            value="{{ old('document_id', $student->user->document_id) }}" 
-                                           autocomplete="off"
+                                           required autocomplete="off"
                                            pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}"
                                            class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 uppercase">
                                     @error('document_id')
