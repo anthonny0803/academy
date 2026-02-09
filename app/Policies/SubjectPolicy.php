@@ -37,15 +37,6 @@ class SubjectPolicy
         return null;
     }
 
-    private function cannotDeleteSubjectWithGrades(Subject $subject): ?Response
-    {
-        if ($subject->grades()->exists()) {
-            return Response::deny('No puedes eliminar una asignatura con calificaciones registradas.');
-        }
-
-        return null;
-    }
-
     private function cannotDeleteSubjectWithAssignments(Subject $subject): ?Response
     {
         if ($subject->sectionSubjectTeachers()->exists()) {
@@ -79,7 +70,6 @@ class SubjectPolicy
     {
         return $this->cannotManageSubjects($currentUser)
             ?? $this->cannotDeleteActiveSubject($subject)
-            ?? $this->cannotDeleteSubjectWithGrades($subject)
             ?? $this->cannotDeleteSubjectWithAssignments($subject)
             ?? Response::allow();
     }

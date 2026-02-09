@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Subject extends Model implements HasEntityName
 {
@@ -51,18 +50,6 @@ class Subject extends Model implements HasEntityName
         return $this->belongsToMany(Section::class, 'section_subject_teacher')
             ->withPivot('teacher_id', 'is_primary', 'status')
             ->withTimestamps();
-    }
-
-    public function grades(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            Grade::class,
-            SectionSubjectTeacher::class,
-            'subject_id',
-            'section_subject_teacher_id',
-            'id',
-            'id'
-        );
     }
 
     // Query Scopes
