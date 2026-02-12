@@ -62,7 +62,8 @@
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Usuario</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Correo</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Roles Actuales</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Perfiles</th>
+                                {{-- Profile view --}}
+                                {{--<th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Perfiles</th>--}}
                                 <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
@@ -95,7 +96,7 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    {{--<td class="px-6 py-4">
                                         <div class="flex flex-wrap gap-1">
                                             @if ($user->teacher)
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">
@@ -125,7 +126,7 @@
                                                 <span class="text-sm text-gray-400 dark:text-gray-500 italic">Sin perfil</span>
                                             @endif
                                         </div>
-                                    </td>
+                                    </td>--}}
                                     <td class="px-6 py-4 whitespace-nowrap text-right">
                                         <a href="{{ route('role-management.show-assign-options', $user) }}"
                                            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 transition-all duration-300 text-sm">
