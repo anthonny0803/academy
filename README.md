@@ -1,11 +1,14 @@
 # Academy — School Management System
 
-> **[Versión en español más abajo](#-academy--sistema-de-gestión-escolar)**
+> **[Versión en español más abajo](#academy--sistema-de-gestión-escolar)**
 
 A comprehensive school management system built with Laravel, designed to handle the full academic lifecycle: from student enrollment to weighted grade calculations and academic period closures. Built as a portfolio project demonstrating backend architecture, business logic modeling, and professional development practices.
 
-### [Try the Live Demo →](https://academy.ybanez.dev)
-**Grades Portal (React):** [portal-academy](https://github.com/anthonyybanez/portal-academy)
+### [Academy — Live System →](https://academy.ybanez.dev)
+
+> **Test credentials:** admin@gmail.com / admin123
+
+Grades Portal (React): [portal-academy.ybanez.dev](https://portal-academy.ybanez.dev) | [Source Code](https://github.com/anthonny0803/portal-academy)
 
 ---
 
@@ -75,7 +78,7 @@ Subject: Mathematics
 ├── Midterm 2    (weight: 30%)  →  grade: 70  →  weighted: 21.00
 └── Final Exam   (weight: 40%)  →  grade: 60  →  weighted: 24.00
                                     ─────────────────────────
-                                    Weighted Average: 70.50 ✓ (passing: 60)
+                                    Weighted Average: 70.50 (PASS, min: 60)
 ```
 
 ### Enrollment State Machine
@@ -106,7 +109,7 @@ The most complex operation in the system. When a period closes:
 
 ## Public Grades API
 
-A REST API secured with Bearer token authentication, consumed by a React SPA ([portal-academy](https://github.com/anthonyybanez/portal-academy)) where students and representatives can consult grades using their document ID and birth date.
+A REST API secured with Bearer token authentication, consumed by a React SPA ([portal-academy](https://github.com/anthonny0803/portal-academy)) where students and representatives can consult grades using their document ID and birth date.
 
 ```
 GET /api/public/student/grades?document_id=V12345678&birth_date=2000-05-15
@@ -137,10 +140,10 @@ app/
 
 ## Local Setup
 
-> The easiest way to explore Academy is through the [live demo](https://academy.ybanez.dev). If you want to run it locally:
+> The easiest way to explore Academy is through the [live system](https://academy.ybanez.dev). If you want to run it locally:
 
 ```bash
-git clone https://github.com/anthonyybanez/academy.git
+git clone https://github.com/anthonny0803/academy.git
 cd academy
 composer install && npm install
 cp .env.example .env
@@ -153,9 +156,10 @@ npm run dev & php artisan serve
 
 ## Author
 
-**Anthonyy Ybanez** — Backend Developer
-- [LinkedIn](https://linkedin.com/in/anthonyybanez)
-- [GitHub](https://github.com/anthonyybanez)
+**Anthonny Ybanez** — Backend Developer
+- [LinkedIn](https://linkedin.com/in/anthonny0803)
+- [GitHub](https://github.com/anthonny0803)
+- [Web](https://ybanez.dev)
 
 ---
 ---
@@ -164,8 +168,11 @@ npm run dev & php artisan serve
 
 Un sistema integral de gestión escolar construido con Laravel, diseñado para manejar el ciclo académico completo: desde la inscripción de estudiantes hasta el cálculo de calificaciones ponderadas y el cierre de períodos académicos. Construido como proyecto de portafolio demostrando arquitectura backend, modelado de lógica de negocio y prácticas de desarrollo profesional.
 
-### [Probar la Demo en Vivo →](https://academy.ybanez.dev)
-**Portal de notas (React):** [portal-academy](https://github.com/anthonyybanez/portal-academy)
+### [Academy — Sistema en Vivo →](https://academy.ybanez.dev)
+
+> **Credenciales de prueba:** admin@gmail.com / admin123
+
+Portal de Calificaciones (React): [portal-academy.ybanez.dev](https://portal-academy.ybanez.dev) | [Codigo Fuente](https://github.com/anthonny0803/portal-academy)
 
 ---
 
@@ -235,7 +242,7 @@ Materia: Matemáticas
 ├── Parcial 2      (peso: 30%)  →  nota: 70  →  ponderado: 21.00
 └── Examen Final   (peso: 40%)  →  nota: 60  →  ponderado: 24.00
                                     ─────────────────────────
-                                    Promedio Ponderado: 70.50 ✓ (aprobación: 60)
+                                    Promedio Ponderado: 70.50 (APROBADO, mín: 60)
 ```
 
 ### Máquina de Estados de Inscripción
@@ -266,7 +273,7 @@ La operación más compleja del sistema. Cuando un período se cierra:
 
 ## API Pública de Calificaciones
 
-Una API REST protegida con autenticación Bearer token, consumida por una SPA React ([portal-academy](https://github.com/anthonyybanez/portal-academy)) donde estudiantes y representantes pueden consultar calificaciones usando su documento de identidad y fecha de nacimiento.
+Una API REST protegida con autenticación Bearer token, consumida por una SPA React ([portal-academy](https://github.com/anthonny0803/portal-academy)) donde estudiantes y representantes pueden consultar calificaciones usando su documento de identidad y fecha de nacimiento.
 
 ```
 GET /api/public/student/grades?document_id=V12345678&birth_date=2000-05-15
@@ -297,10 +304,10 @@ app/
 
 ## Instalación Local
 
-> La forma más fácil de explorar Academy es a través de la [demo en vivo](https://academy.ybanez.dev). Si quieres ejecutarlo localmente:
+> La forma más fácil de explorar Academy es a través del [sistema en vivo](https://academy.ybanez.dev). Si quieres ejecutarlo localmente:
 
 ```bash
-git clone https://github.com/anthonyybanez/academy.git
+git clone https://github.com/anthonny0803/academy.git
 cd academy
 composer install && npm install
 cp .env.example .env
@@ -313,7 +320,7 @@ npm run dev & php artisan serve
 
 ## Autor
 
-**Anthonyy Ybanez** — Desarrollador Backend
-- [Website](https://ybanez.dev)
-- [LinkedIn](https://linkedin.com/in/anthonyybanez)
-- [GitHub](https://github.com/anthonyybanez)
+**Anthonny Ybanez** — Desarrollador Backend
+- [LinkedIn](https://linkedin.com/in/anthonny0803)
+- [GitHub](https://github.com/anthonny0803)
+- [Web](https://ybanez.dev)
