@@ -58,7 +58,7 @@ class UserController extends Controller
                     ->when($role && $role !== 'Todos', fn($q) => $q->withRole($role))
                     ->with('roles')
                     ->orderByName()
-                    ->paginate(5)
+                    ->paginate(6)
                     ->withQueryString();
             }
 

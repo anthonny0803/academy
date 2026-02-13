@@ -72,7 +72,7 @@ class StudentController extends Controller
                     ->orderBy('users.name')
                     ->orderBy('users.last_name')
                     ->select('students.*')
-                    ->paginate(10)
+                    ->paginate(6)
                     ->withQueryString();
             }
 

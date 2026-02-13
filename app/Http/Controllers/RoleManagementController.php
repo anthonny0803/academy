@@ -37,7 +37,7 @@ class RoleManagementController extends Controller
                     ->with(['roles', 'teacher', 'representative', 'student'])
                     ->orderBy('name')
                     ->orderBy('last_name')
-                    ->paginate(10)
+                    ->paginate(6)
                     ->withQueryString();
             }
 

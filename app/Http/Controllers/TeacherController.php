@@ -45,7 +45,7 @@ class TeacherController extends Controller
                     })
                     ->orderByUserName()
                     ->with('user')
-                    ->paginate(5)
+                    ->paginate(6)
                     ->withQueryString();
             }
 

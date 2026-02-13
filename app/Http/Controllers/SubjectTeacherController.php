@@ -43,7 +43,7 @@ class SubjectTeacherController extends Controller
                 ->when($search !== '', fn($q) => $q->search($search))
                 ->when($subjectId, fn($q) => $q->where('id', $subjectId))
                 ->orderBy('name')
-                ->paginate(15)
+                ->paginate(6)
                 ->withQueryString();
 
             return view('subject-teacher.index', compact('subjects', 'allSubjects'));

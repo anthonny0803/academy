@@ -56,7 +56,7 @@ class EnrollmentController extends Controller
                 })
                 ->when($sectionId && $sectionId !== 'Todos', fn($q) => $q->forSection($sectionId))
                 ->orderBy('created_at', 'desc')
-                ->paginate(10)
+                ->paginate(6)
                 ->withQueryString();
 
             return view('enrollments.index', compact('enrollments', 'academicPeriods', 'statuses'));

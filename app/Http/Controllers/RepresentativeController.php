@@ -51,7 +51,7 @@ class RepresentativeController extends Controller
                     ->with(['user', 'students'])
                     ->orderBy('users.name')
                     ->orderBy('users.last_name')
-                    ->paginate(5)
+                    ->paginate(6)
                     ->withQueryString();
             }
 
