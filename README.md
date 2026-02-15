@@ -138,6 +138,40 @@ app/
 
 ---
 
+## Testing
+
+The project includes 88 automated tests (66 unit + 22 feature) covering the most critical business logic.
+
+```bash
+php artisan test
+```
+
+### Unit Tests
+
+| Test | What it covers |
+|------|---------------|
+| UserMutatorsTest | Mutators (uppercase, email lowercase, DNI/NIE cleanup), accessors (full_name, age), role helpers |
+| AcademicPeriodTest | Grade validation (range, passing), scale configuration, promotable/transferable flags |
+| GradeTest | Weighted value calculation, multi-column grade aggregation |
+| EnrollmentTest | Status helpers (active, completed, withdrawn, transferred, promoted), pass/fail |
+| StudentTest | isChild (age-based), isSelfRepresented, student_code mutator, proxy accessors |
+
+### Feature Tests
+
+| Test | What it covers |
+|------|---------------|
+| AuthenticationTest | Login/logout, CheckActiveUser middleware (inactive user blocked, teacher with inactive user allowed), protected routes |
+| CloseAcademicPeriodTest | Full period closure (pass/fail calculation, section/period/student deactivation, representative sync), rejection with incomplete grades |
+| EnrollmentLifecycleTest | Promotion (new enrollment in target section), transfer (student deactivation + representative sync), withdrawal (all enrollments + student deactivation) |
+
+### Factories
+
+12 factories that respect all business rules: role assignment via Spatie, representative auto-sync, enrollment creation on student setup, SubjectTeacher prerequisite for section assignments.
+
+Tests use SQLite in-memory (`phpunit.xml`). The `php8.4-sqlite3` extension is required.
+
+---
+
 ## Local Setup
 
 > The easiest way to explore Academy is through the [live system](https://academy.ybanez.dev). If you want to run it locally:
@@ -299,6 +333,40 @@ app/
 ├── Services/           # ~30 servicios organizados por entidad
 └── Traits/             # Activatable, AuthorizesRedirect, CanToggleActivation
 ```
+
+---
+
+## Testing
+
+El proyecto incluye 88 tests automatizados (66 unitarios + 22 feature) cubriendo la lógica de negocio más crítica.
+
+```bash
+php artisan test
+```
+
+### Tests Unitarios
+
+| Test | Qué cubre |
+|------|-----------|
+| UserMutatorsTest | Mutadores (uppercase, email lowercase, limpieza DNI/NIE), accessors (full_name, age), helpers de rol |
+| AcademicPeriodTest | Validación de calificaciones (rango, aprobatorio), configuración de escala, flags promotable/transferable |
+| GradeTest | Cálculo de valor ponderado, agregación de notas multi-columna |
+| EnrollmentTest | Helpers de estado (activo, completado, retirado, transferido, promovido), aprobado/reprobado |
+| StudentTest | isChild (basado en edad), isSelfRepresented, mutador student_code, accessors proxy |
+
+### Tests Feature
+
+| Test | Qué cubre |
+|------|-----------|
+| AuthenticationTest | Login/logout, middleware CheckActiveUser (usuario inactivo bloqueado, profesor con usuario inactivo permitido), rutas protegidas |
+| CloseAcademicPeriodTest | Cierre completo de período (cálculo aprobado/reprobado, desactivación de sección/período/estudiante, sincronización de representante), rechazo con notas incompletas |
+| EnrollmentLifecycleTest | Promoción (nueva inscripción en sección destino), transferencia (desactivación de estudiante + sync representante), retiro (todas las inscripciones + desactivación de estudiante) |
+
+### Factories
+
+12 factories que respetan todas las reglas de negocio: asignación de roles vía Spatie, auto-sync de representante, creación de inscripción al registrar estudiante, prerrequisito SubjectTeacher para asignaciones de sección.
+
+Los tests usan SQLite en memoria (`phpunit.xml`). Se requiere la extensión `php8.4-sqlite3`.
 
 ---
 

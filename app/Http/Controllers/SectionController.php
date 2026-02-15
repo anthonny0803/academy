@@ -50,7 +50,7 @@ class SectionController extends Controller
                 })
                 ->when($academicPeriodId && $academicPeriodId !== 'Todos', fn($q) => $q->forAcademicPeriod($academicPeriodId))
                 ->orderBy('name')
-                ->paginate(5)
+                ->paginate(6)
                 ->withQueryString();
 
             return view('sections.index', compact('sections', 'academicPeriods'));

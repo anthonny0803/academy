@@ -143,7 +143,7 @@ class Student extends Model implements HasEntityName
 
     public function isChild(): bool
     {
-        return $this->user->getAge() < 18;
+        return ($this->user->age ?? 0) < 18;
     }
 
     public function isSelfRepresented(): bool
