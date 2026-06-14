@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\GradeColumn;
-use App\Models\SectionSubjectTeacher;
 use App\Http\Requests\GradeColumns\StoreGradeColumnRequest;
 use App\Http\Requests\GradeColumns\UpdateGradeColumnRequest;
+use App\Models\GradeColumn;
+use App\Models\SectionSubjectTeacher;
+use App\Models\User;
+use App\Services\GradeColumns\DeleteGradeColumnService;
 use App\Services\GradeColumns\StoreGradeColumnService;
 use App\Services\GradeColumns\UpdateGradeColumnService;
-use App\Services\GradeColumns\DeleteGradeColumnService;
 use App\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -18,8 +18,8 @@ use Illuminate\View\View;
 
 class GradeColumnController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
 
     protected function currentUser(): User
     {
@@ -33,7 +33,7 @@ class GradeColumnController extends Controller
                 'section.academicPeriod',
                 'subject',
                 'teacher.user',
-                'gradeColumns' => fn($q) => $q->orderBy('display_order'),
+                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
             ]);
 
             $totalWeight = $sectionSubjectTeacher->getTotalWeight();

@@ -9,11 +9,11 @@ class DeleteAcademicPeriodService
 {
     /**
      * Elimina un período académico y sus secciones inactivas en cascada
-     * 
+     *
      * Precondiciones (validadas en Policy):
      * - El período debe estar activo (no cerrado)
      * - El período no debe tener secciones activas
-     * 
+     *
      * Si tiene secciones inactivas, se eliminan en cascada junto con:
      * - Enrollments de esas secciones
      * - SectionSubjectTeachers de esas secciones
@@ -31,11 +31,11 @@ class DeleteAcademicPeriodService
                     // Contar antes de eliminar
                     $deletedEnrollments += $section->enrollments()->count();
                     $deletedAssignments += $section->sectionSubjectTeachers()->count();
-                    
+
                     // Eliminar relaciones de la sección
                     $section->enrollments()->delete();
                     $section->sectionSubjectTeachers()->delete();
-                    
+
                     // Eliminar la sección
                     $section->delete();
                     $deletedSections++;

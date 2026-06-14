@@ -19,7 +19,7 @@ class SubjectFactory extends Factory
     {
         return [
             'name' => fake()->unique()->randomElement(self::$subjects)
-                ?? 'Asignatura ' . fake()->unique()->numerify('##'),
+                ?? 'Asignatura '.fake()->unique()->numerify('##'),
             'description' => fake()->sentence(),
             'is_active' => true,
         ];

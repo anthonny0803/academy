@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Http\Requests\Grades\StoreGradeRequest;
+use App\Http\Requests\Grades\UpdateGradeRequest;
+use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
 use App\Models\SectionSubjectTeacher;
-use App\Models\Enrollment;
-use App\Http\Requests\Grades\StoreGradeRequest;
-use App\Http\Requests\Grades\UpdateGradeRequest;
+use App\Models\User;
+use App\Services\Grades\DeleteGradeService;
 use App\Services\Grades\StoreGradeService;
 use App\Services\Grades\UpdateGradeService;
-use App\Services\Grades\DeleteGradeService;
 use App\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
@@ -22,8 +22,8 @@ use Illuminate\View\View;
 
 class GradeController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
 
     protected function currentUser(): User
     {
@@ -37,7 +37,7 @@ class GradeController extends Controller
     {
         $user = $this->currentUser();
 
-        if (!$user->isTeacher() || !$user->teacher) {
+        if (! $user->isTeacher() || ! $user->teacher) {
             return redirect()->route('dashboard')
                 ->with('error', 'No tienes un perfil de profesor asignado.');
         }
@@ -52,7 +52,7 @@ class GradeController extends Controller
                 'gradeColumns',
             ])
             ->get()
-            ->groupBy(fn($sst) => $sst->section->academicPeriod->name);
+            ->groupBy(fn ($sst) => $sst->section->academicPeriod->name);
 
         return view('grades.teacher-assignments', compact('assignments', 'teacher'));
     }
@@ -66,10 +66,10 @@ class GradeController extends Controller
         return $this->authorizeOrRedirect('viewAny', Grade::class, function () use ($sectionSubjectTeacher) {
             $sectionSubjectTeacher->load([
                 'section.academicPeriod',
-                'section.enrollments' => fn($q) => $q->active()->with('student.user'),
+                'section.enrollments' => fn ($q) => $q->active()->with('student.user'),
                 'subject',
                 'teacher.user',
-                'gradeColumns' => fn($q) => $q->orderBy('display_order'),
+                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
             ]);
 
             // Verificar que la configuración esté completa

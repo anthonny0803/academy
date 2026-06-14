@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Enrollments;
 
-use App\Models\Enrollment;
 use App\Models\Section;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -47,11 +46,12 @@ class PromoteEnrollmentRequest extends FormRequest
             $academicPeriod = $enrollment->section->academicPeriod;
 
             // Validar que el período académico permita promociones
-            if (!$academicPeriod->isPromotable()) {
+            if (! $academicPeriod->isPromotable()) {
                 $validator->errors()->add(
                     'section_id',
                     "El período académico '{$academicPeriod->name}' no permite promociones."
                 );
+
                 return;
             }
 
@@ -59,7 +59,7 @@ class PromoteEnrollmentRequest extends FormRequest
             $sectionId = $this->input('section_id');
             if ($sectionId) {
                 $targetSection = Section::find($sectionId);
-                
+
                 if ($targetSection && $targetSection->academic_period_id !== $academicPeriod->id) {
                     $validator->errors()->add(
                         'section_id',

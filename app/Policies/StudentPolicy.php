@@ -10,7 +10,7 @@ class StudentPolicy
 {
     private function cannotViewStudents(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para ver estudiantes.');
         }
 
@@ -19,7 +19,7 @@ class StudentPolicy
 
     private function cannotManageStudents(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para gestionar estudiantes.');
         }
 
@@ -28,7 +28,7 @@ class StudentPolicy
 
     private function cannotPerformSupervisorActions(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor())) {
             return Response::deny('No tienes autorización para realizar esta acción.');
         }
 
@@ -37,7 +37,7 @@ class StudentPolicy
 
     private function cannotWithdrawInactiveStudent(Student $student): ?Response
     {
-        if (!$student->isActive()) {
+        if (! $student->isActive()) {
             return Response::deny('El estudiante ya está inactivo.');
         }
 
@@ -50,7 +50,7 @@ class StudentPolicy
             ->where('status', 'activo')
             ->exists();
 
-        if (!$hasActiveEnrollments) {
+        if (! $hasActiveEnrollments) {
             return Response::deny('El estudiante no tiene inscripciones activas para retirar.');
         }
 

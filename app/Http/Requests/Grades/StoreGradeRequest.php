@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Grades;
 
-use App\Models\GradeColumn;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

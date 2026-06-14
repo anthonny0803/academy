@@ -12,7 +12,7 @@ class SubjectTeacherPolicy
 
     private function cannotManageSubjectTeacher(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para gestionar materias de profesores.');
         }
 
@@ -21,7 +21,7 @@ class SubjectTeacherPolicy
 
     private function cannotViewSubjectTeacher(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para ver materias de profesores.');
         }
 

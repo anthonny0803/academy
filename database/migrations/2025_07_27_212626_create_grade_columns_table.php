@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('grade_columns', function (Blueprint $table) {
             $table->id();
             $table->foreignId('section_subject_teacher_id')
-                  ->constrained('section_subject_teacher')
-                  ->onDelete('cascade');
+                ->constrained('section_subject_teacher')
+                ->onDelete('cascade');
             $table->string('name', 100);
             $table->decimal('weight', 5, 2);  // Porcentaje (ej: 25.00)
             $table->tinyInteger('display_order')->unsigned()->default(0);

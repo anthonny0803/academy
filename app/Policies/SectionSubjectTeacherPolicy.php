@@ -12,7 +12,7 @@ class SectionSubjectTeacherPolicy
 
     private function cannotManageAssignments(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para gestionar asignaciones de profesores.');
         }
 
@@ -21,14 +21,14 @@ class SectionSubjectTeacherPolicy
 
     private function cannotViewAssignments(User $user): ?Response
     {
-        if (!$user->isActive()) {
+        if (! $user->isActive()) {
             return Response::deny('Tu usuario no está activo.');
         }
 
-        if (!$user->isDeveloper() 
-            && !$user->isSupervisor() 
-            && !$user->isAdmin() 
-            && !$user->isTeacher()
+        if (! $user->isDeveloper()
+            && ! $user->isSupervisor()
+            && ! $user->isAdmin()
+            && ! $user->isTeacher()
         ) {
             return Response::deny('No tienes autorización para ver asignaciones de profesores.');
         }
@@ -80,7 +80,7 @@ class SectionSubjectTeacherPolicy
 
     public function delete(User $currentUser): Response
     {
-        if (!$currentUser->isActive() || !$currentUser->isDeveloper()) {
+        if (! $currentUser->isActive() || ! $currentUser->isDeveloper()) {
             return Response::deny('Solo los desarrolladores pueden eliminar asignaciones.');
         }
 

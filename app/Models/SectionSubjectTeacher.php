@@ -149,7 +149,7 @@ class SectionSubjectTeacher extends Model
     }
 
     // Calcula el promedio ponderado de un estudiante
-    
+
     public function calculateStudentAverage(int $enrollmentId): ?float
     {
         $grades = Grade::where('enrollment_id', $enrollmentId)
@@ -163,13 +163,13 @@ class SectionSubjectTeacher extends Model
             return null;
         }
 
-        $totalWeight = $grades->sum(fn($g) => $g->gradeColumn->weight);
-        
+        $totalWeight = $grades->sum(fn ($g) => $g->gradeColumn->weight);
+
         if ($totalWeight == 0) {
             return null;
         }
 
-        $weightedSum = $grades->sum(fn($g) => $g->value * $g->gradeColumn->weight);
+        $weightedSum = $grades->sum(fn ($g) => $g->value * $g->gradeColumn->weight);
 
         return round($weightedSum / $totalWeight, 2);
     }

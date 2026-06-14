@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Teacher;
 use App\Enums\Sex;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Requests\Teachers\UpdateTeacherRequest;
+use App\Models\Teacher;
+use App\Models\User;
 use App\Services\Teachers\StoreTeacherService;
 use App\Services\Teachers\UpdateTeacherService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class TeacherController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
     use CanToggleActivation;
 
     protected function currentUser(): User
@@ -63,6 +63,7 @@ class TeacherController extends Controller
     public function create(): View|RedirectResponse
     {
         $sexes = Sex::toArray();
+
         return $this->authorizeOrRedirect('create', Teacher::class, function () use ($sexes) {
             return view('teachers.create', compact('sexes'));
         });
@@ -72,6 +73,7 @@ class TeacherController extends Controller
     {
         return $this->authorizeOrRedirect('create', Teacher::class, function () use ($request, $storeService) {
             $teacher = $storeService->handle($request->validated());
+
             return redirect()->route('teachers.show', $teacher)
                 ->with('success', '¡Profesor registrado correctamente!');
         });
@@ -80,6 +82,7 @@ class TeacherController extends Controller
     public function edit(Teacher $teacher): View|RedirectResponse
     {
         $sexes = Sex::toArray();
+
         return $this->authorizeOrRedirect('update', $teacher, function () use ($teacher, $sexes) {
             return view('teachers.edit', compact('teacher', 'sexes'));
         });
@@ -89,6 +92,7 @@ class TeacherController extends Controller
     {
         return $this->authorizeOrRedirect('update', $teacher, function () use ($request, $updateService, $teacher) {
             $teacher = $updateService->handle($teacher, $request->validated());
+
             return redirect()
                 ->route('teachers.show', $teacher)
                 ->with('success', '¡Profesor actualizado correctamente!');

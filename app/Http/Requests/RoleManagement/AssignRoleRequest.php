@@ -42,7 +42,7 @@ class AssignRoleRequest extends FormRequest
     public function rules(): array
     {
         $rules = [];
-        
+
         $targetUser = $this->route('user');
         $role = $this->route('role');
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Students;
 
+use App\Enums\RelationshipType;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Enums\RelationshipType;
 
 class ReassignRepresentativeRequest extends FormRequest
 {

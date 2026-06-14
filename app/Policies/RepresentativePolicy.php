@@ -9,7 +9,7 @@ class RepresentativePolicy
 {
     private function cannotManageRepresentatives(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para gestionar representantes.');
         }
 

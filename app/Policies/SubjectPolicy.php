@@ -12,7 +12,7 @@ class SubjectPolicy
 
     private function cannotViewSubjects(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para ver asignaturas.');
         }
 
@@ -21,7 +21,7 @@ class SubjectPolicy
 
     private function cannotManageSubjects(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor())) {
             return Response::deny('No tienes autorización para gestionar asignaturas.');
         }
 

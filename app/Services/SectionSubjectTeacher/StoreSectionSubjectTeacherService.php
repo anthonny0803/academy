@@ -16,7 +16,7 @@ class StoreSectionSubjectTeacherService
                 ->where('subject_id', $data['subject_id'])
                 ->exists();
 
-            if (!$canTeach) {
+            if (! $canTeach) {
                 throw new \Exception('El profesor seleccionado no está autorizado para impartir esta materia.');
             }
 

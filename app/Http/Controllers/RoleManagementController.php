@@ -16,8 +16,8 @@ use Illuminate\View\View;
 
 class RoleManagementController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
 
     protected function currentUser(): User
     {
@@ -79,7 +79,7 @@ class RoleManagementController extends Controller
     ): RedirectResponse {
         // Validar con policy antes de asignar
         $this->authorize('assign', $user);
-        
+
         $roleEnum = Role::from($role);
         $service->handle($user, $roleEnum, $request->validated());
 
@@ -92,7 +92,7 @@ class RoleManagementController extends Controller
     {
         // Validar con policy antes de asignar
         $this->authorize('assign', [$user, $role]);
-        
+
         app(AssignRoleService::class)->handle($user, $role, []);
 
         return redirect()
@@ -104,20 +104,20 @@ class RoleManagementController extends Controller
     {
         $currentUser = $this->currentUser();
         $currentRoles = $user->roles->pluck('name')->toArray();
-        
+
         $assignableRoles = app(RoleAssignmentService::class)
             ->getAssignableRolesForAdditionalAssignment($currentUser);
-        
+
         $available = [];
-        
+
         foreach ($assignableRoles as $spatieRole) {
-            if (!in_array($spatieRole->name, $currentRoles)) {
+            if (! in_array($spatieRole->name, $currentRoles)) {
                 $roleEnum = Role::from($spatieRole->name);
-                
+
                 $available[] = [
                     'role' => $roleEnum,
                     'label' => $roleEnum->value,
-                    'description' => match($roleEnum) {
+                    'description' => match ($roleEnum) {
                         Role::Supervisor => 'Rol administrativo superior',
                         Role::Admin => 'Rol administrativo',
                         Role::Teacher => 'Se creará perfil de profesor',
@@ -127,13 +127,13 @@ class RoleManagementController extends Controller
                 ];
             }
         }
-        
+
         return $available;
     }
 
     private function roleNeedsForm(User $user, Role $role): bool
     {
-        return !empty($this->getMissingFields($user, $role));
+        return ! empty($this->getMissingFields($user, $role));
     }
 
     private function getMissingFields(User $user, Role $role): array
@@ -145,10 +145,18 @@ class RoleManagementController extends Controller
         }
 
         if ($role === Role::Representative) {
-            if (empty($user->document_id)) $missing[] = 'document_id';
-            if (empty($user->birth_date)) $missing[] = 'birth_date';
-            if (empty($user->phone)) $missing[] = 'phone';
-            if (empty($user->address)) $missing[] = 'address';
+            if (empty($user->document_id)) {
+                $missing[] = 'document_id';
+            }
+            if (empty($user->birth_date)) {
+                $missing[] = 'birth_date';
+            }
+            if (empty($user->phone)) {
+                $missing[] = 'phone';
+            }
+            if (empty($user->address)) {
+                $missing[] = 'address';
+            }
         }
 
         return $missing;

@@ -11,17 +11,17 @@ return new class extends Migration
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
             $table->foreignId('enrollment_id')
-                  ->constrained('enrollments')
-                  ->onDelete('cascade');
+                ->constrained('enrollments')
+                ->onDelete('cascade');
             $table->foreignId('grade_column_id')
-                  ->constrained('grade_columns')
-                  ->onDelete('restrict');  // No eliminar columna con notas
+                ->constrained('grade_columns')
+                ->onDelete('restrict');  // No eliminar columna con notas
             $table->decimal('value', 5, 2);
             $table->text('observation')->nullable();
             $table->foreignId('last_modified_by')
-                  ->nullable()
-                  ->constrained('users')
-                  ->onDelete('set null');
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
 

@@ -12,7 +12,7 @@ class EnrollmentPolicy
 
     private function cannotViewEnrollments(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para ver inscripciones.');
         }
 
@@ -21,7 +21,7 @@ class EnrollmentPolicy
 
     private function cannotManageEnrollments(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para gestionar inscripciones.');
         }
 
@@ -30,7 +30,7 @@ class EnrollmentPolicy
 
     private function cannotModifyEnrollments(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor())) {
             return Response::deny('No tienes autorización para modificar inscripciones.');
         }
 
@@ -39,7 +39,7 @@ class EnrollmentPolicy
 
     private function cannotDeleteActiveEnrollment(Enrollment $enrollment): ?Response
     {
-        if (!$enrollment->isActive()) {
+        if (! $enrollment->isActive()) {
             return Response::deny('Solo se pueden eliminar inscripciones activas.');
         }
 
@@ -57,7 +57,7 @@ class EnrollmentPolicy
 
     private function cannotActOnNonActiveEnrollment(Enrollment $enrollment, string $action): ?Response
     {
-        if (!$enrollment->isActive()) {
+        if (! $enrollment->isActive()) {
             return Response::deny("Solo se pueden {$action} inscripciones activas.");
         }
 
@@ -66,7 +66,7 @@ class EnrollmentPolicy
 
     private function cannotPromoteInNonPromotablePeriod(Enrollment $enrollment): ?Response
     {
-        if (!$enrollment->section->academicPeriod->isPromotable()) {
+        if (! $enrollment->section->academicPeriod->isPromotable()) {
             return Response::deny('Este período académico no permite promociones.');
         }
 
@@ -75,7 +75,7 @@ class EnrollmentPolicy
 
     private function cannotTransferInNonTransferablePeriod(Enrollment $enrollment): ?Response
     {
-        if (!$enrollment->section->academicPeriod->isTransferable()) {
+        if (! $enrollment->section->academicPeriod->isTransferable()) {
             return Response::deny('Este período académico no permite transferencias.');
         }
 

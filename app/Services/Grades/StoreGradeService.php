@@ -2,9 +2,9 @@
 
 namespace App\Services\Grades;
 
+use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
-use App\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +16,7 @@ class StoreGradeService
             $sst = $gradeColumn->sectionSubjectTeacher;
 
             // Validar que la configuración esté completa
-            if (!$sst->isConfigurationComplete()) {
+            if (! $sst->isConfigurationComplete()) {
                 throw new \Exception(
                     'La configuración de evaluaciones debe sumar 100% antes de calificar.'
                 );
@@ -34,7 +34,7 @@ class StoreGradeService
 
             // Validar rango de nota
             $academicPeriod = $sst->section->academicPeriod;
-            if (!$academicPeriod->isGradeValid($data['value'])) {
+            if (! $academicPeriod->isGradeValid($data['value'])) {
                 throw new \Exception(
                     "La nota debe estar entre {$academicPeriod->min_grade} y {$academicPeriod->max_grade}."
                 );
@@ -61,7 +61,7 @@ class StoreGradeService
             $sst = $gradeColumn->sectionSubjectTeacher;
 
             // Validar configuración completa
-            if (!$sst->isConfigurationComplete()) {
+            if (! $sst->isConfigurationComplete()) {
                 throw new \Exception(
                     'La configuración de evaluaciones debe sumar 100% antes de calificar.'
                 );
@@ -73,8 +73,9 @@ class StoreGradeService
             foreach ($grades as $gradeData) {
                 try {
                     // Validar rango
-                    if (!$academicPeriod->isGradeValid($gradeData['value'])) {
+                    if (! $academicPeriod->isGradeValid($gradeData['value'])) {
                         $results['errors'][] = "Enrollment {$gradeData['enrollment_id']}: Nota fuera de rango.";
+
                         continue;
                     }
 
@@ -91,8 +92,8 @@ class StoreGradeService
                         ]
                     );
 
-                    $grade->wasRecentlyCreated 
-                        ? $results['created']++ 
+                    $grade->wasRecentlyCreated
+                        ? $results['created']++
                         : $results['updated']++;
 
                 } catch (\Exception $e) {

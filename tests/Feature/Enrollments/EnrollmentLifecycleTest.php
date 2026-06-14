@@ -22,6 +22,7 @@ class EnrollmentLifecycleTest extends TestCase
         parent::setUp();
         $this->seed(RoleAndPermissionSeeder::class);
     }
+
     public function test_promote_creates_new_enrollment_in_target_section(): void
     {
         $supervisor = User::factory()->supervisor()->create();

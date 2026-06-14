@@ -21,8 +21,7 @@ class TeacherFactory extends Factory
 
     public function configure(): static
     {
-        return $this->afterCreating(fn (Teacher $teacher) =>
-            $teacher->user->assignRole(Role::Teacher->value)
+        return $this->afterCreating(fn (Teacher $teacher) => $teacher->user->assignRole(Role::Teacher->value)
         );
     }
 

@@ -21,7 +21,7 @@ class GradeColumnFactory extends Factory
         return [
             'section_subject_teacher_id' => SectionSubjectTeacher::factory(),
             'name' => fake()->unique()->randomElement(self::$evaluations)
-                ?? 'Evaluacion ' . fake()->unique()->numerify('##'),
+                ?? 'Evaluacion '.fake()->unique()->numerify('##'),
             'weight' => 100,
             'display_order' => 0,
             'observation' => null,

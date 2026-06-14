@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Enums\Sex;
 use App\Enums\Role as RoleEnum;
+use App\Enums\Sex;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
+use App\Models\User;
+use App\Services\Users\DeleteUserService;
 use App\Services\Users\RoleAssignmentService;
 use App\Services\Users\StoreUserService;
 use App\Services\Users\UpdateUserService;
-use App\Services\Users\DeleteUserService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -22,8 +22,8 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
     use CanToggleActivation;
 
     protected function currentUser(): User
@@ -43,7 +43,7 @@ class UserController extends Controller
 
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
-            $role   = $request->input('role');
+            $role = $request->input('role');
 
             // If no search term, return empty collection
             if (empty($search)) {
@@ -55,7 +55,7 @@ class UserController extends Controller
                     ->when($status && $status !== 'Todos', function ($q) use ($status) {
                         $status === 'Activo' ? $q->active() : $q->inactive();
                     })
-                    ->when($role && $role !== 'Todos', fn($q) => $q->withRole($role))
+                    ->when($role && $role !== 'Todos', fn ($q) => $q->withRole($role))
                     ->with('roles')
                     ->orderByName()
                     ->paginate(6)
@@ -78,6 +78,7 @@ class UserController extends Controller
         return $this->authorizeOrRedirect('create', User::class, function () use ($roleAssignmentService) {
             $roles = $roleAssignmentService->getAssignableRoles($this->currentUser());
             $sexes = Sex::toArray();
+
             return view('users.create', compact('roles', 'sexes'));
         });
     }
@@ -86,6 +87,7 @@ class UserController extends Controller
     {
         return $this->authorizeOrRedirect('create', User::class, function () use ($request, $storeService) {
             $user = $storeService->handle($request->validated());
+
             return redirect()->route('users.show', $user)
                 ->with('success', '¡Usuario registrado correctamente!');
         });
@@ -95,6 +97,7 @@ class UserController extends Controller
     {
         return $this->authorizeOrRedirect('update', $user, function () use ($user) {
             $roles = Role::all();
+
             return view('users.edit', compact('user', 'roles'));
         });
     }
@@ -103,6 +106,7 @@ class UserController extends Controller
     {
         return $this->authorizeOrRedirect('update', $user, function () use ($request, $updateService, $user) {
             $user = $updateService->handle($user, $request->validated());
+
             return redirect()
                 ->route('users.show', $user)
                 ->with('success', '¡Usuario actualizado correctamente!');

@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\AcademicPeriods;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class UpdateAcademicPeriodRequest extends FormRequest
 {
@@ -14,7 +14,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
         // La autorización detallada se hace en la Policy
         // Aquí solo verificamos que el período no esté cerrado
         $academicPeriod = $this->getAcademicPeriod();
-        
+
         return $academicPeriod->isActive();
     }
 
@@ -44,12 +44,12 @@ class UpdateAcademicPeriodRequest extends FormRequest
         ];
 
         // Si NO tiene secciones, también se pueden editar los campos sensibles
-        if (!$academicPeriod->hasSections()) {
+        if (! $academicPeriod->hasSections()) {
             $rules['start_date'] = [
                 'required',
                 'date',
                 'before:end_date',
-                'after_or_equal:' . $academicPeriod->start_date->toDateString(),
+                'after_or_equal:'.$academicPeriod->start_date->toDateString(),
             ];
             $rules['end_date'] = ['required', 'date', 'after:start_date'];
             $rules['is_promotable'] = ['nullable', 'boolean'];
@@ -70,7 +70,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             // Solo validar si no tiene secciones (campos editables)
-            if (!$this->getAcademicPeriod()->hasSections()) {
+            if (! $this->getAcademicPeriod()->hasSections()) {
                 $this->validateGradeScale($validator);
                 $this->validateEndDateMax($validator);
             }
@@ -82,7 +82,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
         $startDate = $this->input('start_date');
         $endDate = $this->input('end_date');
 
-        if (!$startDate || !$endDate) {
+        if (! $startDate || ! $endDate) {
             return;
         }
 
@@ -116,6 +116,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
         // Si alguno está presente, todos deben estar presentes
         if ($min === null || $passing === null || $max === null) {
             $validator->errors()->add('min_grade', 'Si personaliza la escala de calificaciones, debe completar los tres campos.');
+
             return;
         }
 

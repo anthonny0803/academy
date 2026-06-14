@@ -17,7 +17,7 @@ class UpdateAcademicPeriodService
             ];
 
             // If the Academic Period has no sections, allow editing more fields
-            if (!$academicPeriod->hasSections()) {
+            if (! $academicPeriod->hasSections()) {
                 // Fechas
                 if (isset($data['start_date'])) {
                     $updateData['start_date'] = $data['start_date'];
@@ -30,9 +30,9 @@ class UpdateAcademicPeriodService
                 if (array_key_exists('is_promotable', $data)) {
                     $isPromotable = (bool) $data['is_promotable'];
                     $updateData['is_promotable'] = $isPromotable;
-                    
+
                     // is_transferable only if is_promotable is true
-                    $updateData['is_transferable'] = $isPromotable 
+                    $updateData['is_transferable'] = $isPromotable
                         ? (bool) ($data['is_transferable'] ?? false)
                         : false;
                 }

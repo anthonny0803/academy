@@ -13,7 +13,7 @@ trait Activatable
 
     public function toggleActivation(): void
     {
-        $this->activation(!$this->is_active);
+        $this->activation(! $this->is_active);
     }
 
     // Global Status Check
@@ -28,12 +28,14 @@ trait Activatable
     public function scopeActive($query)
     {
         $table = $this->getTable();
+
         return $query->where("{$table}.is_active", true);
     }
 
     public function scopeInactive($query)
     {
         $table = $this->getTable();
+
         return $query->where("{$table}.is_active", false);
     }
 }

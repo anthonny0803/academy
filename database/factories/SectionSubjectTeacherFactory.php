@@ -32,7 +32,7 @@ class SectionSubjectTeacherFactory extends Factory
                 ->where('subject_id', $sst->subject_id)
                 ->exists();
 
-            if (!$exists) {
+            if (! $exists) {
                 SubjectTeacher::create([
                     'teacher_id' => $sst->teacher_id,
                     'subject_id' => $sst->subject_id,

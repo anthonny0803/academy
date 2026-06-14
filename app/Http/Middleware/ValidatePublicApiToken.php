@@ -13,7 +13,7 @@ class ValidatePublicApiToken
         $token = $request->bearerToken();
         $validToken = config('services.public_api.token');
 
-        if (!$token || !$validToken || !hash_equals($validToken, $token)) {
+        if (! $token || ! $validToken || ! hash_equals($validToken, $token)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Token de acceso inválido.',

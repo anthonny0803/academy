@@ -16,7 +16,7 @@ class UpdateGradeService
             $academicPeriod = $sst->section->academicPeriod;
 
             // Validar rango de nota
-            if (!$academicPeriod->isGradeValid($data['value'])) {
+            if (! $academicPeriod->isGradeValid($data['value'])) {
                 throw new \Exception(
                     "La nota debe estar entre {$academicPeriod->min_grade} y {$academicPeriod->max_grade}."
                 );

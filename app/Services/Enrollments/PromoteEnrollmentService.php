@@ -2,8 +2,8 @@
 
 namespace App\Services\Enrollments;
 
-use App\Models\Enrollment;
 use App\Enums\EnrollmentStatus;
+use App\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -12,10 +12,10 @@ class PromoteEnrollmentService
 {
     /**
      * Promover estudiante a otra sección del MISMO período académico.
-     * 
+     *
      * IMPORTANTE: "Promover" significa que el estudiante avanza de nivel
      * (ej: 4to grado → 5to grado) DENTRO del mismo período académico.
-     * 
+     *
      * - Marca la inscripción actual como "promovido"
      * - Crea una nueva inscripción activa en la sección destino
      */

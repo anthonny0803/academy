@@ -14,7 +14,7 @@ class AcademicPeriodFactory extends Factory
         $startDate = fake()->dateTimeBetween('now', '+6 months');
 
         return [
-            'name' => 'Curso ' . fake()->unique()->numerify('####-####'),
+            'name' => 'Curso '.fake()->unique()->numerify('####-####'),
             'notes' => fake()->optional()->sentence(),
             'start_date' => $startDate,
             'end_date' => fake()->dateTimeBetween($startDate, '+2 years'),

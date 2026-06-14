@@ -10,10 +10,10 @@ class GradeTest extends TestCase
 {
     private function makeGradeWithColumn(float $value, float $weight): Grade
     {
-        $column = new GradeColumn();
+        $column = new GradeColumn;
         $column->weight = $weight;
 
-        $grade = new Grade();
+        $grade = new Grade;
         $grade->value = $value;
         $grade->setRelation('gradeColumn', $column);
 
@@ -73,7 +73,7 @@ class GradeTest extends TestCase
 
     public function test_observation_mutator_uppercases_and_trims(): void
     {
-        $grade = new Grade();
+        $grade = new Grade;
         $grade->observation = '  falta justificada  ';
 
         $this->assertSame('FALTA JUSTIFICADA', $grade->observation);
@@ -81,7 +81,7 @@ class GradeTest extends TestCase
 
     public function test_observation_null_stays_null(): void
     {
-        $grade = new Grade();
+        $grade = new Grade;
         $grade->observation = null;
 
         $this->assertNull($grade->observation);

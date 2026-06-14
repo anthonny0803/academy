@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Enums\Role;
+use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class UserPolicy
@@ -12,7 +12,7 @@ class UserPolicy
 
     private function cannotManageUsers(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor())) {
             return Response::deny('No tienes autorización para gestionar usuarios.');
         }
 
@@ -21,7 +21,7 @@ class UserPolicy
 
     private function cannotManageRoles(User $currentUser): ?Response
     {
-        if (!$currentUser->isActive() || (!$currentUser->isDeveloper() && !$currentUser->isSupervisor() && !$currentUser->isAdmin())) {
+        if (! $currentUser->isActive() || (! $currentUser->isDeveloper() && ! $currentUser->isSupervisor() && ! $currentUser->isAdmin())) {
             return Response::deny('No tienes autorización para gestionar roles.');
         }
 
@@ -61,7 +61,7 @@ class UserPolicy
 
     private function cannotToggleWithoutAdministrativeRole(User $targetUser): ?Response
     {
-        if (!$targetUser->isSupervisor() && !$targetUser->isAdmin()) {
+        if (! $targetUser->isSupervisor() && ! $targetUser->isAdmin()) {
             return Response::deny('No puedes activar un usuario si no tiene rol administrativo.');
         }
 
@@ -87,11 +87,11 @@ class UserPolicy
             return Response::deny('No se puede asignar roles a este usuario.');
         }
 
-        if (!$currentUser->isActive() || (!$currentUser->isDeveloper() && !$currentUser->isSupervisor() && !$currentUser->isAdmin())) {
+        if (! $currentUser->isActive() || (! $currentUser->isDeveloper() && ! $currentUser->isSupervisor() && ! $currentUser->isAdmin())) {
             return Response::deny('No tienes autorización para gestionar roles.');
         }
 
-        if (!$currentUser->isDeveloper() && $currentUser->isSupervisor()) {
+        if (! $currentUser->isDeveloper() && $currentUser->isSupervisor()) {
             if ($targetUser->isSupervisor() && $currentUser->id !== $targetUser->id) {
                 return Response::deny('No tienes autorización para cambiar roles administrativos de usuarios con tu mismo rol.');
             }
@@ -111,7 +111,7 @@ class UserPolicy
 
     private function cannotAdminManageHigherOrEqualRole(User $currentUser, User $targetUser): ?Response
     {
-        if (!$currentUser->isDeveloper() && !$currentUser->isSupervisor() && $currentUser->isAdmin()) {
+        if (! $currentUser->isDeveloper() && ! $currentUser->isSupervisor() && $currentUser->isAdmin()) {
             if ($targetUser->isSupervisor() || $targetUser->isAdmin()) {
                 return Response::deny('No tienes autorización para gestionar roles de este usuario.');
             }

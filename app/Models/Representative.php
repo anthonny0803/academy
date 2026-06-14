@@ -90,7 +90,7 @@ class Representative extends Model implements HasEntityName
     {
         return $this->user?->document_id ?? null;
     }
-    
+
     public function getSexAttribute(): ?string
     {
         return $this->user?->sex ?? null;

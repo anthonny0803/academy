@@ -12,7 +12,7 @@ class SectionPolicy
 
     private function cannotViewSections(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor() && !$user->isAdmin())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor() && ! $user->isAdmin())) {
             return Response::deny('No tienes autorización para ver secciones.');
         }
 
@@ -21,7 +21,7 @@ class SectionPolicy
 
     private function cannotManageSections(User $user): ?Response
     {
-        if (!$user->isActive() || (!$user->isDeveloper() && !$user->isSupervisor())) {
+        if (! $user->isActive() || (! $user->isDeveloper() && ! $user->isSupervisor())) {
             return Response::deny('No tienes autorización para gestionar secciones.');
         }
 
@@ -57,7 +57,7 @@ class SectionPolicy
 
     private function cannotDeleteClosedPeriodSection(Section $section): ?Response
     {
-        if (!$section->academicPeriod->isActive()) {
+        if (! $section->academicPeriod->isActive()) {
             return Response::deny('No se puede eliminar una sección de un período cerrado.');
         }
 
@@ -66,7 +66,7 @@ class SectionPolicy
 
     private function cannotToggleClosedPeriodSection(Section $section): ?Response
     {
-        if (!$section->isActive() && !$section->academicPeriod->isActive()) {
+        if (! $section->isActive() && ! $section->academicPeriod->isActive()) {
             return Response::deny('No se puede reactivar una sección de un período cerrado.');
         }
 

@@ -102,7 +102,7 @@ class AcademicPeriodTest extends TestCase
 
     public function test_name_mutator_uppercases_and_trims(): void
     {
-        $period = new AcademicPeriod();
+        $period = new AcademicPeriod;
         $period->name = '  curso 2025-2026  ';
 
         $this->assertSame('CURSO 2025-2026', $period->name);
@@ -110,7 +110,7 @@ class AcademicPeriodTest extends TestCase
 
     public function test_notes_mutator_applies_ucfirst_and_trims(): void
     {
-        $period = new AcademicPeriod();
+        $period = new AcademicPeriod;
         $period->notes = '  período de recuperación  ';
 
         $this->assertSame('Período de recuperación', $period->notes);
@@ -118,7 +118,7 @@ class AcademicPeriodTest extends TestCase
 
     public function test_notes_null_stays_null(): void
     {
-        $period = new AcademicPeriod();
+        $period = new AcademicPeriod;
         $period->notes = null;
 
         $this->assertNull($period->notes);

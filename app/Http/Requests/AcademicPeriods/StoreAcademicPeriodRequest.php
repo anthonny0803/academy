@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\AcademicPeriods;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class StoreAcademicPeriodRequest extends FormRequest
 {
@@ -24,7 +24,7 @@ class StoreAcademicPeriodRequest extends FormRequest
                 'date',
                 'after_or_equal:today',
                 'before:end_date',
-                'before_or_equal:' . now()->addYear()->toDateString(),
+                'before_or_equal:'.now()->addYear()->toDateString(),
             ],
             'end_date' => ['required', 'date', 'after:start_date'],
             'is_promotable' => ['nullable', 'boolean'],
@@ -56,7 +56,7 @@ class StoreAcademicPeriodRequest extends FormRequest
         $startDate = $this->input('start_date');
         $endDate = $this->input('end_date');
 
-        if (!$startDate || !$endDate) {
+        if (! $startDate || ! $endDate) {
             return;
         }
 
@@ -90,6 +90,7 @@ class StoreAcademicPeriodRequest extends FormRequest
         // Si alguno está presente, todos deben estar presentes
         if ($min === null || $passing === null || $max === null) {
             $validator->errors()->add('min_grade', 'Si personaliza la escala de calificaciones, debe completar los tres campos.');
+
             return;
         }
 

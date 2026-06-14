@@ -25,6 +25,7 @@ class CloseAcademicPeriodTest extends TestCase
         parent::setUp();
         $this->seed(RoleAndPermissionSeeder::class);
     }
+
     public function test_close_period_completes_enrollments_with_correct_pass_fail(): void
     {
         $supervisor = User::factory()->supervisor()->create();

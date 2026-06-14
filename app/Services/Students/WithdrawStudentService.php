@@ -2,9 +2,9 @@
 
 namespace App\Services\Students;
 
-use App\Models\Student;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
+use App\Models\Student;
 use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +28,7 @@ class WithdrawStudentService
 
             $enrollmentIds = $activeEnrollments->pluck('id')->toArray();
             $enrollmentsCount = $activeEnrollments->count();
-            $sectionsInfo = $activeEnrollments->map(fn($e) => [
+            $sectionsInfo = $activeEnrollments->map(fn ($e) => [
                 'enrollment_id' => $e->id,
                 'section' => $e->section->name,
                 'academic_period' => $e->section->academicPeriod->name,

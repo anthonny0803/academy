@@ -15,7 +15,7 @@ class UserFactory extends Factory
     public function definition(): array
     {
         $letter = fake()->randomElement(range('A', 'Z'));
-        $digits = fake()->numerify('#######' . fake()->randomElement(['', '#', '##']));
+        $digits = fake()->numerify('#######'.fake()->randomElement(['', '#', '##']));
 
         return [
             'name' => fake()->firstName(),
@@ -23,7 +23,7 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'password' => Hash::make('password'),
             'sex' => fake()->randomElement(Sex::toArray()),
-            'document_id' => $digits . $letter,
+            'document_id' => $digits.$letter,
             'birth_date' => fake()->dateTimeBetween('-60 years', '-18 years'),
             'phone' => fake()->numerify('#########'),
             'address' => fake()->address(),
@@ -34,15 +34,13 @@ class UserFactory extends Factory
 
     public function supervisor(): static
     {
-        return $this->afterCreating(fn (User $user) =>
-            $user->assignRole(Role::Supervisor->value)
+        return $this->afterCreating(fn (User $user) => $user->assignRole(Role::Supervisor->value)
         );
     }
 
     public function admin(): static
     {
-        return $this->afterCreating(fn (User $user) =>
-            $user->assignRole(Role::Admin->value)
+        return $this->afterCreating(fn (User $user) => $user->assignRole(Role::Admin->value)
         );
     }
 

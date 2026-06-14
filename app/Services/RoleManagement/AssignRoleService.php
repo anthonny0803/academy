@@ -13,7 +13,7 @@ class AssignRoleService
     public function handle(User $user, Role $role, array $data): User
     {
         return DB::transaction(function () use ($user, $role, $data) {
-            
+
             // Validate existing roles
             // Administrative roles (Supervisor, Admin) can be swapped
             if (in_array($role, Role::profileRoles()) && $user->hasRole($role->value)) {
@@ -40,7 +40,7 @@ class AssignRoleService
     {
         // Get current profile roles (Teacher, Representative, Student)
         $profileRoles = $user->getRoleNames()
-            ->filter(fn($roleName) => in_array($roleName, [
+            ->filter(fn ($roleName) => in_array($roleName, [
                 Role::Teacher->value,
                 Role::Representative->value,
                 Role::Student->value,
@@ -52,7 +52,7 @@ class AssignRoleService
         $user->syncRoles($rolesToSync);
 
         // Activate user if not already active
-        if (!$user->is_active) {
+        if (! $user->is_active) {
             $user->update(['is_active' => true]);
         }
     }
@@ -96,7 +96,7 @@ class AssignRoleService
 
     private function updatePasswordIfNeeded(User $user, array $data): void
     {
-        if (isset($data['password']) && !empty($data['password'])) {
+        if (isset($data['password']) && ! empty($data['password'])) {
             $user->update([
                 'password' => $data['password'],
             ]);
@@ -114,7 +114,7 @@ class AssignRoleService
             }
         }
 
-        if (!empty($updates)) {
+        if (! empty($updates)) {
             $user->update($updates);
         }
     }

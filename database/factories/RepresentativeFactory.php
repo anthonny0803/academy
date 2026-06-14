@@ -21,8 +21,7 @@ class RepresentativeFactory extends Factory
 
     public function configure(): static
     {
-        return $this->afterCreating(fn (Representative $representative) =>
-            $representative->user->assignRole(Role::Representative->value)
+        return $this->afterCreating(fn (Representative $representative) => $representative->user->assignRole(Role::Representative->value)
         );
     }
 

@@ -2,11 +2,11 @@
 
 namespace App\Services\AcademicPeriods;
 
+use App\Enums\EnrollmentStatus;
+use App\Enums\StudentSituation;
 use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
 use App\Models\Student;
-use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
 use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -31,15 +31,15 @@ class CloseAcademicPeriodService
         if (now()->lt($academicPeriod->end_date)) {
             $issues['date'] = [
                 'type' => 'warning',
-                'message' => "El período finaliza el {$academicPeriod->end_date->format('d/m/Y')}. " .
-                             "Se recomienda esperar hasta esa fecha para cerrar.",
+                'message' => "El período finaliza el {$academicPeriod->end_date->format('d/m/Y')}. ".
+                             'Se recomienda esperar hasta esa fecha para cerrar.',
             ];
         }
 
         $sections = $academicPeriod->sections()
             ->with([
-                'enrollments' => fn($q) => $q->active()->with('student.user'),
-                'sectionSubjectTeachers' => fn($q) => $q->active()->with(['subject', 'gradeColumns']),
+                'enrollments' => fn ($q) => $q->active()->with('student.user'),
+                'sectionSubjectTeachers' => fn ($q) => $q->active()->with(['subject', 'gradeColumns']),
             ])
             ->get();
 
@@ -53,7 +53,7 @@ class CloseAcademicPeriodService
             foreach ($section->sectionSubjectTeachers as $sst) {
                 $subjectIssues = [];
 
-                if (!$sst->isConfigurationComplete()) {
+                if (! $sst->isConfigurationComplete()) {
                     $subjectIssues[] = [
                         'type' => 'configuration',
                         'message' => "Configuración incompleta: {$sst->getTotalWeight()}% de 100%",
@@ -63,18 +63,18 @@ class CloseAcademicPeriodService
                 $studentsWithMissingGrades = [];
                 foreach ($activeEnrollments as $enrollment) {
                     $missingColumns = [];
-                    
+
                     foreach ($sst->gradeColumns as $column) {
                         $hasGrade = $enrollment->grades()
                             ->where('grade_column_id', $column->id)
                             ->exists();
 
-                        if (!$hasGrade) {
+                        if (! $hasGrade) {
                             $missingColumns[] = $column->name;
                         }
                     }
 
-                    if (!empty($missingColumns)) {
+                    if (! empty($missingColumns)) {
                         $studentsWithMissingGrades[] = [
                             'student' => $enrollment->student->user->full_name,
                             'missing' => $missingColumns,
@@ -82,19 +82,19 @@ class CloseAcademicPeriodService
                     }
                 }
 
-                if (!empty($studentsWithMissingGrades)) {
+                if (! empty($studentsWithMissingGrades)) {
                     $subjectIssues[] = [
                         'type' => 'grades',
                         'students' => $studentsWithMissingGrades,
                     ];
                 }
 
-                if (!empty($subjectIssues)) {
+                if (! empty($subjectIssues)) {
                     $sectionIssues[$sst->subject->name] = $subjectIssues;
                 }
             }
 
-            if (!empty($sectionIssues)) {
+            if (! empty($sectionIssues)) {
                 $issues['sections'][$section->name] = $sectionIssues;
                 $summary['enrollments_with_issues'] += $activeEnrollments->count();
             } else {
@@ -121,8 +121,8 @@ class CloseAcademicPeriodService
 
         $sections = $academicPeriod->sections()
             ->with([
-                'enrollments' => fn($q) => $q->active()->with('student.user'),
-                'sectionSubjectTeachers' => fn($q) => $q->active(),
+                'enrollments' => fn ($q) => $q->active()->with('student.user'),
+                'sectionSubjectTeachers' => fn ($q) => $q->active(),
             ])
             ->get();
 
@@ -157,8 +157,8 @@ class CloseAcademicPeriodService
     public function handle(AcademicPeriod $academicPeriod, bool $forceClose = false): array
     {
         $validation = $this->validateForClose($academicPeriod);
-        
-        if (!$validation['can_close'] && !$forceClose) {
+
+        if (! $validation['can_close'] && ! $forceClose) {
             throw new \Exception(
                 'No se puede cerrar el período. Hay inscripciones con datos incompletos.'
             );
@@ -176,8 +176,8 @@ class CloseAcademicPeriodService
 
             // Get student IDs affected
             $studentIds = Enrollment::whereHas('section', function ($q) use ($academicPeriod) {
-                    $q->where('academic_period_id', $academicPeriod->id);
-                })
+                $q->where('academic_period_id', $academicPeriod->id);
+            })
                 ->where('status', EnrollmentStatus::Active->value)
                 ->pluck('student_id')
                 ->unique()
@@ -191,8 +191,8 @@ class CloseAcademicPeriodService
 
             $sections = $academicPeriod->sections()
                 ->with([
-                    'enrollments' => fn($q) => $q->active()->with('student.user'),
-                    'sectionSubjectTeachers' => fn($q) => $q->active(),
+                    'enrollments' => fn ($q) => $q->active()->with('student.user'),
+                    'sectionSubjectTeachers' => fn ($q) => $q->active(),
                 ])
                 ->get();
 

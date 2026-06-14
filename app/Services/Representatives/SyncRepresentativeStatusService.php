@@ -24,13 +24,13 @@ class SyncRepresentativeStatusService
 
             // Representatives must be actives if they have active students
             $shouldBeActive = Representative::whereIn('id', $ids)
-                ->whereHas('students', fn($q) => $q->active())
+                ->whereHas('students', fn ($q) => $q->active())
                 ->where('is_active', false)
                 ->pluck('id');
 
             // Representatives must be inactives if they don't have active students
             $shouldBeInactive = Representative::whereIn('id', $ids)
-                ->whereDoesntHave('students', fn($q) => $q->active())
+                ->whereDoesntHave('students', fn ($q) => $q->active())
                 ->where('is_active', true)
                 ->pluck('id');
 

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Teacher;
+use App\Http\Requests\SubjectTeacher\StoreSubjectTeacherRequest;
 use App\Models\Subject;
 use App\Models\SubjectTeacher;
-use App\Http\Requests\SubjectTeacher\StoreSubjectTeacherRequest;
-use App\Services\SubjectTeacher\StoreSubjectTeacherService;
+use App\Models\Teacher;
+use App\Models\User;
 use App\Services\SubjectTeacher\DeleteSubjectTeacherService;
+use App\Services\SubjectTeacher\StoreSubjectTeacherService;
 use App\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -18,8 +18,8 @@ use Illuminate\View\View;
 
 class SubjectTeacherController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
 
     protected function currentUser(): User
     {
@@ -40,8 +40,8 @@ class SubjectTeacherController extends Controller
                         ->with('user');
                 }])
                 ->active()
-                ->when($search !== '', fn($q) => $q->search($search))
-                ->when($subjectId, fn($q) => $q->where('id', $subjectId))
+                ->when($search !== '', fn ($q) => $q->search($search))
+                ->when($subjectId, fn ($q) => $q->where('id', $subjectId))
                 ->orderBy('name')
                 ->paginate(6)
                 ->withQueryString();
@@ -80,6 +80,7 @@ class SubjectTeacherController extends Controller
     ): RedirectResponse {
         return $this->authorizeOrRedirect('delete', SubjectTeacher::class, function () use ($teacher, $subject, $deleteService) {
             $deleteService->handle($teacher, $subject);
+
             return redirect()->route('teachers.show', $teacher)
                 ->with('success', '¡Materia removida correctamente!');
         });

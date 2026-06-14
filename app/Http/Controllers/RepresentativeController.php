@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Representative;
 use App\Enums\Sex;
 use App\Http\Requests\Representatives\StoreRepresentativeRequest;
 use App\Http\Requests\Representatives\UpdateRepresentativeRequest;
+use App\Models\Representative;
+use App\Models\User;
 use App\Services\Representatives\StoreRepresentativeService;
 use App\Services\Representatives\UpdateRepresentativeService;
 use App\Traits\AuthorizesRedirect;
@@ -19,8 +19,8 @@ use Illuminate\View\View;
 
 class RepresentativeController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
     use CanToggleActivation;
 
     protected function currentUser(): User
@@ -46,8 +46,8 @@ class RepresentativeController extends Controller
                     ->when($status && $status !== 'Todos', function ($q) use ($status) {
                         $status === 'Activo' ? $q->active() : $q->inactive();
                     })
-                    ->when($studentsFilter === 'con', fn($q) => $q->hasStudents())
-                    ->when($studentsFilter === 'sin', fn($q) => $q->withoutStudents())
+                    ->when($studentsFilter === 'con', fn ($q) => $q->hasStudents())
+                    ->when($studentsFilter === 'sin', fn ($q) => $q->withoutStudents())
                     ->with(['user', 'students'])
                     ->orderBy('users.name')
                     ->orderBy('users.last_name')
@@ -72,6 +72,7 @@ class RepresentativeController extends Controller
     {
         return $this->authorizeOrRedirect('create', Representative::class, function () {
             $sexes = Sex::toArray();
+
             return view('representatives.create', compact('sexes'));
         });
     }
@@ -91,7 +92,7 @@ class RepresentativeController extends Controller
     {
         return $this->authorizeOrRedirect('update', $representative, function () use ($representative) {
             $sexes = Sex::toArray();
-            $canEditSensitiveFields = !$representative->user->isEmployee();
+            $canEditSensitiveFields = ! $representative->user->isEmployee();
 
             return view('representatives.edit', compact('representative', 'sexes', 'canEditSensitiveFields'));
         });

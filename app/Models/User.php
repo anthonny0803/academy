@@ -6,7 +6,6 @@ use App\Contracts\HasEntityName;
 use App\Enums\Role;
 use App\Enums\Sex;
 use App\Traits\Activatable;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -80,14 +79,14 @@ class User extends Authenticatable implements HasEntityName
 
     public function scopeWithRole($query, string $role)
     {
-        return $query->whereHas('roles', fn($q) => $q->where('name', $role));
+        return $query->whereHas('roles', fn ($q) => $q->where('name', $role));
     }
 
     public function scopeSearch($query, string $term)
     {
         $upperTerm = strtoupper($term);
         $lowerTerm = strtolower($term);
-        
+
         return $query->where(function ($q) use ($upperTerm, $lowerTerm) {
             $q->where('name', 'like', "%{$upperTerm}%")
                 ->orWhere('last_name', 'like', "%{$upperTerm}%")
@@ -183,7 +182,7 @@ class User extends Authenticatable implements HasEntityName
 
     protected function setEmailAttribute($value): void
     {
-        $this->attributes['email'] = !empty($value) ? strtolower(trim($value)) : null;
+        $this->attributes['email'] = ! empty($value) ? strtolower(trim($value)) : null;
     }
 
     protected function setNameAttribute($value): void

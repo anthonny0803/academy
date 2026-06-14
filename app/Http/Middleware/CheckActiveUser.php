@@ -19,13 +19,15 @@ class CheckActiveUser
             $teacher = $currentUser->teacher;
             $isAllowedToLogin = $currentUser->isActive() || ($teacher?->isActive() ?? false);
 
-            if (!$isAllowedToLogin) {
+            if (! $isAllowedToLogin) {
                 Auth::logout();
+
                 return redirect()->route('login')->withErrors([
                     'email' => 'Tu cuenta ha sido desactivada, contacta con el administrador.',
                 ]);
             }
         }
+
         return $next($request);
     }
 }

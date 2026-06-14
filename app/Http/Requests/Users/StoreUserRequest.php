@@ -13,7 +13,7 @@ class StoreUserRequest extends StoreEmployeeRequest
         return array_merge(parent::rules(), [
             'role' => [
                 'required',
-                Rule::in(array_map(fn($r) => $r->value, Role::administrativeRoles()))
+                Rule::in(array_map(fn ($r) => $r->value, Role::administrativeRoles())),
             ],
         ]);
     }

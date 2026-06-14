@@ -2,8 +2,8 @@
 
 namespace App\Services\SubjectTeacher;
 
-use App\Models\Teacher;
 use App\Models\Subject;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
 
 class DeleteSubjectTeacherService
