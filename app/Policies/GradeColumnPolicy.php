@@ -34,17 +34,18 @@ class GradeColumnPolicy
 
     private function cannotViewGradeColumns(User $user): ?Response
     {
-        if (!$this->isActiveForGradeColumns($user)) {
+        if (! $this->isActiveForGradeColumns($user)) {
             if ($user->isTeacher()) {
                 return Response::deny('Tu perfil de profesor no está activo.');
             }
+
             return Response::deny('Tu usuario no está activo.');
         }
 
-        if (!$user->isDeveloper() 
-            && !$user->isSupervisor() 
-            && !$user->isAdmin() 
-            && !$user->isTeacher()
+        if (! $user->isDeveloper()
+            && ! $user->isSupervisor()
+            && ! $user->isAdmin()
+            && ! $user->isTeacher()
         ) {
             return Response::deny('No tienes autorización para ver configuraciones de evaluación.');
         }
@@ -56,17 +57,19 @@ class GradeColumnPolicy
     {
         // Developer siempre puede (si user activo)
         if ($user->isDeveloper()) {
-            if (!$user->isActive()) {
+            if (! $user->isActive()) {
                 return Response::deny('Tu usuario no está activo.');
             }
+
             return null;
         }
 
         // Teacher necesita teacher.is_active
         if ($user->isTeacher()) {
-            if (!$user->teacher || !$user->teacher->isActive()) {
+            if (! $user->teacher || ! $user->teacher->isActive()) {
                 return Response::deny('Tu perfil de profesor no está activo.');
             }
+
             return null;
         }
 
@@ -79,7 +82,7 @@ class GradeColumnPolicy
             return null;
         }
 
-        if (!$user->teacher || $sst->teacher_id !== $user->teacher->id) {
+        if (! $user->teacher || $sst->teacher_id !== $user->teacher->id) {
             return Response::deny('No eres el profesor asignado a esta materia/sección.');
         }
 
@@ -121,7 +124,9 @@ class GradeColumnPolicy
     public function view(User $currentUser, GradeColumn $gradeColumn): Response
     {
         $denyView = $this->cannotViewGradeColumns($currentUser);
-        if ($denyView) return $denyView;
+        if ($denyView) {
+            return $denyView;
+        }
 
         // Developer, Supervisor, Admin pueden ver cualquier columna
         if ($currentUser->isDeveloper() || $currentUser->isSupervisor() || $currentUser->isAdmin()) {

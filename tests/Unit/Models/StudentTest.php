@@ -103,7 +103,7 @@ class StudentTest extends TestCase
 
     public function test_student_code_mutator_uppercases_and_trims(): void
     {
-        $student = new Student();
+        $student = new Student;
         $student->student_code = '  child000001  ';
 
         $this->assertSame('CHILD000001', $student->student_code);

@@ -52,7 +52,7 @@ class LoginRequest extends FormRequest
         $currentUser = Auth::user();
         $isAllowedToLogin = $currentUser->isActive() || ($currentUser->teacher?->isActive() ?? false);
 
-        if (!$isAllowedToLogin) {
+        if (! $isAllowedToLogin) {
             Auth::logout();
             throw ValidationException::withMessages([
                 'email' => 'Tu cuenta está inactiva, contacta con el administrador.',
@@ -90,6 +90,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
 }

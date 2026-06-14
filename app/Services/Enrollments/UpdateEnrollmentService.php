@@ -3,9 +3,9 @@
 namespace App\Services\Enrollments;
 
 use App\Models\Enrollment;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 
 class UpdateEnrollmentService
 {
@@ -39,12 +39,12 @@ class UpdateEnrollmentService
                 $updateData['section_id'] = $data['section_id'];
             }
 
-            if (!empty($updateData)) {
+            if (! empty($updateData)) {
                 $enrollment->update($updateData);
             }
 
             // Auditoría
-            if (!empty($changes)) {
+            if (! empty($changes)) {
                 Log::info('Enrollment updated (correction)', [
                     'enrollment_id' => $enrollment->id,
                     'student_id' => $enrollment->student_id,

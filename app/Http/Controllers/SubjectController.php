@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Subject;
 use App\Http\Requests\Subjects\StoreSubjectRequest;
 use App\Http\Requests\Subjects\UpdateSubjectRequest;
+use App\Models\Subject;
+use App\Models\User;
+use App\Services\Subjects\DeleteSubjectService;
 use App\Services\Subjects\StoreSubjectService;
 use App\Services\Subjects\UpdateSubjectService;
-use App\Services\Subjects\DeleteSubjectService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class SubjectController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
     use CanToggleActivation;
 
     protected function currentUser(): User
@@ -35,7 +35,7 @@ class SubjectController extends Controller
             $status = $request->input('status');
 
             $subjects = Subject::query()
-                ->when($search !== '', fn($q) => $q->search($search))
+                ->when($search !== '', fn ($q) => $q->search($search))
                 ->when($status && $status !== 'Todos', function ($q) use ($status) {
                     $status === 'Activo' ? $q->active() : $q->inactive();
                 })

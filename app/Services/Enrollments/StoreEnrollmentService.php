@@ -2,10 +2,10 @@
 
 namespace App\Services\Enrollments;
 
-use App\Models\Enrollment;
-use App\Models\Student;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
+use App\Models\Enrollment;
+use App\Models\Student;
 use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +19,7 @@ class StoreEnrollmentService
     {
         return DB::transaction(function () use ($student, $data) {
             $updates = [];
-            $wasInactive = !$student->isActive();
+            $wasInactive = ! $student->isActive();
 
             if ($wasInactive) {
                 $updates['is_active'] = true;
@@ -29,7 +29,7 @@ class StoreEnrollmentService
                 $updates['situation'] = StudentSituation::Active;
             }
 
-            if (!empty($updates)) {
+            if (! empty($updates)) {
                 $student->update($updates);
             }
 

@@ -70,7 +70,7 @@ class GradeColumn extends Model implements HasEntityName
 
     public function canBeDeleted(): bool
     {
-        return !$this->hasGrades();
+        return ! $this->hasGrades();
     }
 
     public function getSection(): Section

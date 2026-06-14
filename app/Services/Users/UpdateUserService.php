@@ -2,7 +2,6 @@
 
 namespace App\Services\Users;
 
-use App\Enums\Role;
 use App\Models\User;
 use App\Services\Shared\UpdateEmployeeService;
 use Illuminate\Support\Facades\DB;

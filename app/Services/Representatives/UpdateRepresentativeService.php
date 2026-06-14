@@ -34,7 +34,7 @@ class UpdateRepresentativeService
                 'occupation',
             ]));
 
-            if (!empty($userFields)) {
+            if (! empty($userFields)) {
                 $user->update($userFields);
             }
 

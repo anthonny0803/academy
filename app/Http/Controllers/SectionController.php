@@ -2,27 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Section;
-use App\Models\AcademicPeriod;
-use App\Models\Subject;
 use App\Http\Requests\Sections\StoreSectionRequest;
 use App\Http\Requests\Sections\UpdateSectionRequest;
+use App\Models\AcademicPeriod;
+use App\Models\Section;
+use App\Models\Subject;
+use App\Models\User;
+use App\Services\Sections\DeleteSectionService;
 use App\Services\Sections\StoreSectionService;
 use App\Services\Sections\UpdateSectionService;
-use App\Services\Sections\DeleteSectionService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class SectionController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
     use CanToggleActivation;
 
     protected function currentUser(): User
@@ -43,12 +43,12 @@ class SectionController extends Controller
 
             $sections = Section::query()
                 ->with('academicPeriod')
-                ->withCount(['enrollments' => fn($q) => $q->active()])
-                ->when($search !== '', fn($q) => $q->search($search))
+                ->withCount(['enrollments' => fn ($q) => $q->active()])
+                ->when($search !== '', fn ($q) => $q->search($search))
                 ->when($status && $status !== 'Todos', function ($q) use ($status) {
                     $status === 'Activo' ? $q->active() : $q->inactive();
                 })
-                ->when($academicPeriodId && $academicPeriodId !== 'Todos', fn($q) => $q->forAcademicPeriod($academicPeriodId))
+                ->when($academicPeriodId && $academicPeriodId !== 'Todos', fn ($q) => $q->forAcademicPeriod($academicPeriodId))
                 ->orderBy('name')
                 ->paginate(6)
                 ->withQueryString();
@@ -62,8 +62,8 @@ class SectionController extends Controller
         return $this->authorizeOrRedirect('view', $section, function () use ($section) {
             $section->load([
                 'academicPeriod',
-                'enrollments' => fn($q) => $q->active()->with('student.user'),
-                'sectionSubjectTeachers' => fn($q) => $q->with(['subject', 'teacher.user']),
+                'enrollments' => fn ($q) => $q->active()->with('student.user'),
+                'sectionSubjectTeachers' => fn ($q) => $q->with(['subject', 'teacher.user']),
             ]);
 
             $enrolledCount = $section->enrollments->count();
@@ -79,7 +79,7 @@ class SectionController extends Controller
             $section->load([
                 'academicPeriod',
                 'sectionSubjectTeachers.subject',
-                'sectionSubjectTeachers.teacher.user'
+                'sectionSubjectTeachers.teacher.user',
             ]);
 
             // Materias activas para el select del modal
@@ -98,7 +98,7 @@ class SectionController extends Controller
                 $teachersBySubject[$subject->id] = $teachers->map(function ($teacher) {
                     return [
                         'id' => $teacher->id,
-                        'name' => $teacher->user->full_name
+                        'name' => $teacher->user->full_name,
                     ];
                 })->toArray();
             }

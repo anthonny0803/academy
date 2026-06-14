@@ -35,7 +35,7 @@ return [
         ],
 
     ],
-    
+
     'public_api' => [
         'token' => env('PUBLIC_API_TOKEN'),
     ],

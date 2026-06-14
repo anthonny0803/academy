@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Student;
-use App\Models\Representative;
-use App\Models\AcademicPeriod;
+use App\Enums\RelationshipType;
 use App\Enums\Sex;
 use App\Enums\StudentSituation;
-use App\Enums\RelationshipType;
+use App\Http\Requests\Students\ChangeSituationRequest;
+use App\Http\Requests\Students\ConvertToSelfRepresentedRequest;
+use App\Http\Requests\Students\ReassignRepresentativeRequest;
 use App\Http\Requests\Students\StoreStudentRequest;
 use App\Http\Requests\Students\UpdateStudentRequest;
-use App\Http\Requests\Students\ReassignRepresentativeRequest;
-use App\Http\Requests\Students\ChangeSituationRequest;
 use App\Http\Requests\Students\WithdrawStudentRequest;
-use App\Http\Requests\Students\ConvertToSelfRepresentedRequest;
+use App\Models\AcademicPeriod;
+use App\Models\Representative;
+use App\Models\Student;
+use App\Models\User;
+use App\Services\Students\ChangeSituationService;
+use App\Services\Students\ConvertToSelfRepresentedService;
+use App\Services\Students\ReassignRepresentativeService;
 use App\Services\Students\StoreStudentService;
 use App\Services\Students\UpdateStudentService;
-use App\Services\Students\ReassignRepresentativeService;
-use App\Services\Students\ChangeSituationService;
 use App\Services\Students\WithdrawStudentService;
-use App\Services\Students\ConvertToSelfRepresentedService;
 use App\Traits\AuthorizesRedirect;
 use App\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -31,8 +31,8 @@ use Illuminate\View\View;
 
 class StudentController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
     use CanToggleActivation;
 
     protected function currentUser(): User
@@ -49,7 +49,7 @@ class StudentController extends Controller
             $sectionId = $request->input('section_id');
 
             $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
                 ->orderBy('start_date', 'desc')
                 ->get();
 
@@ -64,10 +64,10 @@ class StudentController extends Controller
                         $status === 'Activo' ? $q->active() : $q->inactive();
                     })
                     ->when($academicPeriodId, function ($q) use ($academicPeriodId) {
-                        $q->whereHas('enrollments.section', fn($query) => $query->where('academic_period_id', $academicPeriodId));
+                        $q->whereHas('enrollments.section', fn ($query) => $query->where('academic_period_id', $academicPeriodId));
                     })
                     ->when($sectionId, function ($q) use ($sectionId) {
-                        $q->whereHas('enrollments', fn($query) => $query->where('section_id', $sectionId));
+                        $q->whereHas('enrollments', fn ($query) => $query->where('section_id', $sectionId));
                     })
                     ->orderBy('users.name')
                     ->orderBy('users.last_name')
@@ -84,6 +84,7 @@ class StudentController extends Controller
     {
         return $this->authorizeOrRedirect('view', $student, function () use ($student) {
             $student->load(['user', 'representative.user', 'enrollments.section.academicPeriod']);
+
             return view('students.show', compact('student'));
         });
     }
@@ -95,7 +96,7 @@ class StudentController extends Controller
             $relationshipTypes = RelationshipType::toArray();
 
             $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
                 ->orderBy('start_date', 'desc')
                 ->get();
 
@@ -121,7 +122,7 @@ class StudentController extends Controller
         return $this->authorizeOrRedirect('update', $student, function () use ($student) {
             $sexes = Sex::toArray();
             $relationshipTypes = RelationshipType::toArray();
-            $canEditSensitiveFields = !$student->user->isEmployee();
+            $canEditSensitiveFields = ! $student->user->isEmployee();
 
             return view('students.edit', compact('student', 'sexes', 'relationshipTypes', 'canEditSensitiveFields'));
         });
@@ -150,7 +151,7 @@ class StudentController extends Controller
             $search = trim((string) $request->input('search', ''));
             $representatives = collect();
 
-            if (!empty($search)) {
+            if (! empty($search)) {
                 $representatives = Representative::with('user')
                     ->search($search)
                     ->join('users', 'representatives.user_id', '=', 'users.id')
@@ -181,7 +182,7 @@ class StudentController extends Controller
                 $validated['representative_id'],
                 $validated['relationship_type'],
                 $validated['reason']
-            );;
+            );
 
             return redirect()->route('students.show', $student)
                 ->with('success', '¡Representante reasignado correctamente!');

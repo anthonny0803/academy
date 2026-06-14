@@ -12,7 +12,7 @@ class StoreGradeColumnService
     {
         return DB::transaction(function () use ($sst, $data) {
             // Validar que no exceda el 100%
-            if (!$sst->canAddColumn($data['weight'])) {
+            if (! $sst->canAddColumn($data['weight'])) {
                 $remaining = $sst->getRemainingWeight();
                 throw new \Exception(
                     "No se puede agregar esta evaluación. Peso restante disponible: {$remaining}%"
@@ -20,7 +20,7 @@ class StoreGradeColumnService
             }
 
             // Calcular display_order si no viene
-            $displayOrder = $data['display_order'] 
+            $displayOrder = $data['display_order']
                 ?? ($sst->gradeColumns()->max('display_order') + 1);
 
             $gradeColumn = GradeColumn::create([

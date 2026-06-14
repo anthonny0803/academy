@@ -35,7 +35,7 @@ class UpdateStudentService
                 'birth_date',
             ]));
 
-            if (!empty($userFields)) {
+            if (! empty($userFields)) {
                 $user->update($userFields);
             }
 
@@ -43,7 +43,7 @@ class UpdateStudentService
                 'relationship_type',
             ]));
 
-            if (!empty($studentFields)) {
+            if (! empty($studentFields)) {
                 $student->update($studentFields);
             }
 

@@ -2,9 +2,8 @@
 
 namespace App\Services\Api;
 
-use App\Models\User;
 use App\Models\Student;
-use App\Models\Representative;
+use App\Models\User;
 
 class PublicGradesService
 {
@@ -12,7 +11,7 @@ class PublicGradesService
     {
         $user = $this->findUserByCredentials($documentId, $birthDate);
 
-        if (!$user || !$user->student) {
+        if (! $user || ! $user->student) {
             return null;
         }
 
@@ -23,7 +22,7 @@ class PublicGradesService
     {
         $user = $this->findUserByCredentials($documentId, $birthDate);
 
-        if (!$user || !$user->representative) {
+        if (! $user || ! $user->representative) {
             return null;
         }
 
@@ -34,7 +33,7 @@ class PublicGradesService
                 'name' => $user->full_name,
             ],
             'students' => $representative->students
-                ->map(fn($student) => $this->buildStudentData($student))
+                ->map(fn ($student) => $this->buildStudentData($student))
                 ->toArray(),
         ];
     }
@@ -45,18 +44,18 @@ class PublicGradesService
             ->whereDate('birth_date', $birthDate)
             ->with([
                 'student.enrollments.section.academicPeriod',
-                'student.enrollments.section.sectionSubjectTeachers' => fn($q) => $q->with([
+                'student.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
                     'subject',
                     'teacher.user',
-                    'gradeColumns' => fn($q) => $q->orderBy('display_order'),
+                    'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
                 ]),
                 'student.enrollments.grades.gradeColumn',
                 'representative.students.user',
                 'representative.students.enrollments.section.academicPeriod',
-                'representative.students.enrollments.section.sectionSubjectTeachers' => fn($q) => $q->with([
+                'representative.students.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
                     'subject',
                     'teacher.user',
-                    'gradeColumns' => fn($q) => $q->orderBy('display_order'),
+                    'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
                 ]),
                 'representative.students.enrollments.grades.gradeColumn',
             ])
@@ -74,7 +73,7 @@ class PublicGradesService
                 'is_active' => $student->is_active,
             ],
             'enrollments' => $student->enrollments
-                ->map(fn($enrollment) => $this->buildEnrollmentData($enrollment))
+                ->map(fn ($enrollment) => $this->buildEnrollmentData($enrollment))
                 ->toArray(),
         ];
     }
@@ -89,7 +88,7 @@ class PublicGradesService
             'status' => $enrollment->status,
             'passed' => $enrollment->passed,
             'subjects' => $enrollment->section->sectionSubjectTeachers
-                ->map(fn($sst) => $this->buildSubjectData($sst, $enrollment, $passingGrade))
+                ->map(fn ($sst) => $this->buildSubjectData($sst, $enrollment, $passingGrade))
                 ->toArray(),
         ];
     }

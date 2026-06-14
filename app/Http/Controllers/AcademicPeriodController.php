@@ -2,25 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\AcademicPeriod;
 use App\Http\Requests\AcademicPeriods\StoreAcademicPeriodRequest;
 use App\Http\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
+use App\Models\AcademicPeriod;
+use App\Models\User;
+use App\Services\AcademicPeriods\CloseAcademicPeriodService;
+use App\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Services\AcademicPeriods\StoreAcademicPeriodService;
 use App\Services\AcademicPeriods\UpdateAcademicPeriodService;
-use App\Services\AcademicPeriods\DeleteAcademicPeriodService;
-use App\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class AcademicPeriodController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
 
     protected function currentUser(): User
     {
@@ -35,7 +35,7 @@ class AcademicPeriodController extends Controller
 
             $academicPeriods = AcademicPeriod::query()
                 ->withCount('sections') // Para saber si se pueden editar campos sensibles
-                ->when($search !== '', fn($q) => $q->search($search))
+                ->when($search !== '', fn ($q) => $q->search($search))
                 ->when($status && $status !== 'Todos', function ($q) use ($status) {
                     $status === 'Activo' ? $q->active() : $q->inactive();
                 })
@@ -58,10 +58,10 @@ class AcademicPeriodController extends Controller
         return $this->authorizeOrRedirect('view', $academicPeriod, function () use ($academicPeriod, $closeService) {
             // Cargar relaciones necesarias
             $academicPeriod->load([
-                'sections' => fn($q) => $q->withCount([
+                'sections' => fn ($q) => $q->withCount([
                     'enrollments',
-                    'enrollments as active_enrollments_count' => fn($q) => $q->where('status', 'activo'),
-                    'enrollments as completed_enrollments_count' => fn($q) => $q->where('status', 'completado'),
+                    'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'activo'),
+                    'enrollments as completed_enrollments_count' => fn ($q) => $q->where('status', 'completado'),
                 ]),
             ]);
 
@@ -77,10 +77,10 @@ class AcademicPeriodController extends Controller
             // Validación para cierre (solo si está activo)
             $closeValidation = null;
             $closePreview = null;
-            
+
             if ($academicPeriod->isActive()) {
                 $closeValidation = $closeService->validateForClose($academicPeriod);
-                
+
                 // Si puede cerrar, obtener preview
                 if ($closeValidation['can_close']) {
                     $closePreview = $closeService->getClosePreview($academicPeriod);
@@ -122,7 +122,7 @@ class AcademicPeriodController extends Controller
             $results = $deleteService->handle($academicPeriod);
 
             $message = '¡Período académico eliminado correctamente!';
-            
+
             if ($results['sections_deleted'] > 0) {
                 $message .= " Se eliminaron {$results['sections_deleted']} secciones";
                 if ($results['enrollments_deleted'] > 0) {
@@ -131,7 +131,7 @@ class AcademicPeriodController extends Controller
                 if ($results['assignments_deleted'] > 0) {
                     $message .= " y {$results['assignments_deleted']} asignaciones agregadas";
                 }
-                $message .= " asociadas.";
+                $message .= ' asociadas.';
             }
 
             return redirect()->route('academic-periods.index')
@@ -151,9 +151,9 @@ class AcademicPeriodController extends Controller
             try {
                 $results = $closeService->handle($academicPeriod);
 
-                $message = "¡Período cerrado correctamente! " .
-                    "{$results['enrollments_completed']} inscripciones completadas " .
-                    "({$results['enrollments_passed']} aprobados, {$results['enrollments_failed']} reprobados). " .
+                $message = '¡Período cerrado correctamente! '.
+                    "{$results['enrollments_completed']} inscripciones completadas ".
+                    "({$results['enrollments_passed']} aprobados, {$results['enrollments_failed']} reprobados). ".
                     "{$results['sections_deactivated']} secciones desactivadas.";
 
                 return redirect()->route('academic-periods.index')

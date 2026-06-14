@@ -11,9 +11,8 @@ class BatchGradeService
 {
     /**
      * Procesa un batch de notas (crear o actualizar)
-     * 
-     * @param GradeColumn $gradeColumn
-     * @param array $gradesData Array de ['enrollment_id' => x, 'value' => y, 'observation' => z]
+     *
+     * @param  array  $gradesData  Array de ['enrollment_id' => x, 'value' => y, 'observation' => z]
      * @return array Resumen de operaciones
      */
     public function handle(GradeColumn $gradeColumn, array $gradesData): array
@@ -32,6 +31,7 @@ class BatchGradeService
                 // Si no hay valor, saltar (permite dejar campos vacíos)
                 if ($value === null || $value === '') {
                     $skipped++;
+
                     continue;
                 }
 
@@ -42,7 +42,7 @@ class BatchGradeService
 
                 if ($existingGrade) {
                     // Actualizar solo si cambió el valor
-                    if ((float) $existingGrade->value !== (float) $value 
+                    if ((float) $existingGrade->value !== (float) $value
                         || $existingGrade->observation !== $observation
                     ) {
                         $existingGrade->update([

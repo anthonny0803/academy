@@ -44,8 +44,8 @@ trait CanToggleActivation
     protected function getShowRoute($model): string
     {
         $base = Str::kebab(class_basename($model));
-        $showRoute = Str::plural($base) . '.show';
-        $indexRoute = Str::plural($base) . '.index';
+        $showRoute = Str::plural($base).'.show';
+        $indexRoute = Str::plural($base).'.index';
 
         return Route::has($showRoute) ? $showRoute : $indexRoute;
     }

@@ -2,9 +2,9 @@
 
 namespace App\Services\Enrollments;
 
-use App\Models\Enrollment;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
+use App\Models\Enrollment;
 use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -36,7 +36,7 @@ class TransferEnrollmentService
                 'performed_at' => now(),
             ]);
 
-            if (!$student->hasActiveEnrollments()) {
+            if (! $student->hasActiveEnrollments()) {
                 $student->update([
                     'is_active' => false,
                     'situation' => StudentSituation::Inactive,

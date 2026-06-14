@@ -1,30 +1,30 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\RepresentativeController;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\SubjectController;
-use App\Http\Controllers\SubjectTeacherController;
 use App\Http\Controllers\AcademicPeriodController;
-use App\Http\Controllers\SectionController;
-use App\Http\Controllers\SectionSubjectTeacherController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\GradeColumnController;
 use App\Http\Controllers\GradeController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RepresentativeController;
 use App\Http\Controllers\RoleManagementController;
+use App\Http\Controllers\SectionController;
+use App\Http\Controllers\SectionSubjectTeacherController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\SubjectTeacherController;
+use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
-/*Public Routes*/
+/* Public Routes */
 
-Route::get('/', fn() => view('auth.login'));
-Route::get('/health', fn() => response('OK', 200));
+Route::get('/', fn () => view('auth.login'));
+Route::get('/health', fn () => response('OK', 200));
 
-/*Authenticated Routes*/
+/* Authenticated Routes */
 
-Route::get('/dashboard', fn() => view('dashboard'))
+Route::get('/dashboard', fn () => view('dashboard'))
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // Admin Routes (Supervisor | Administrador)
-    Route::middleware(RoleMiddleware::class . ':Supervisor|Administrador')->group(function () {
+    Route::middleware(RoleMiddleware::class.':Supervisor|Administrador')->group(function () {
 
         // Users
         Route::resource('users', UserController::class);
@@ -153,4 +153,4 @@ Route::middleware('auth')->group(function () {
         ->name('grades.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

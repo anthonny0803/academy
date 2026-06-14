@@ -35,20 +35,20 @@ class StoreEnrollmentRequest extends FormRequest
             $sectionId = $this->input('section_id');
             $student = $this->route('student');
 
-            if (!$sectionId || !$student) {
+            if (! $sectionId || ! $student) {
                 return;
             }
 
             $section = Section::find($sectionId);
 
-            if (!$section) {
+            if (! $section) {
                 return;
             }
 
             // Verificar si existe CUALQUIER inscripción del estudiante en este período
             $existsInPeriod = Enrollment::where('student_id', $student->id)
                 ->where('status', EnrollmentStatus::Active->value)  // ← Agregar esta línea
-                ->whereHas('section', fn($q) => $q->where('academic_period_id', $section->academic_period_id))
+                ->whereHas('section', fn ($q) => $q->where('academic_period_id', $section->academic_period_id))
                 ->exists();
 
             if ($existsInPeriod) {

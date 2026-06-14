@@ -84,7 +84,7 @@ class EnrollmentTest extends TestCase
 
     public function test_entity_name(): void
     {
-        $enrollment = new Enrollment();
+        $enrollment = new Enrollment;
 
         $this->assertSame('Inscripción', $enrollment->getEntityName());
     }

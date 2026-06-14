@@ -25,7 +25,7 @@ class StudentFactory extends Factory
                 'password' => null,
             ]),
             'representative_id' => Representative::factory(),
-            'student_code' => 'ADULT' . fake()->unique()->numerify('######'),
+            'student_code' => 'ADULT'.fake()->unique()->numerify('######'),
             'relationship_type' => fake()->randomElement([
                 RelationshipType::Father->value,
                 RelationshipType::Mother->value,
@@ -43,7 +43,7 @@ class StudentFactory extends Factory
             $student->user->assignRole(Role::Student->value);
 
             // Create initial enrollment like StoreStudentService does
-            if (!$student->enrollments()->exists()) {
+            if (! $student->enrollments()->exists()) {
                 Enrollment::create([
                     'student_id' => $student->id,
                     'section_id' => Section::factory()->create()->id,
@@ -53,7 +53,7 @@ class StudentFactory extends Factory
 
             // Sync representative status like SyncRepresentativeStatusService does
             $representative = $student->representative;
-            if ($representative && !$representative->is_active) {
+            if ($representative && ! $representative->is_active) {
                 $representative->update(['is_active' => true]);
                 $representative->user->update(['is_active' => true]);
             }
@@ -67,7 +67,7 @@ class StudentFactory extends Factory
                 'is_active' => false,
                 'password' => null,
             ]),
-            'student_code' => 'CHILD' . fake()->unique()->numerify('######'),
+            'student_code' => 'CHILD'.fake()->unique()->numerify('######'),
         ]);
     }
 

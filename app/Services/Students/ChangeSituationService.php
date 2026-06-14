@@ -2,8 +2,8 @@
 
 namespace App\Services\Students;
 
-use App\Models\Student;
 use App\Enums\StudentSituation;
+use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

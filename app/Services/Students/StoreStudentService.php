@@ -2,13 +2,13 @@
 
 namespace App\Services\Students;
 
-use App\Models\Student;
-use App\Models\User;
+use App\Enums\EnrollmentStatus;
+use App\Enums\Role;
+use App\Enums\StudentSituation;
 use App\Models\Enrollment;
 use App\Models\Representative;
-use App\Enums\Role;
-use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
+use App\Models\Student;
+use App\Models\User;
 use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\DB;
 
@@ -26,7 +26,7 @@ class StoreStudentService
             if ($isSelfRepresented) {
                 $user = $representative->user;
 
-                if (!$user->hasRole(Role::Student->value)) {
+                if (! $user->hasRole(Role::Student->value)) {
                     $user->assignRole(Role::Student->value);
                 }
             } else {
@@ -81,6 +81,6 @@ class StoreStudentService
             ? (int) substr($lastCode, strlen($prefix)) + 1
             : 1;
 
-        return $prefix . str_pad($number, 6, '0', STR_PAD_LEFT);
+        return $prefix.str_pad($number, 6, '0', STR_PAD_LEFT);
     }
 }

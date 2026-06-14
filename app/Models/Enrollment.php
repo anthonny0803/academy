@@ -55,7 +55,7 @@ class Enrollment extends Model implements HasEntityName
     public function scopeSearch(Builder $query, string $term): Builder
     {
         $term = strtoupper($term);
-        
+
         return $query->whereHas('student.user', function ($q) use ($term) {
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('last_name', 'like', "%{$term}%");
@@ -161,6 +161,7 @@ class Enrollment extends Model implements HasEntityName
     public function getOverallAverage(): ?float
     {
         $average = $this->grades()->avg('value');
+
         return $average ? round($average, 2) : null;
     }
 
@@ -189,13 +190,13 @@ class Enrollment extends Model implements HasEntityName
             return null;
         }
 
-        $totalWeight = $grades->sum(fn($g) => $g->gradeColumn->weight);
-        
+        $totalWeight = $grades->sum(fn ($g) => $g->gradeColumn->weight);
+
         if ($totalWeight == 0) {
             return null;
         }
 
-        $weightedSum = $grades->sum(fn($g) => $g->value * $g->gradeColumn->weight);
+        $weightedSum = $grades->sum(fn ($g) => $g->value * $g->gradeColumn->weight);
 
         return round($weightedSum / $totalWeight, 2);
     }
@@ -206,13 +207,13 @@ class Enrollment extends Model implements HasEntityName
     public function hasPassedAssignment(int $sstId): ?bool
     {
         $average = $this->getWeightedAverageForAssignment($sstId);
-        
+
         if ($average === null) {
             return null; // No hay notas
         }
 
         $passingGrade = $this->section->academicPeriod->passing_grade ?? 60;
-        
+
         return $average >= $passingGrade;
     }
 
@@ -229,7 +230,7 @@ class Enrollment extends Model implements HasEntityName
 
         foreach ($assignments as $sst) {
             // Verificar que la configuración esté completa (100%)
-            if (!$sst->isConfigurationComplete()) {
+            if (! $sst->isConfigurationComplete()) {
                 return false;
             }
 
@@ -239,7 +240,7 @@ class Enrollment extends Model implements HasEntityName
                     ->where('grade_column_id', $column->id)
                     ->exists();
 
-                if (!$hasGrade) {
+                if (! $hasGrade) {
                     return false;
                 }
             }
@@ -263,7 +264,7 @@ class Enrollment extends Model implements HasEntityName
 
         foreach ($assignments as $sst) {
             $passed = $this->hasPassedAssignment($sst->id);
-            
+
             // Si alguna está sin notas o reprobada, no aprobó
             if ($passed === null || $passed === false) {
                 return false;
@@ -289,7 +290,7 @@ class Enrollment extends Model implements HasEntityName
             $subjectMissing = [];
 
             // Verificar configuración incompleta
-            if (!$sst->isConfigurationComplete()) {
+            if (! $sst->isConfigurationComplete()) {
                 $subjectMissing[] = [
                     'type' => 'configuration',
                     'message' => "Configuración incompleta: {$sst->getTotalWeight()}% de 100%",
@@ -302,7 +303,7 @@ class Enrollment extends Model implements HasEntityName
                     ->where('grade_column_id', $column->id)
                     ->exists();
 
-                if (!$hasGrade) {
+                if (! $hasGrade) {
                     $subjectMissing[] = [
                         'type' => 'grade',
                         'column' => $column->name,
@@ -310,7 +311,7 @@ class Enrollment extends Model implements HasEntityName
                 }
             }
 
-            if (!empty($subjectMissing)) {
+            if (! empty($subjectMissing)) {
                 $missing[$sst->subject->name] = $subjectMissing;
             }
         }

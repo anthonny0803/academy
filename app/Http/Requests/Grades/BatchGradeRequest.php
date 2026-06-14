@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Grades;
 
-use App\Models\GradeColumn;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BatchGradeRequest extends FormRequest
@@ -81,15 +80,16 @@ class BatchGradeRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $gradeColumn = $this->getGradeColumn();
-            
-            if (!$gradeColumn) {
+
+            if (! $gradeColumn) {
                 $validator->errors()->add('grade_column', 'La columna de evaluación no existe.');
+
                 return;
             }
 
             $sst = $gradeColumn->sectionSubjectTeacher;
 
-            if (!$sst->isConfigurationComplete()) {
+            if (! $sst->isConfigurationComplete()) {
                 $remaining = $sst->getRemainingWeight();
                 $validator->errors()->add(
                     'configuration',

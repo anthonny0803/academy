@@ -1,0 +1,88 @@
+x-app: &app
+  build:
+    context: .
+    dockerfile: docker/php/Dockerfile.dev
+    args:
+      UID: ${UID:-1000}
+      GID: ${GID:-1000}
+  volumes:
+    - .:/var/www/html
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks: [academy]
+
+services:
+  app:
+    <<: *app
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/up"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [academy]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-academy}
+      POSTGRES_USER: ${DB_USERNAME:-academy}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "${FORWARD_DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-academy} -d ${DB_DATABASE:-academy}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [academy]
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [academy]
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+    networks: [academy]
+
+  queue:
+    <<: *app
+    command: php artisan queue:work --tries=3 --timeout=90
+    restart: unless-stopped
+
+  scheduler:
+    <<: *app
+    command: php artisan schedule:work
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  academy:
+    driver: bridge

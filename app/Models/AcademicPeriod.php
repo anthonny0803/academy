@@ -62,7 +62,7 @@ class AcademicPeriod extends Model implements HasEntityName
     public function scopeSearch(Builder $query, string $term): Builder
     {
         $term = strtoupper($term);
-        
+
         return $query->where(function ($q) use ($term) {
             $q->where('name', 'like', "%{$term}%")
                 ->orWhere('notes', 'like', "%{$term}%");
@@ -93,7 +93,7 @@ class AcademicPeriod extends Model implements HasEntityName
 
     public function hasOnlyInactiveSections(): bool
     {
-        return $this->hasSections() && !$this->hasActiveSections();
+        return $this->hasSections() && ! $this->hasActiveSections();
     }
 
     /**
@@ -104,11 +104,11 @@ class AcademicPeriod extends Model implements HasEntityName
      */
     public function canBeDeleted(): bool
     {
-        if (!$this->isActive()) {
+        if (! $this->isActive()) {
             return false;
         }
 
-        return !$this->hasActiveSections();
+        return ! $this->hasActiveSections();
     }
 
     // Helper Methods - Calificaciones

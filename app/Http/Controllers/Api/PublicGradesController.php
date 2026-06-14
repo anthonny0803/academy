@@ -20,7 +20,7 @@ class PublicGradesController extends Controller
             $request->validated()['birth_date']
         );
 
-        if (!$data) {
+        if (! $data) {
             return response()->json([
                 'success' => false,
                 'message' => 'Credenciales inválidas.',
@@ -40,7 +40,7 @@ class PublicGradesController extends Controller
             $request->validated()['birth_date']
         );
 
-        if (!$data) {
+        if (! $data) {
             return response()->json([
                 'success' => false,
                 'message' => 'Credenciales inválidas.',

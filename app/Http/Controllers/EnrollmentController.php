@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Enrollment;
-use App\Models\Student;
-use App\Models\AcademicPeriod;
-use App\Models\Section;
 use App\Enums\EnrollmentStatus;
+use App\Http\Requests\Enrollments\PromoteEnrollmentRequest;
 use App\Http\Requests\Enrollments\StoreEnrollmentRequest;
 use App\Http\Requests\Enrollments\TransferEnrollmentRequest;
-use App\Http\Requests\Enrollments\PromoteEnrollmentRequest;
+use App\Models\AcademicPeriod;
+use App\Models\Enrollment;
+use App\Models\Section;
+use App\Models\Student;
+use App\Models\User;
+use App\Services\Enrollments\DeleteEnrollmentService;
+use App\Services\Enrollments\PromoteEnrollmentService;
 use App\Services\Enrollments\StoreEnrollmentService;
 use App\Services\Enrollments\TransferEnrollmentService;
-use App\Services\Enrollments\PromoteEnrollmentService;
-use App\Services\Enrollments\DeleteEnrollmentService;
 use App\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
@@ -24,8 +24,8 @@ use Illuminate\View\View;
 
 class EnrollmentController extends Controller
 {
-    use AuthorizesRequests;
     use AuthorizesRedirect;
+    use AuthorizesRequests;
 
     protected function currentUser(): User
     {
@@ -39,9 +39,9 @@ class EnrollmentController extends Controller
             $status = $request->input('status');
             $academicPeriodId = $request->input('academic_period_id');
             $sectionId = $request->input('section_id');
-            
+
             $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
                 ->orderBy('start_date', 'desc')
                 ->get();
 
@@ -49,12 +49,12 @@ class EnrollmentController extends Controller
 
             $enrollments = Enrollment::query()
                 ->with(['student.user', 'section.academicPeriod'])
-                ->when($search !== '', fn($q) => $q->search($search))
-                ->when($status && $status !== 'Todos', fn($q) => $q->byStatus($status))
+                ->when($search !== '', fn ($q) => $q->search($search))
+                ->when($status && $status !== 'Todos', fn ($q) => $q->byStatus($status))
                 ->when($academicPeriodId, function ($q) use ($academicPeriodId) {
-                    $q->whereHas('section', fn($query) => $query->where('academic_period_id', $academicPeriodId));
+                    $q->whereHas('section', fn ($query) => $query->where('academic_period_id', $academicPeriodId));
                 })
-                ->when($sectionId && $sectionId !== 'Todos', fn($q) => $q->forSection($sectionId))
+                ->when($sectionId && $sectionId !== 'Todos', fn ($q) => $q->forSection($sectionId))
                 ->orderBy('created_at', 'desc')
                 ->paginate(6)
                 ->withQueryString();
@@ -70,10 +70,10 @@ class EnrollmentController extends Controller
                 'student.user',
                 'student.representative.user',
                 'section.academicPeriod',
-                'section.sectionSubjectTeachers' => fn($q) => $q->active()->with([
+                'section.sectionSubjectTeachers' => fn ($q) => $q->active()->with([
                     'subject',
                     'teacher.user',
-                    'gradeColumns' => fn($q) => $q->orderBy('display_order'),
+                    'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
                 ]),
                 'grades.gradeColumn',
             ]);
@@ -83,9 +83,10 @@ class EnrollmentController extends Controller
 
             $subjectsData = $enrollment->section->sectionSubjectTeachers->map(function ($sst) use ($enrollment) {
                 $average = $sst->calculateStudentAverage($enrollment->id);
-                
+
                 $gradesDetail = $sst->gradeColumns->map(function ($column) use ($enrollment) {
                     $grade = $enrollment->grades->firstWhere('grade_column_id', $column->id);
+
                     return [
                         'column_name' => $column->name,
                         'weight' => $column->weight,
@@ -111,7 +112,7 @@ class EnrollmentController extends Controller
     {
         return $this->authorizeOrRedirect('create', Enrollment::class, function () use ($student) {
             $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn($q) => $q->active()->orderBy('name')])
+                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
                 ->orderBy('start_date', 'desc')
                 ->get();
 
@@ -190,7 +191,7 @@ class EnrollmentController extends Controller
             $academicPeriod = $enrollment->section->academicPeriod;
 
             // Verificar si el perÃ­odo permite promociones
-            if (!$academicPeriod->isPromotable()) {
+            if (! $academicPeriod->isPromotable()) {
                 return redirect()
                     ->route('enrollments.show', $enrollment)
                     ->with('error', "El perÃ­odo acadÃ©mico '{$academicPeriod->name}' no permite promociones.");
