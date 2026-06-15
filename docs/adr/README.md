@@ -16,7 +16,7 @@ Format: Status · Context · Decision · Consequences.
 | [0002](0002-row-level-multitenancy-single-db.md) | Row-level multitenancy on a single database | Accepted |
 | [0003](0003-pragmatic-repository-layer.md) | Pragmatic repository layer | Accepted |
 | [0004](0004-ddd-lite-modular-domains.md) | DDD-lite modular domains | Accepted |
-| [0005](0005-uuid-v4-and-postgresql.md) | UUID v4 primary keys and PostgreSQL | Accepted |
+| [0005](0005-uuid-v7-and-postgresql.md) | UUID v7 primary keys and PostgreSQL | Accepted |
 | [0006](0006-phased-execution-workflow.md) | Phased execution workflow | Accepted |
 | [0007](0007-docker-multi-service-stack.md) | Docker multi-service stack | Accepted |
 | [0008](0008-global-roles-and-one-to-one-membership.md) | Global roles and one-to-one tenant membership | Accepted |

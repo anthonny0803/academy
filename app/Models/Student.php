@@ -8,6 +8,7 @@ use App\Enums\StudentSituation;
 use App\Traits\Activatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +19,7 @@ class Student extends Model implements HasEntityName
 {
     use Activatable;
     use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'user_id',
@@ -87,7 +89,7 @@ class Student extends Model implements HasEntityName
             });
     }
 
-    public function scopeForRepresentative(Builder $query, int $representativeId): Builder
+    public function scopeForRepresentative(Builder $query, string $representativeId): Builder
     {
         return $query->where('representative_id', $representativeId);
     }

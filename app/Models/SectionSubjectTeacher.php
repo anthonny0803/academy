@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class SectionSubjectTeacher extends Model
 {
     use HasFactory;
+    use HasUuids;
 
     protected $table = 'section_subject_teacher';
 
@@ -72,12 +74,12 @@ class SectionSubjectTeacher extends Model
         return $query->where('is_primary', true);
     }
 
-    public function scopeForTeacher($query, int $teacherId)
+    public function scopeForTeacher($query, string $teacherId)
     {
         return $query->where('teacher_id', $teacherId);
     }
 
-    public function scopeForSection($query, int $sectionId)
+    public function scopeForSection($query, string $sectionId)
     {
         return $query->where('section_id', $sectionId);
     }
@@ -150,7 +152,7 @@ class SectionSubjectTeacher extends Model
 
     // Calcula el promedio ponderado de un estudiante
 
-    public function calculateStudentAverage(int $enrollmentId): ?float
+    public function calculateStudentAverage(string $enrollmentId): ?float
     {
         $grades = Grade::where('enrollment_id', $enrollmentId)
             ->whereHas('gradeColumn', function ($q) {

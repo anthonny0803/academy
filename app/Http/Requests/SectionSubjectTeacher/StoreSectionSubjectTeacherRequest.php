@@ -15,15 +15,16 @@ class StoreSectionSubjectTeacherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'section_id' => ['required', 'exists:sections,id'],
+            'section_id' => ['required', 'uuid', 'exists:sections,id'],
             'subject_id' => [
                 'required',
+                'uuid',
                 'exists:subjects,id',
                 Rule::unique('section_subject_teacher')
                     ->where('section_id', $this->section_id)
                     ->where('subject_id', $this->subject_id),
             ],
-            'teacher_id' => ['required', 'exists:teachers,id'],
+            'teacher_id' => ['required', 'uuid', 'exists:teachers,id'],
             'is_primary' => ['nullable', 'boolean'],
             'status' => ['required', 'in:activo,suplente,inactivo'],
         ];

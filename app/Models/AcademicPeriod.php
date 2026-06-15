@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\HasEntityName;
 use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +14,7 @@ class AcademicPeriod extends Model implements HasEntityName
 {
     use Activatable;
     use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'name',

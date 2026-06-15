@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\HasEntityName;
 use App\Traits\Activatable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,6 +15,7 @@ class Teacher extends Model implements HasEntityName
 {
     use Activatable;
     use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'user_id',
@@ -112,14 +114,14 @@ class Teacher extends Model implements HasEntityName
 
     // Helper Methods
 
-    public function hasSubject(int $subjectId): bool
+    public function hasSubject(string $subjectId): bool
     {
         return $this->sectionSubjectTeachers()
             ->where('subject_id', $subjectId)
             ->exists();
     }
 
-    public function getSubjectTeacher(int $subjectId): ?SectionSubjectTeacher
+    public function getSubjectTeacher(string $subjectId): ?SectionSubjectTeacher
     {
         return $this->sectionSubjectTeachers()
             ->where('subject_id', $subjectId)

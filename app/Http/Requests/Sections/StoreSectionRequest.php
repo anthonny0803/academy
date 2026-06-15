@@ -17,7 +17,7 @@ class StoreSectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'academic_period_id' => ['required', 'integer', 'exists:academic_periods,id'],
+            'academic_period_id' => ['required', 'uuid', 'exists:academic_periods,id'],
             'name' => [
                 'required',
                 'string',

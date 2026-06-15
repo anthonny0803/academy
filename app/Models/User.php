@@ -6,6 +6,7 @@ use App\Contracts\HasEntityName;
 use App\Enums\Role;
 use App\Enums\Sex;
 use App\Traits\Activatable;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -17,6 +18,7 @@ class User extends Authenticatable implements HasEntityName
     use Activatable;
     use HasFactory;
     use HasRoles;
+    use HasUuids;
     use Notifiable;
 
     protected $fillable = [

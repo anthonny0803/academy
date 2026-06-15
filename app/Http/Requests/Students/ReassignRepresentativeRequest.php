@@ -27,7 +27,7 @@ class ReassignRepresentativeRequest extends FormRequest
         return [
             'representative_id' => [
                 'required',
-                'integer',
+                'uuid',
                 'exists:representatives,id',
                 Rule::notIn([$currentRepresentativeId]),
             ],

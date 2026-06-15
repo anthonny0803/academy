@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id(); // Identificador único autoincremental del Usuario
+            $table->uuid('id')->primary(); // Identificador único (UUID v4) del Usuario
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
             $table->string('name', 100); // Primer y segundo nombre del Usuario
             $table->string('last_name', 100); // Primer y segundo apellido del Usuario
             $table->string('email', 100)->nullable()->unique(); // Correo del Usuario (Para inicio de sesión de empleado)
@@ -38,7 +39,7 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->foreignUuid('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->integer('last_activity')->index();

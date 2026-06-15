@@ -29,7 +29,7 @@ class BatchGradeRequest extends FormRequest
             'grades' => ['required', 'array', 'min:1'],
             'grades.*.enrollment_id' => [
                 'required',
-                'integer',
+                'uuid',
                 'exists:enrollments,id',
             ],
             'grades.*.value' => [

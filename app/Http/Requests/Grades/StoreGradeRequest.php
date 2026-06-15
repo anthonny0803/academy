@@ -23,7 +23,7 @@ class StoreGradeRequest extends FormRequest
         return [
             'enrollment_id' => [
                 'required',
-                'integer',
+                'uuid',
                 'exists:enrollments,id',
                 Rule::unique('grades')
                     ->where('grade_column_id', $gradeColumn?->id),

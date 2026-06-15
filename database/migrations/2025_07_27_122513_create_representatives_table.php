@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('representatives', function (Blueprint $table) {
-            $table->id(); // Identificador único autoincremental del Representante
+            $table->uuid('id')->primary(); // Identificador único (UUID v4) del Representante
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
             // Clave foránea al Usuario asociado a este perfil de Representante (único)
-            $table->foreignId('user_id')->constrained('users')->unique();
+            $table->foreignUuid('user_id')->constrained('users')->unique();
             // Estado del Usuario en su rol de Representante (activo por defecto)
             $table->boolean('is_active')->default(true);
             $table->timestamps(); // Columnas created_at y updated_at para auditoría

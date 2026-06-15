@@ -15,7 +15,7 @@ class StoreSubjectTeacherRequest extends FormRequest
     {
         return [
             'subjects' => ['required', 'array', 'min:1'],
-            'subjects.*' => ['exists:subjects,id'],
+            'subjects.*' => ['uuid', 'exists:subjects,id'],
         ];
     }
 

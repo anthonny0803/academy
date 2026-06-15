@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\HasEntityName;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class GradeColumn extends Model implements HasEntityName
 {
     use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'section_subject_teacher_id',
@@ -46,7 +48,7 @@ class GradeColumn extends Model implements HasEntityName
 
     // Query Scopes
 
-    public function scopeForAssignment($query, int $sstId)
+    public function scopeForAssignment($query, string $sstId)
     {
         return $query->where('section_subject_teacher_id', $sstId);
     }
