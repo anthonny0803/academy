@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('subjects', function (Blueprint $table) {
-            $table->id(); // Identificador único autoincremental de la Asignatura
+            $table->uuid('id')->primary(); // Identificador único (UUID v4) de la Asignatura
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
             $table->string('name', 100)->unique(); // Nombre de la Asignatura (Ej: Matemática 1, Física 3)
             $table->string('description'); // Descripción de la Asignatura
             $table->boolean('is_active')->default(true); // Estado de la Asignatura (activa/inactiva)

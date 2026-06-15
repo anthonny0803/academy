@@ -33,7 +33,7 @@ class DeleteGradeService
     /**
      * Restaurar nota eliminada (solo Developer)
      */
-    public function restore(int $gradeId): Grade
+    public function restore(string $gradeId): Grade
     {
         return DB::transaction(function () use ($gradeId) {
             $grade = Grade::withTrashed()->findOrFail($gradeId);

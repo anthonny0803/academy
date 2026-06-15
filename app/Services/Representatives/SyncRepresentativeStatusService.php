@@ -11,7 +11,7 @@ class SyncRepresentativeStatusService
 {
     // Sync representative status based in if they have active students
 
-    public function handle(int|array|Collection $representativeIds): array
+    public function handle(string|array|Collection $representativeIds): array
     {
         $ids = collect($representativeIds)->unique()->filter()->values();
 

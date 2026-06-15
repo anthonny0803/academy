@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sections', function (Blueprint $table) {
-            $table->id(); // Identificador único autoincremental de la Sección
+            $table->uuid('id')->primary(); // Identificador único (UUID v4) de la Sección
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
             // Clave foránea al Período Académico al que pertenece esta Sección
-            $table->foreignId('academic_period_id')->constrained('academic_periods')
+            $table->foreignUuid('academic_period_id')->constrained('academic_periods')
                 ->onDelete('restrict'); // Impide borrar un período si tiene secciones asociadas
 
             // Nombre de la Sección (Ej: "1ro A", "5to D") "también implica el nivel/grado" (único)

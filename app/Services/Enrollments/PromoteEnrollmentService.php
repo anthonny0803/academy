@@ -19,7 +19,7 @@ class PromoteEnrollmentService
      * - Marca la inscripción actual como "promovido"
      * - Crea una nueva inscripción activa en la sección destino
      */
-    public function handle(Enrollment $enrollment, int $newSectionId): Enrollment
+    public function handle(Enrollment $enrollment, string $newSectionId): Enrollment
     {
         return DB::transaction(function () use ($enrollment, $newSectionId) {
             $oldSectionId = $enrollment->section_id;

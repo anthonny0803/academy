@@ -50,7 +50,7 @@ class StoreStudentRequest extends FormRequest
             ],
             'birth_date' => ['required', 'date', 'before:today'],
             'relationship_type' => ['required', Rule::in(RelationshipType::toArray())],
-            'section_id' => ['required', 'integer', 'exists:sections,id'],
+            'section_id' => ['required', 'uuid', 'exists:sections,id'],
             'is_self_represented' => ['nullable', 'boolean'],
         ];
     }

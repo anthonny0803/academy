@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('academic_periods', function (Blueprint $table) {
-            $table->id(); // Identificador único autoincremental del Período Académico
+            $table->uuid('id')->primary(); // Identificador único (UUID v4) del Período Académico
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
             $table->string('name', 100); // Nombre del período (Ej: 'Ciclo Escolar 2024-2025')
             $table->string('notes')->nullable(); // Notas o comentarios adicionales sobre el período (opcional)
             $table->date('start_date'); // Fecha de inicio del Período Académico

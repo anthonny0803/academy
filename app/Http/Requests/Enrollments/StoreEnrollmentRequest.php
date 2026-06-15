@@ -19,7 +19,7 @@ class StoreEnrollmentRequest extends FormRequest
         return [
             'section_id' => [
                 'required',
-                'integer',
+                'uuid',
                 'exists:sections,id',
             ],
         ];

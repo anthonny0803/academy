@@ -21,7 +21,7 @@ class UpdateEnrollmentRequest extends FormRequest
             'status' => ['required', Rule::in(EnrollmentStatus::toArray())],
             'section_id' => [
                 'nullable',
-                'integer',
+                'uuid',
                 'exists:sections,id',
                 Rule::notIn([$enrollment->section_id]), // No puede ser la misma sección
             ],

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\HasEntityName;
 use App\Traits\Activatable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,7 @@ class Section extends Model implements HasEntityName
 {
     use Activatable;
     use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'academic_period_id',
@@ -77,7 +79,7 @@ class Section extends Model implements HasEntityName
         });
     }
 
-    public function scopeForAcademicPeriod(Builder $query, int $academicPeriodId): Builder
+    public function scopeForAcademicPeriod(Builder $query, string $academicPeriodId): Builder
     {
         return $query->where('academic_period_id', $academicPeriodId);
     }

@@ -23,7 +23,7 @@ class PromoteEnrollmentRequest extends FormRequest
         return [
             'section_id' => [
                 'required',
-                'integer',
+                'uuid',
                 'exists:sections,id',
                 // No puede ser la misma sección
                 Rule::notIn([$currentSectionId]),

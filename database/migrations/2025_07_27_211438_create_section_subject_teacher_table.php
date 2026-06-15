@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('section_subject_teacher', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
 
-            $table->foreignId('section_id')->constrained('sections')->onDelete('restrict');
-            $table->foreignId('subject_id')->constrained('subjects')->onDelete('restrict');
-            $table->foreignId('teacher_id')->constrained('teachers')->onDelete('restrict');
+            $table->foreignUuid('section_id')->constrained('sections')->onDelete('restrict');
+            $table->foreignUuid('subject_id')->constrained('subjects')->onDelete('restrict');
+            $table->foreignUuid('teacher_id')->constrained('teachers')->onDelete('restrict');
 
             $table->boolean('is_primary')->default(true);
             $table->enum('status', ['activo', 'inactivo', 'suplente'])->default('activo');

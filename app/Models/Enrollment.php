@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Contracts\HasEntityName;
 use App\Enums\EnrollmentStatus;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Enrollment extends Model implements HasEntityName
 {
     use HasFactory;
+    use HasUuids;
 
     protected $fillable = [
         'student_id',
@@ -64,12 +66,12 @@ class Enrollment extends Model implements HasEntityName
         });
     }
 
-    public function scopeForStudent(Builder $query, int $studentId): Builder
+    public function scopeForStudent(Builder $query, string $studentId): Builder
     {
         return $query->where('student_id', $studentId);
     }
 
-    public function scopeForSection(Builder $query, int $sectionId): Builder
+    public function scopeForSection(Builder $query, string $sectionId): Builder
     {
         return $query->where('section_id', $sectionId);
     }
@@ -138,7 +140,7 @@ class Enrollment extends Model implements HasEntityName
 
     // Helper Methods - Calificaciones
 
-    public function getGradesForSubject(int $subjectId)
+    public function getGradesForSubject(string $subjectId)
     {
         return $this->grades()
             ->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($subjectId) {
@@ -147,7 +149,7 @@ class Enrollment extends Model implements HasEntityName
             ->get();
     }
 
-    public function getAverageForSubject(int $subjectId): ?float
+    public function getAverageForSubject(string $subjectId): ?float
     {
         $average = $this->grades()
             ->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($subjectId) {
@@ -177,7 +179,7 @@ class Enrollment extends Model implements HasEntityName
     /**
      * Calcula el promedio ponderado para una asignatura específica
      */
-    public function getWeightedAverageForAssignment(int $sstId): ?float
+    public function getWeightedAverageForAssignment(string $sstId): ?float
     {
         $grades = $this->grades()
             ->whereHas('gradeColumn', function ($q) use ($sstId) {
@@ -204,7 +206,7 @@ class Enrollment extends Model implements HasEntityName
     /**
      * Verifica si el estudiante aprobó una asignatura específica
      */
-    public function hasPassedAssignment(int $sstId): ?bool
+    public function hasPassedAssignment(string $sstId): ?bool
     {
         $average = $this->getWeightedAverageForAssignment($sstId);
 

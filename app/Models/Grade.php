@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\HasEntityName;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Grade extends Model implements HasEntityName
 {
     use HasFactory;
+    use HasUuids;
     use SoftDeletes;
 
     protected $fillable = [
@@ -51,31 +53,31 @@ class Grade extends Model implements HasEntityName
 
     // Query Scopes
 
-    public function scopeForEnrollment($query, int $enrollmentId)
+    public function scopeForEnrollment($query, string $enrollmentId)
     {
         return $query->where('enrollment_id', $enrollmentId);
     }
 
-    public function scopeForColumn($query, int $columnId)
+    public function scopeForColumn($query, string $columnId)
     {
         return $query->where('grade_column_id', $columnId);
     }
 
-    public function scopeForAssignment($query, int $sstId)
+    public function scopeForAssignment($query, string $sstId)
     {
         return $query->whereHas('gradeColumn', function ($q) use ($sstId) {
             $q->where('section_subject_teacher_id', $sstId);
         });
     }
 
-    public function scopeForSubject($query, int $subjectId)
+    public function scopeForSubject($query, string $subjectId)
     {
         return $query->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($subjectId) {
             $q->where('subject_id', $subjectId);
         });
     }
 
-    public function scopeForSection($query, int $sectionId)
+    public function scopeForSection($query, string $sectionId)
     {
         return $query->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($sectionId) {
             $q->where('section_id', $sectionId);

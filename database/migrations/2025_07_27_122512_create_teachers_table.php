@@ -12,9 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('teachers', function (Blueprint $table) {
-            $table->id(); // Identificador único autoincremental del Profesor
+            $table->uuid('id')->primary(); // Identificador único (UUID v4) del Profesor
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
             // Clave foránea al Usuario asociado a este perfil de Profesor (único)
-            $table->foreignId('user_id')->constrained('users')->unique();
+            $table->foreignUuid('user_id')->constrained('users')->unique();
             // Estado del Usuario en su rol de Profesor (activo por defecto)
             $table->boolean('is_active')->default(true);
             $table->timestamps(); // Columnas created_at y updated_at para auditoría

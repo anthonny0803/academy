@@ -9,8 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('grade_columns', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('section_subject_teacher_id')
+            $table->uuid('id')->primary();
+            $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
+            $table->foreignUuid('section_subject_teacher_id')
                 ->constrained('section_subject_teacher')
                 ->onDelete('cascade');
             $table->string('name', 100);

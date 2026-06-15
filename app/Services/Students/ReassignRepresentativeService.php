@@ -14,7 +14,7 @@ class ReassignRepresentativeService
         private SyncRepresentativeStatusService $syncService
     ) {}
 
-    public function handle(Student $student, int $newRepresentativeId, string $relationshipType, string $reason): Student
+    public function handle(Student $student, string $newRepresentativeId, string $relationshipType, string $reason): Student
     {
         return DB::transaction(function () use ($student, $newRepresentativeId, $relationshipType, $reason) {
             $oldRepresentativeId = $student->representative_id;
