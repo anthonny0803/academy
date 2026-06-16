@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Academics\Http\Controllers;
 
+use App\Domains\Academics\Http\Requests\Subjects\StoreSubjectRequest;
+use App\Domains\Academics\Http\Requests\Subjects\UpdateSubjectRequest;
 use App\Domains\Academics\Models\Subject;
-use App\Domains\Academics\Requests\Subjects\StoreSubjectRequest;
-use App\Domains\Academics\Requests\Subjects\UpdateSubjectRequest;
 use App\Domains\Academics\Services\Subjects\DeleteSubjectService;
 use App\Domains\Academics\Services\Subjects\StoreSubjectService;
 use App\Domains\Academics\Services\Subjects\UpdateSubjectService;

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Academics\Http\Controllers;
 
+use App\Domains\Academics\Http\Requests\Teachers\StoreTeacherRequest;
+use App\Domains\Academics\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Domains\Academics\Models\Teacher;
-use App\Domains\Academics\Requests\Teachers\StoreTeacherRequest;
-use App\Domains\Academics\Requests\Teachers\UpdateTeacherRequest;
 use App\Domains\Academics\Services\Teachers\StoreTeacherService;
 use App\Domains\Academics\Services\Teachers\UpdateTeacherService;
 use App\Domains\Identity\Models\User;

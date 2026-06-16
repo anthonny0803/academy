@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Academics\Requests\SubjectTeacher;
+namespace App\Domains\Academics\Http\Requests\SubjectTeacher;
 
 use Illuminate\Foundation\Http\FormRequest;
 

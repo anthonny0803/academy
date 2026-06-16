@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Academics\Http\Controllers;
 
+use App\Domains\Academics\Http\Requests\AcademicPeriods\StoreAcademicPeriodRequest;
+use App\Domains\Academics\Http\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
 use App\Domains\Academics\Models\AcademicPeriod;
-use App\Domains\Academics\Requests\AcademicPeriods\StoreAcademicPeriodRequest;
-use App\Domains\Academics\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
 use App\Domains\Academics\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\StoreAcademicPeriodService;

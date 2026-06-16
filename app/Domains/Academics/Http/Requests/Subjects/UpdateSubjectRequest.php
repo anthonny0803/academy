@@ -1,23 +1,33 @@
 <?php
 
-namespace App\Domains\Academics\Requests\Subjects;
+namespace App\Domains\Academics\Http\Requests\Subjects;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 
-class StoreSubjectRequest extends FormRequest
+class UpdateSubjectRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
     }
 
+    protected function getSubjectId(): int
+    {
+        return $this->route('subject')->id;
+    }
+
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', Rule::unique('subjects')],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('subjects')->ignore($this->getSubjectId()),
+            ],
             'description' => ['required', 'string', 'max:255'],
         ];
     }
@@ -48,7 +58,8 @@ class StoreSubjectRequest extends FormRequest
                 ->back()
                 ->withErrors($validator)
                 ->withInput()
-                ->with('form', 'create') // <- marcamos que falló el modal de creación
+                ->with('form', 'edit') // <- marcamos que falló el modal de creación
+                ->with('edit_id', $this->getSubjectId())
         );
     }
 }

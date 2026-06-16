@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Academics\Http\Controllers;
 
+use App\Domains\Academics\Http\Requests\Sections\StoreSectionRequest;
+use App\Domains\Academics\Http\Requests\Sections\UpdateSectionRequest;
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Models\Subject;
-use App\Domains\Academics\Requests\Sections\StoreSectionRequest;
-use App\Domains\Academics\Requests\Sections\UpdateSectionRequest;
 use App\Domains\Academics\Services\Sections\DeleteSectionService;
 use App\Domains\Academics\Services\Sections\StoreSectionService;
 use App\Domains\Academics\Services\Sections\UpdateSectionService;

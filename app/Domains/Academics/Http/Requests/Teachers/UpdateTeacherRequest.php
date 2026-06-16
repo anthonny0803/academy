@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Academics\Requests\Teachers;
+namespace App\Domains\Academics\Http\Requests\Teachers;
 
 use App\Domains\Shared\Http\Requests\UpdateEmployeeRequest;
 

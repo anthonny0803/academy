@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Academics\Http\Controllers;
 
+use App\Domains\Academics\Http\Requests\SubjectTeacher\StoreSubjectTeacherRequest;
 use App\Domains\Academics\Models\Subject;
 use App\Domains\Academics\Models\SubjectTeacher;
 use App\Domains\Academics\Models\Teacher;
-use App\Domains\Academics\Requests\SubjectTeacher\StoreSubjectTeacherRequest;
 use App\Domains\Academics\Services\SubjectTeacher\DeleteSubjectTeacherService;
 use App\Domains\Academics\Services\SubjectTeacher\StoreSubjectTeacherService;
 use App\Domains\Identity\Models\User;

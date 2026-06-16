@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Academics\Requests\AcademicPeriods;
+namespace App\Domains\Academics\Http\Requests\AcademicPeriods;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
