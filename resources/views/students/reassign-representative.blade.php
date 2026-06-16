@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $relationshipTypes = \App\Enums\RelationshipType::cases();
+        $relationshipTypes = \App\Domains\Representatives\Enums\RelationshipType::cases();
     @endphp
 
     <div class="py-8 sm:py-12">
@@ -349,7 +349,7 @@
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
                                 <option value="">-- Seleccione --</option>
                                 @foreach($relationshipTypes as $type)
-                                    @if($type !== \App\Enums\RelationshipType::SelfRepresented)
+                                    @if($type !== \App\Domains\Representatives\Enums\RelationshipType::SelfRepresented)
                                         <option value="{{ $type->value }}">{{ $type->value }}</option>
                                     @endif
                                 @endforeach

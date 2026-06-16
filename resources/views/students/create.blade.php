@@ -273,7 +273,7 @@
                 }),
             ) !!};
 
-            const selfRepresentedValue = @json(\App\Enums\RelationshipType::SelfRepresented->value);
+            const selfRepresentedValue = @json(\App\Domains\Representatives\Enums\RelationshipType::SelfRepresented->value);
 
             // Select inteligente de relationship_type
             const relationshipType = document.getElementById('relationship_type');
