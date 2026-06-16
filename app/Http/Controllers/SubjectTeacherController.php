@@ -9,7 +9,7 @@ use App\Models\Teacher;
 use App\Models\User;
 use App\Services\SubjectTeacher\DeleteSubjectTeacherService;
 use App\Services\SubjectTeacher\StoreSubjectTeacherService;
-use App\Traits\AuthorizesRedirect;
+use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

@@ -2,10 +2,46 @@
 
 namespace App\Providers;
 
+use App\Models\AcademicPeriod;
+use App\Models\Enrollment;
+use App\Models\Grade;
+use App\Models\GradeColumn;
+use App\Models\Representative;
+use App\Models\Section;
+use App\Models\SectionSubjectTeacher;
+use App\Models\Student;
+use App\Models\Subject;
+use App\Models\SubjectTeacher;
+use App\Models\Teacher;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Stable polymorphic aliases. Decouple stored morph types
+     * (model_has_roles, personal_access_tokens) from class namespaces.
+     *
+     * @var array<string, class-string>
+     */
+    private const MORPH_MAP = [
+        'user' => User::class,
+        'student' => Student::class,
+        'representative' => Representative::class,
+        'teacher' => Teacher::class,
+        'subject' => Subject::class,
+        'section' => Section::class,
+        'academic_period' => AcademicPeriod::class,
+        'subject_teacher' => SubjectTeacher::class,
+        'section_subject_teacher' => SectionSubjectTeacher::class,
+        'enrollment' => Enrollment::class,
+        'grade' => Grade::class,
+        'grade_column' => GradeColumn::class,
+    ];
+
     /**
      * Register any application services.
      */
@@ -19,8 +55,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Relation::enforceMorphMap(self::MORPH_MAP);
+
+        Factory::guessFactoryNamesUsing(
+            fn (string $modelName): string => 'Database\\Factories\\'.class_basename($modelName).'Factory'
+        );
+
         if (config('app.env') === 'production') {
-            \URL::forceScheme('https');
+            URL::forceScheme('https');
         }
     }
 }

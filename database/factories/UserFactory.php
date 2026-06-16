@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\Role;
-use App\Enums\Sex;
 use App\Models\User;
+use App\Shared\Enums\Sex;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 

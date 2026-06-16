@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use App\Contracts\HasEntityName;
 use App\Enums\RelationshipType;
 use App\Enums\StudentSituation;
-use App\Traits\Activatable;
+use App\Shared\Contracts\HasEntityName;
+use App\Shared\Traits\Activatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

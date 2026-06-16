@@ -10,7 +10,7 @@ use App\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Services\AcademicPeriods\StoreAcademicPeriodService;
 use App\Services\AcademicPeriods\UpdateAcademicPeriodService;
-use App\Traits\AuthorizesRedirect;
+use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

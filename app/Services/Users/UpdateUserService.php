@@ -3,7 +3,7 @@
 namespace App\Services\Users;
 
 use App\Models\User;
-use App\Services\Shared\UpdateEmployeeService;
+use App\Shared\Services\UpdateEmployeeService;
 use Illuminate\Support\Facades\DB;
 
 class UpdateUserService

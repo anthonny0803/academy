@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\RelationshipType;
-use App\Enums\Sex;
 use App\Enums\StudentSituation;
 use App\Http\Requests\Students\ChangeSituationRequest;
 use App\Http\Requests\Students\ConvertToSelfRepresentedRequest;
@@ -21,8 +20,9 @@ use App\Services\Students\ReassignRepresentativeService;
 use App\Services\Students\StoreStudentService;
 use App\Services\Students\UpdateStudentService;
 use App\Services\Students\WithdrawStudentService;
-use App\Traits\AuthorizesRedirect;
-use App\Traits\CanToggleActivation;
+use App\Shared\Enums\Sex;
+use App\Shared\Traits\AuthorizesRedirect;
+use App\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

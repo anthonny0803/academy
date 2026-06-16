@@ -12,7 +12,7 @@ use App\Models\User;
 use App\Services\Grades\DeleteGradeService;
 use App\Services\Grades\StoreGradeService;
 use App\Services\Grades\UpdateGradeService;
-use App\Traits\AuthorizesRedirect;
+use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;

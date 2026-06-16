@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Sex;
 use App\Http\Requests\Representatives\StoreRepresentativeRequest;
 use App\Http\Requests\Representatives\UpdateRepresentativeRequest;
 use App\Models\Representative;
 use App\Models\User;
 use App\Services\Representatives\StoreRepresentativeService;
 use App\Services\Representatives\UpdateRepresentativeService;
-use App\Traits\AuthorizesRedirect;
-use App\Traits\CanToggleActivation;
+use App\Shared\Enums\Sex;
+use App\Shared\Traits\AuthorizesRedirect;
+use App\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

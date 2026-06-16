@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Contracts\HasEntityName;
-use App\Traits\Activatable;
+use App\Shared\Contracts\HasEntityName;
+use App\Shared\Traits\Activatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

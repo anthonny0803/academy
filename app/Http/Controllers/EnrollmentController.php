@@ -15,7 +15,7 @@ use App\Services\Enrollments\DeleteEnrollmentService;
 use App\Services\Enrollments\PromoteEnrollmentService;
 use App\Services\Enrollments\StoreEnrollmentService;
 use App\Services\Enrollments\TransferEnrollmentService;
-use App\Traits\AuthorizesRedirect;
+use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

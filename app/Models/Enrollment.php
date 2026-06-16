@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Contracts\HasEntityName;
 use App\Enums\EnrollmentStatus;
+use App\Shared\Contracts\HasEntityName;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

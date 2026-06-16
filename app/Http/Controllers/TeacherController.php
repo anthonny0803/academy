@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Sex;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Models\Teacher;
 use App\Models\User;
 use App\Services\Teachers\StoreTeacherService;
 use App\Services\Teachers\UpdateTeacherService;
-use App\Traits\AuthorizesRedirect;
-use App\Traits\CanToggleActivation;
+use App\Shared\Enums\Sex;
+use App\Shared\Traits\AuthorizesRedirect;
+use App\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

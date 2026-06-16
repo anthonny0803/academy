@@ -7,7 +7,7 @@ use App\Http\Requests\RoleManagement\AssignRoleRequest;
 use App\Models\User;
 use App\Services\RoleManagement\AssignRoleService;
 use App\Services\Users\RoleAssignmentService;
-use App\Traits\AuthorizesRedirect;
+use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

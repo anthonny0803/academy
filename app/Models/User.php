@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use App\Contracts\HasEntityName;
 use App\Enums\Role;
-use App\Enums\Sex;
-use App\Traits\Activatable;
+use App\Shared\Contracts\HasEntityName;
+use App\Shared\Enums\Sex;
+use App\Shared\Traits\Activatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;

@@ -3,7 +3,7 @@
 namespace App\Services\Users;
 
 use App\Models\User;
-use App\Services\Shared\CreateEmployeeService;
+use App\Shared\Services\CreateEmployeeService;
 use Illuminate\Support\Facades\DB;
 
 class StoreUserService
