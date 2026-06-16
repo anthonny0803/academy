@@ -2,8 +2,8 @@
 
 namespace App\Domains\Academics\Models;
 
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Students\Models\Student;
-use App\Models\Enrollment;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Traits\Activatable;
 use Illuminate\Database\Eloquent\Builder;

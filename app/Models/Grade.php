@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
 use App\Domains\Students\Models\Student;
 use App\Shared\Contracts\HasEntityName;

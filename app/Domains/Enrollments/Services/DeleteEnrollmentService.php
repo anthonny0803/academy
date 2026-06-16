@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\Enrollments;
+namespace App\Domains\Enrollments\Services;
 
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Domains\Students\Enums\StudentSituation;
-use App\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

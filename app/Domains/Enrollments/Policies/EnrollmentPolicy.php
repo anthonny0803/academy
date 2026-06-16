@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Policies;
+namespace App\Domains\Enrollments\Policies;
 
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
-use App\Models\Enrollment;
 use Illuminate\Auth\Access\Response;
 
 class EnrollmentPolicy

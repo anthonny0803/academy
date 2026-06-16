@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Enrollments;
+namespace App\Domains\Enrollments\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

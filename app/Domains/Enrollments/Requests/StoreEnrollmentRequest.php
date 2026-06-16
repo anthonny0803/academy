@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Enrollments;
+namespace App\Domains\Enrollments\Requests;
 
 use App\Domains\Academics\Models\Section;
-use App\Enums\EnrollmentStatus;
-use App\Models\Enrollment;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Models\Enrollment;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEnrollmentRequest extends FormRequest

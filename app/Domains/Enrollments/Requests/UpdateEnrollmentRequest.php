@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Enrollments;
+namespace App\Domains\Enrollments\Requests;
 
-use App\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

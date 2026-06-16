@@ -2,11 +2,11 @@
 
 namespace App\Domains\Students\Models;
 
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Students\Enums\StudentSituation;
-use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Traits\Activatable;

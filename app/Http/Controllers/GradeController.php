@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
 use App\Http\Requests\Grades\StoreGradeRequest;
 use App\Http\Requests\Grades\UpdateGradeRequest;
-use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
 use App\Services\Grades\DeleteGradeService;

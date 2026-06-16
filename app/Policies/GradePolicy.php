@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
-use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
 use Illuminate\Auth\Access\Response;

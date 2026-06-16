@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Enrollment;
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
 use Illuminate\Database\Eloquent\Factories\Factory;

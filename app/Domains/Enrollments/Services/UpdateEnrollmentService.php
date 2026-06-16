@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Enrollments;
+namespace App\Domains\Enrollments\Services;
 
-use App\Models\Enrollment;
+use App\Domains\Enrollments\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
