@@ -2,7 +2,7 @@
 
 namespace App\Domains\Representatives\Requests;
 
-use App\Shared\Enums\Sex;
+use App\Domains\Shared\Enums\Sex;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

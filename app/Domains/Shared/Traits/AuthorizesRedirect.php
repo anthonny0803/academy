@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shared\Traits;
+namespace App\Domains\Shared\Traits;
 
 use Illuminate\Support\Facades\Gate;
 

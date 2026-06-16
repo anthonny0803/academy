@@ -3,7 +3,7 @@
 namespace App\Domains\Academics\Services\Teachers;
 
 use App\Domains\Academics\Models\Teacher;
-use App\Shared\Services\UpdateEmployeeService;
+use App\Domains\Shared\Services\UpdateEmployeeService;
 use Illuminate\Support\Facades\DB;
 
 class UpdateTeacherService

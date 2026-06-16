@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shared\Contracts;
+namespace App\Domains\Shared\Contracts;
 
 interface HasEntityName
 {

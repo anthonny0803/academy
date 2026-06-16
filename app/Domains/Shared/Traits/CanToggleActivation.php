@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Shared\Traits;
+namespace App\Domains\Shared\Traits;
 
-use App\Shared\Contracts\HasEntityName;
+use App\Domains\Shared\Contracts\HasEntityName;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;

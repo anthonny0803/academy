@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
-use App\Shared\Enums\Sex;
+use App\Domains\Shared\Enums\Sex;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 

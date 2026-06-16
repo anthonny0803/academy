@@ -4,7 +4,7 @@ namespace App\Domains\Academics\Services\Teachers;
 
 use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Enums\Role;
-use App\Shared\Services\CreateEmployeeService;
+use App\Domains\Shared\Services\CreateEmployeeService;
 use Illuminate\Support\Facades\DB;
 
 class StoreTeacherService

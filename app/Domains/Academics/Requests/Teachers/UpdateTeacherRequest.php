@@ -2,7 +2,7 @@
 
 namespace App\Domains\Academics\Requests\Teachers;
 
-use App\Shared\Requests\UpdateEmployeeRequest;
+use App\Domains\Shared\Requests\UpdateEmployeeRequest;
 
 class UpdateTeacherRequest extends UpdateEmployeeRequest
 {

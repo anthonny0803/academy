@@ -3,7 +3,7 @@
 namespace App\Domains\Grades\Models;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
-use App\Shared\Contracts\HasEntityName;
+use App\Domains\Shared\Contracts\HasEntityName;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

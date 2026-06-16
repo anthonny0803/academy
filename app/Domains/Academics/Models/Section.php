@@ -3,9 +3,9 @@
 namespace App\Domains\Academics\Models;
 
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Shared\Contracts\HasEntityName;
+use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
-use App\Shared\Contracts\HasEntityName;
-use App\Shared\Traits\Activatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

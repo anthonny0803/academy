@@ -4,8 +4,8 @@ namespace App\Domains\Grades\Models;
 
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Students\Models\Student;
-use App\Shared\Contracts\HasEntityName;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

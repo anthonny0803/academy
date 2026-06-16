@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Shared\Enums;
+namespace App\Domains\Shared\Enums;
 
 enum Sex: string
 {

@@ -3,8 +3,8 @@
 namespace App\Domains\Academics\Models;
 
 use App\Domains\Identity\Models\User;
-use App\Shared\Contracts\HasEntityName;
-use App\Shared\Traits\Activatable;
+use App\Domains\Shared\Contracts\HasEntityName;
+use App\Domains\Shared\Traits\Activatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

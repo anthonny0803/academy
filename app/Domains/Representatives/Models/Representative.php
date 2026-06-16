@@ -3,9 +3,9 @@
 namespace App\Domains\Representatives\Models;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Contracts\HasEntityName;
+use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
-use App\Shared\Contracts\HasEntityName;
-use App\Shared\Traits\Activatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

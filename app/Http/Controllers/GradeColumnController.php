@@ -10,7 +10,7 @@ use App\Domains\Grades\Services\GradeColumns\DeleteGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\StoreGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\UpdateGradeColumnService;
 use App\Domains\Identity\Models\User;
-use App\Shared\Traits\AuthorizesRedirect;
+use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Shared\Requests;
+namespace App\Domains\Shared\Requests;
 
-use App\Shared\Enums\Sex;
+use App\Domains\Shared\Enums\Sex;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
