@@ -9,6 +9,7 @@ use App\Domains\Academics\Services\SectionSubjectTeacher\DeleteSectionSubjectTea
 use App\Domains\Academics\Services\SectionSubjectTeacher\StoreSectionSubjectTeacherService;
 use App\Domains\Academics\Services\SectionSubjectTeacher\UpdateSectionSubjectTeacherService;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;

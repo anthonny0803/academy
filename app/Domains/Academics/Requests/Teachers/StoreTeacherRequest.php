@@ -2,7 +2,7 @@
 
 namespace App\Domains\Academics\Requests\Teachers;
 
-use App\Domains\Shared\Requests\StoreEmployeeRequest;
+use App\Domains\Shared\Http\Requests\StoreEmployeeRequest;
 
 class StoreTeacherRequest extends StoreEmployeeRequest
 {

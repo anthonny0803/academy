@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Domains\Grades\Requests\Api\PublicGradesRequest;
 use App\Domains\Grades\Services\Api\PublicGradesService;
-use App\Http\Controllers\Controller;
+use App\Domains\Shared\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
 class PublicGradesController extends Controller

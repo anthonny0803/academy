@@ -9,6 +9,7 @@ use App\Domains\Representatives\Requests\UpdateRepresentativeRequest;
 use App\Domains\Representatives\Services\StoreRepresentativeService;
 use App\Domains\Representatives\Services\UpdateRepresentativeService;
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

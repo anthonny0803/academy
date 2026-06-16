@@ -12,6 +12,7 @@ use App\Domains\Grades\Services\Grades\DeleteGradeService;
 use App\Domains\Grades\Services\Grades\StoreGradeService;
 use App\Domains\Grades\Services\Grades\UpdateGradeService;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;

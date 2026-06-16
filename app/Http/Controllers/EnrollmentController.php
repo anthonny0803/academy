@@ -14,6 +14,7 @@ use App\Domains\Enrollments\Services\PromoteEnrollmentService;
 use App\Domains\Enrollments\Services\StoreEnrollmentService;
 use App\Domains\Enrollments\Services\TransferEnrollmentService;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Students\Models\Student;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

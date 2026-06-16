@@ -11,6 +11,7 @@ use App\Domains\Identity\Services\Users\RoleAssignmentService;
 use App\Domains\Identity\Services\Users\StoreUserService;
 use App\Domains\Identity\Services\Users\UpdateUserService;
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

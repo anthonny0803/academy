@@ -11,6 +11,7 @@ use App\Domains\Academics\Services\Sections\DeleteSectionService;
 use App\Domains\Academics\Services\Sections\StoreSectionService;
 use App\Domains\Academics\Services\Sections\UpdateSectionService;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

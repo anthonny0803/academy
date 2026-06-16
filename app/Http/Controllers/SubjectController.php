@@ -9,6 +9,7 @@ use App\Domains\Academics\Services\Subjects\DeleteSubjectService;
 use App\Domains\Academics\Services\Subjects\StoreSubjectService;
 use App\Domains\Academics\Services\Subjects\UpdateSubjectService;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
