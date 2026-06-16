@@ -3,7 +3,7 @@
 namespace App\Domains\Identity\Requests\Users;
 
 use App\Domains\Identity\Enums\Role;
-use App\Http\Requests\Shared\StoreEmployeeRequest;
+use App\Shared\Requests\StoreEmployeeRequest;
 use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends StoreEmployeeRequest

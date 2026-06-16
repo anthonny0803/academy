@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Shared;
+namespace App\Shared\Requests;
 
 use App\Shared\Enums\Sex;
 use Illuminate\Foundation\Http\FormRequest;

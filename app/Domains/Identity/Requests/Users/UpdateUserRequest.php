@@ -2,7 +2,7 @@
 
 namespace App\Domains\Identity\Requests\Users;
 
-use App\Http\Requests\Shared\UpdateEmployeeRequest;
+use App\Shared\Requests\UpdateEmployeeRequest;
 
 class UpdateUserRequest extends UpdateEmployeeRequest
 {
