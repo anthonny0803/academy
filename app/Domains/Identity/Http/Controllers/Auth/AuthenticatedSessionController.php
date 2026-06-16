@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Domains\Identity\Http\Controllers\Auth;
 
+use App\Domains\Identity\Http\Requests\Auth\LoginRequest;
 use App\Domains\Shared\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

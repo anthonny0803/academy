@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Domains\Shared\Http\Middleware\PreventBackHistory::class,
-            \App\Http\Middleware\CheckActiveUser::class,
+            \App\Domains\Identity\Http\Middleware\CheckActiveUser::class,
         ]);
 
         $middleware->alias([

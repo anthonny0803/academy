@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Domains\Identity\Http\Controllers\Auth;
 
 use App\Domains\Shared\Http\Controllers\Controller;
 use Illuminate\Auth\Events\Verified;

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Identity\Http\Controllers;
 
 use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Http\Requests\RoleManagement\AssignRoleRequest;
 use App\Domains\Identity\Models\User;
-use App\Domains\Identity\Requests\RoleManagement\AssignRoleRequest;
 use App\Domains\Identity\Services\RoleManagement\AssignRoleService;
 use App\Domains\Identity\Services\Users\RoleAssignmentService;
 use App\Domains\Shared\Http\Controllers\Controller;

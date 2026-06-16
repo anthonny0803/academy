@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Identity\Requests\Users;
+namespace App\Domains\Identity\Http\Requests\Users;
 
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Shared\Http\Requests\StoreEmployeeRequest;

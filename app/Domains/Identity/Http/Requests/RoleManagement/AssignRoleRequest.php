@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Identity\Requests\RoleManagement;
+namespace App\Domains\Identity\Http\Requests\RoleManagement;
 
 use App\Domains\Identity\Enums\Role;
 use Illuminate\Foundation\Http\FormRequest;

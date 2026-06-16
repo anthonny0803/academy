@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Identity\Http\Controllers;
 
 use App\Domains\Identity\Enums\Role as RoleEnum;
+use App\Domains\Identity\Http\Requests\Users\StoreUserRequest;
+use App\Domains\Identity\Http\Requests\Users\UpdateUserRequest;
 use App\Domains\Identity\Models\User;
-use App\Domains\Identity\Requests\Users\StoreUserRequest;
-use App\Domains\Identity\Requests\Users\UpdateUserRequest;
 use App\Domains\Identity\Services\Users\DeleteUserService;
 use App\Domains\Identity\Services\Users\RoleAssignmentService;
 use App\Domains\Identity\Services\Users\StoreUserService;
