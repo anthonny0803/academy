@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Representatives\Http\Controllers;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Representatives\Http\Requests\StoreRepresentativeRequest;
+use App\Domains\Representatives\Http\Requests\UpdateRepresentativeRequest;
 use App\Domains\Representatives\Models\Representative;
-use App\Domains\Representatives\Requests\StoreRepresentativeRequest;
-use App\Domains\Representatives\Requests\UpdateRepresentativeRequest;
 use App\Domains\Representatives\Services\StoreRepresentativeService;
 use App\Domains\Representatives\Services\UpdateRepresentativeService;
 use App\Domains\Shared\Enums\Sex;
