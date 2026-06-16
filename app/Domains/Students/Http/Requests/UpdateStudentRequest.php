@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Students\Requests;
+namespace App\Domains\Students\Http\Requests;
 
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Shared\Enums\Sex;

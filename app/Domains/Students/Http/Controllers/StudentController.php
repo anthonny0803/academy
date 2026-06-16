@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Students\Http\Controllers;
 
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Identity\Models\User;
@@ -11,13 +11,13 @@ use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Http\Requests\ChangeSituationRequest;
+use App\Domains\Students\Http\Requests\ConvertToSelfRepresentedRequest;
+use App\Domains\Students\Http\Requests\ReassignRepresentativeRequest;
+use App\Domains\Students\Http\Requests\StoreStudentRequest;
+use App\Domains\Students\Http\Requests\UpdateStudentRequest;
+use App\Domains\Students\Http\Requests\WithdrawStudentRequest;
 use App\Domains\Students\Models\Student;
-use App\Domains\Students\Requests\ChangeSituationRequest;
-use App\Domains\Students\Requests\ConvertToSelfRepresentedRequest;
-use App\Domains\Students\Requests\ReassignRepresentativeRequest;
-use App\Domains\Students\Requests\StoreStudentRequest;
-use App\Domains\Students\Requests\UpdateStudentRequest;
-use App\Domains\Students\Requests\WithdrawStudentRequest;
 use App\Domains\Students\Services\ChangeSituationService;
 use App\Domains\Students\Services\ConvertToSelfRepresentedService;
 use App\Domains\Students\Services\ReassignRepresentativeService;
