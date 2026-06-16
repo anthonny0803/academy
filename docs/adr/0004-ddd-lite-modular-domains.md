@@ -27,6 +27,12 @@ PSR-4 already maps `App\` to `app/`, so no autoload change is needed. Polymorphi
 are decoupled from class namespaces via a morph map, and factories are resolved by a
 flat name resolver, both registered in `AppServiceProvider`.
 
+> **Maintenance note (morph map):** the morph map is registered with
+> `Relation::enforceMorphMap`, which is strict — any morphable model missing from the
+> map throws when its morph type is persisted. This is intentional (fail loud). Whenever
+> a new morphable model is added, register it in `AppServiceProvider::MORPH_MAP` with a
+> stable snake_case alias.
+
 ## Consequences
 
 - Each domain is a self-contained, navigable package ("package by feature"): the
