@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domains\Students\Models\Student;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Traits\Activatable;
 use Illuminate\Database\Eloquent\Builder;

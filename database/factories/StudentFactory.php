@@ -6,11 +6,11 @@ use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
+use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Models\Student;
 use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
 use App\Models\Enrollment;
 use App\Models\Section;
-use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StudentFactory extends Factory

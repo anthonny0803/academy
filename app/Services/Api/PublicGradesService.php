@@ -3,7 +3,7 @@
 namespace App\Services\Api;
 
 use App\Domains\Identity\Models\User;
-use App\Models\Student;
+use App\Domains\Students\Models\Student;
 
 class PublicGradesService
 {

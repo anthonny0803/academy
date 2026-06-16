@@ -3,10 +3,10 @@
 namespace App\Services\Enrollments;
 
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
+use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Models\Student;
 use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
 use App\Models\Enrollment;
-use App\Models\Student;
 use Illuminate\Support\Facades\DB;
 
 class StoreEnrollmentService

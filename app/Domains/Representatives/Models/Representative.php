@@ -3,7 +3,7 @@
 namespace App\Domains\Representatives\Models;
 
 use App\Domains\Identity\Models\User;
-use App\Models\Student;
+use App\Domains\Students\Models\Student;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Traits\Activatable;
 use Carbon\Carbon;

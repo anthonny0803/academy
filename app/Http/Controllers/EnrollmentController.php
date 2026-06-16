@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Students\Models\Student;
 use App\Enums\EnrollmentStatus;
 use App\Http\Requests\Enrollments\PromoteEnrollmentRequest;
 use App\Http\Requests\Enrollments\StoreEnrollmentRequest;
@@ -10,7 +11,6 @@ use App\Http\Requests\Enrollments\TransferEnrollmentRequest;
 use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
 use App\Models\Section;
-use App\Models\Student;
 use App\Services\Enrollments\DeleteEnrollmentService;
 use App\Services\Enrollments\PromoteEnrollmentService;
 use App\Services\Enrollments\StoreEnrollmentService;

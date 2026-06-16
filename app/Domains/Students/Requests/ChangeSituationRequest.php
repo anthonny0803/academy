@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\Students;
+namespace App\Domains\Students\Requests;
 
-use App\Enums\StudentSituation;
+use App\Domains\Students\Enums\StudentSituation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

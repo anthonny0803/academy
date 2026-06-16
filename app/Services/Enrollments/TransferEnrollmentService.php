@@ -3,8 +3,8 @@
 namespace App\Services\Enrollments;
 
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
+use App\Domains\Students\Enums\StudentSituation;
 use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
 use App\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Students\Models;
 
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
-use App\Enums\StudentSituation;
+use App\Domains\Students\Enums\StudentSituation;
+use App\Models\Enrollment;
+use App\Models\Grade;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Traits\Activatable;
 use Carbon\Carbon;

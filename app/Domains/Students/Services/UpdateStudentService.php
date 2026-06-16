@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Students;
+namespace App\Domains\Students\Services;
 
-use App\Models\Student;
+use App\Domains\Students\Models\Student;
 use Illuminate\Support\Facades\DB;
 
 class UpdateStudentService

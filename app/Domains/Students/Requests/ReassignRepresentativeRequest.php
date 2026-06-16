@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Students;
+namespace App\Domains\Students\Requests;
 
 use App\Domains\Representatives\Enums\RelationshipType;
 use Illuminate\Foundation\Http\FormRequest;

@@ -3,12 +3,12 @@
 namespace Tests\Feature\Enrollments;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Models\Student;
 use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
 use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
 use App\Models\Section;
-use App\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

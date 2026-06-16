@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Students;
+namespace App\Domains\Students\Services;
 
-use App\Enums\StudentSituation;
-use App\Models\Student;
+use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Models\Student;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

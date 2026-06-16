@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Students\Models\Student;
 use App\Shared\Contracts\HasEntityName;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

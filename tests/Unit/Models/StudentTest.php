@@ -4,7 +4,7 @@ namespace Tests\Unit\Models;
 
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
-use App\Models\Student;
+use App\Domains\Students\Models\Student;
 use Carbon\Carbon;
 use Tests\TestCase;
 
