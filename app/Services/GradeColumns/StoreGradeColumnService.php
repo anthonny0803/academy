@@ -2,8 +2,8 @@
 
 namespace App\Services\GradeColumns;
 
+use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Models\GradeColumn;
-use App\Models\SectionSubjectTeacher;
 use Illuminate\Support\Facades\DB;
 
 class StoreGradeColumnService

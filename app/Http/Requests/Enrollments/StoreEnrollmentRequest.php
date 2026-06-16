@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Enrollments;
 
+use App\Domains\Academics\Models\Section;
 use App\Enums\EnrollmentStatus;
 use App\Models\Enrollment;
-use App\Models\Section;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEnrollmentRequest extends FormRequest

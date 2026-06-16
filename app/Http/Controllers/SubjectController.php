@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Requests\Subjects\StoreSubjectRequest;
+use App\Domains\Academics\Requests\Subjects\UpdateSubjectRequest;
+use App\Domains\Academics\Services\Subjects\DeleteSubjectService;
+use App\Domains\Academics\Services\Subjects\StoreSubjectService;
+use App\Domains\Academics\Services\Subjects\UpdateSubjectService;
 use App\Domains\Identity\Models\User;
-use App\Http\Requests\Subjects\StoreSubjectRequest;
-use App\Http\Requests\Subjects\UpdateSubjectRequest;
-use App\Models\Subject;
-use App\Services\Subjects\DeleteSubjectService;
-use App\Services\Subjects\StoreSubjectService;
-use App\Services\Subjects\UpdateSubjectService;
 use App\Shared\Traits\AuthorizesRedirect;
 use App\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;

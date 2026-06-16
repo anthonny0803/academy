@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Academics\Requests\SectionSubjectTeacher\StoreSectionSubjectTeacherRequest;
+use App\Domains\Academics\Requests\SectionSubjectTeacher\UpdateSectionSubjectTeacherRequest;
+use App\Domains\Academics\Services\SectionSubjectTeacher\DeleteSectionSubjectTeacherService;
+use App\Domains\Academics\Services\SectionSubjectTeacher\StoreSectionSubjectTeacherService;
+use App\Domains\Academics\Services\SectionSubjectTeacher\UpdateSectionSubjectTeacherService;
 use App\Domains\Identity\Models\User;
-use App\Http\Requests\SectionSubjectTeacher\StoreSectionSubjectTeacherRequest;
-use App\Http\Requests\SectionSubjectTeacher\UpdateSectionSubjectTeacherRequest;
-use App\Models\SectionSubjectTeacher;
-use App\Services\SectionSubjectTeacher\DeleteSectionSubjectTeacherService;
-use App\Services\SectionSubjectTeacher\StoreSectionSubjectTeacherService;
-use App\Services\SectionSubjectTeacher\UpdateSectionSubjectTeacherService;
 use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;

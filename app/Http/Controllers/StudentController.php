@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
@@ -19,7 +20,6 @@ use App\Domains\Students\Services\ReassignRepresentativeService;
 use App\Domains\Students\Services\StoreStudentService;
 use App\Domains\Students\Services\UpdateStudentService;
 use App\Domains\Students\Services\WithdrawStudentService;
-use App\Models\AcademicPeriod;
 use App\Shared\Enums\Sex;
 use App\Shared\Traits\AuthorizesRedirect;
 use App\Shared\Traits\CanToggleActivation;

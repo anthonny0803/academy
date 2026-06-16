@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
-use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class TeacherFactory extends Factory

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\AcademicPeriod;
-use App\Models\Section;
+use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Models\Section;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SectionFactory extends Factory

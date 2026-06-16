@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Models\User;
-use App\Models\Teacher;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

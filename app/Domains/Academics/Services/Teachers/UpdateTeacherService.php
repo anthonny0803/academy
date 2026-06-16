@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Domains\Academics\Services\Teachers;
+
+use App\Domains\Academics\Models\Teacher;
+use App\Shared\Services\UpdateEmployeeService;
+use Illuminate\Support\Facades\DB;
+
+class UpdateTeacherService
+{
+    public function __construct(
+        private UpdateEmployeeService $updateEmployeeService
+    ) {}
+
+    public function handle(Teacher $teacher, array $data): Teacher
+    {
+        return DB::transaction(function () use ($teacher, $data) {
+            $this->updateEmployeeService->handle($teacher->user, $data);
+
+            return $teacher->fresh('user');
+        });
+    }
+}

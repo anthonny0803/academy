@@ -2,10 +2,10 @@
 
 namespace App\Domains\Identity\Services\RoleManagement;
 
+use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Models\Representative;
-use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
 
 class AssignRoleService

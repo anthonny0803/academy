@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Domains\Academics\Models\Section;
 use App\Domains\Students\Models\Student;
 use App\Enums\EnrollmentStatus;
 use App\Models\Enrollment;
-use App\Models\Section;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EnrollmentFactory extends Factory

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Requests\AcademicPeriods\StoreAcademicPeriodRequest;
+use App\Domains\Academics\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
+use App\Domains\Academics\Services\AcademicPeriods\CloseAcademicPeriodService;
+use App\Domains\Academics\Services\AcademicPeriods\DeleteAcademicPeriodService;
+use App\Domains\Academics\Services\AcademicPeriods\StoreAcademicPeriodService;
+use App\Domains\Academics\Services\AcademicPeriods\UpdateAcademicPeriodService;
 use App\Domains\Identity\Models\User;
-use App\Http\Requests\AcademicPeriods\StoreAcademicPeriodRequest;
-use App\Http\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
-use App\Models\AcademicPeriod;
-use App\Services\AcademicPeriods\CloseAcademicPeriodService;
-use App\Services\AcademicPeriods\DeleteAcademicPeriodService;
-use App\Services\AcademicPeriods\StoreAcademicPeriodService;
-use App\Services\AcademicPeriods\UpdateAcademicPeriodService;
 use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;

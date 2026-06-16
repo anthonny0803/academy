@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Identity\Models\User;
 use App\Http\Requests\GradeColumns\StoreGradeColumnRequest;
 use App\Http\Requests\GradeColumns\UpdateGradeColumnRequest;
 use App\Models\GradeColumn;
-use App\Models\SectionSubjectTeacher;
 use App\Services\GradeColumns\DeleteGradeColumnService;
 use App\Services\GradeColumns\StoreGradeColumnService;
 use App\Services\GradeColumns\UpdateGradeColumnService;

@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Subject;
-use App\Models\SubjectTeacher;
-use App\Models\Teacher;
+use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Models\SubjectTeacher;
+use App\Domains\Academics\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SubjectTeacherFactory extends Factory

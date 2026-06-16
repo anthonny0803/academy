@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Enrollments;
 
-use App\Models\Section;
+use App\Domains\Academics\Models\Section;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

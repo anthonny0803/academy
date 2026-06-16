@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Shared\Contracts\HasEntityName;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

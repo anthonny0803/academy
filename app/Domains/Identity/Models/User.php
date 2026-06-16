@@ -2,10 +2,10 @@
 
 namespace App\Domains\Identity\Models;
 
+use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Students\Models\Student;
-use App\Models\Teacher;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Enums\Sex;
 use App\Shared\Traits\Activatable;

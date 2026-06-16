@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domains\Academics\Models\Section;
 use App\Domains\Students\Models\Student;
 use App\Enums\EnrollmentStatus;
 use App\Shared\Contracts\HasEntityName;

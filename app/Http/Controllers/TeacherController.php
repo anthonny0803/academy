@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Academics\Models\Teacher;
+use App\Domains\Academics\Requests\Teachers\StoreTeacherRequest;
+use App\Domains\Academics\Requests\Teachers\UpdateTeacherRequest;
+use App\Domains\Academics\Services\Teachers\StoreTeacherService;
+use App\Domains\Academics\Services\Teachers\UpdateTeacherService;
 use App\Domains\Identity\Models\User;
-use App\Http\Requests\Teachers\StoreTeacherRequest;
-use App\Http\Requests\Teachers\UpdateTeacherRequest;
-use App\Models\Teacher;
-use App\Services\Teachers\StoreTeacherService;
-use App\Services\Teachers\UpdateTeacherService;
 use App\Shared\Enums\Sex;
 use App\Shared\Traits\AuthorizesRedirect;
 use App\Shared\Traits\CanToggleActivation;

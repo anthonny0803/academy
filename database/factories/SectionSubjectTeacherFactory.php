@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Models\Section;
-use App\Models\SectionSubjectTeacher;
-use App\Models\Subject;
-use App\Models\SubjectTeacher;
-use App\Models\Teacher;
+use App\Domains\Academics\Models\Section;
+use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Models\SubjectTeacher;
+use App\Domains\Academics\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SectionSubjectTeacherFactory extends Factory

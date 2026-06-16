@@ -2,18 +2,18 @@
 
 namespace App\Providers;
 
+use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Models\Section;
+use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Models\SubjectTeacher;
+use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Students\Models\Student;
-use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
-use App\Models\Section;
-use App\Models\SectionSubjectTeacher;
-use App\Models\Subject;
-use App\Models\SubjectTeacher;
-use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\URL;

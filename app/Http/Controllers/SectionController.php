@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Models\Section;
+use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Requests\Sections\StoreSectionRequest;
+use App\Domains\Academics\Requests\Sections\UpdateSectionRequest;
+use App\Domains\Academics\Services\Sections\DeleteSectionService;
+use App\Domains\Academics\Services\Sections\StoreSectionService;
+use App\Domains\Academics\Services\Sections\UpdateSectionService;
 use App\Domains\Identity\Models\User;
-use App\Http\Requests\Sections\StoreSectionRequest;
-use App\Http\Requests\Sections\UpdateSectionRequest;
-use App\Models\AcademicPeriod;
-use App\Models\Section;
-use App\Models\Subject;
-use App\Services\Sections\DeleteSectionService;
-use App\Services\Sections\StoreSectionService;
-use App\Services\Sections\UpdateSectionService;
 use App\Shared\Traits\AuthorizesRedirect;
 use App\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
