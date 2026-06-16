@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Grades\Models;
 
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;

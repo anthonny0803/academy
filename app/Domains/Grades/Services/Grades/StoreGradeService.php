@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\Grades;
+namespace App\Domains\Grades\Services\Grades;
 
 use App\Domains\Enrollments\Models\Enrollment;
-use App\Models\Grade;
-use App\Models\GradeColumn;
+use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 

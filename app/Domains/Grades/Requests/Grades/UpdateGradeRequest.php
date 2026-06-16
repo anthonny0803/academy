@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Grades;
+namespace App\Domains\Grades\Requests\Grades;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class StoreGradeRequest extends FormRequest
+class UpdateGradeRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,20 +13,13 @@ class StoreGradeRequest extends FormRequest
 
     public function rules(): array
     {
-        $gradeColumn = $this->route('gradeColumn');
-        $academicPeriod = $gradeColumn?->sectionSubjectTeacher?->section?->academicPeriod;
+        $grade = $this->route('grade');
+        $academicPeriod = $grade?->gradeColumn?->sectionSubjectTeacher?->section?->academicPeriod;
 
         $minGrade = $academicPeriod?->min_grade ?? 0;
         $maxGrade = $academicPeriod?->max_grade ?? 100;
 
         return [
-            'enrollment_id' => [
-                'required',
-                'uuid',
-                'exists:enrollments,id',
-                Rule::unique('grades')
-                    ->where('grade_column_id', $gradeColumn?->id),
-            ],
             'value' => [
                 'required',
                 'numeric',
@@ -45,7 +37,6 @@ class StoreGradeRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'enrollment_id' => 'estudiante',
             'value' => 'calificación',
             'observation' => 'observación',
         ];
@@ -53,16 +44,13 @@ class StoreGradeRequest extends FormRequest
 
     public function messages(): array
     {
-        $gradeColumn = $this->route('gradeColumn');
-        $academicPeriod = $gradeColumn?->sectionSubjectTeacher?->section?->academicPeriod;
+        $grade = $this->route('grade');
+        $academicPeriod = $grade?->gradeColumn?->sectionSubjectTeacher?->section?->academicPeriod;
 
         $minGrade = $academicPeriod?->min_grade ?? 0;
         $maxGrade = $academicPeriod?->max_grade ?? 100;
 
         return [
-            'enrollment_id.required' => 'El estudiante es obligatorio.',
-            'enrollment_id.exists' => 'El estudiante seleccionado no existe.',
-            'enrollment_id.unique' => 'Este estudiante ya tiene una nota en esta evaluación.',
             'value.required' => 'La calificación es obligatoria.',
             'value.numeric' => 'La calificación debe ser un número.',
             'value.min' => "La calificación no puede ser menor a {$minGrade}.",

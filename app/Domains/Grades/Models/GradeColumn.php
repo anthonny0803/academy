@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Grades\Models;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Shared\Contracts\HasEntityName;

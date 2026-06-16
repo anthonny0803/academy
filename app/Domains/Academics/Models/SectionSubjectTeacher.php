@@ -2,8 +2,8 @@
 
 namespace App\Domains\Academics\Models;
 
-use App\Models\Grade;
-use App\Models\GradeColumn;
+use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

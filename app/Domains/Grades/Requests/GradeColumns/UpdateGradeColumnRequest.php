@@ -1,28 +1,37 @@
 <?php
 
-namespace App\Http\Requests\GradeColumns;
+namespace App\Domains\Grades\Requests\GradeColumns;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreGradeColumnRequest extends FormRequest
+class UpdateGradeColumnRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return true;
     }
 
+    protected function getGradeColumnId(): int
+    {
+        return $this->route('gradeColumn')->id;
+    }
+
+    protected function getSectionSubjectTeacherId(): int
+    {
+        return $this->route('gradeColumn')->section_subject_teacher_id;
+    }
+
     public function rules(): array
     {
-        $sstId = $this->route('sectionSubjectTeacher')->id;
-
         return [
             'name' => [
                 'required',
                 'string',
                 'max:100',
                 Rule::unique('grade_columns')
-                    ->where('section_subject_teacher_id', $sstId),
+                    ->where('section_subject_teacher_id', $this->getSectionSubjectTeacherId())
+                    ->ignore($this->getGradeColumnId()),
             ],
             'weight' => [
                 'required',

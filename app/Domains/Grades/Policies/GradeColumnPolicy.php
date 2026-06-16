@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Policies;
+namespace App\Domains\Grades\Policies;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Identity\Models\User;
-use App\Models\GradeColumn;
 use Illuminate\Auth\Access\Response;
 
 class GradeColumnPolicy

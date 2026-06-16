@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Grades;
+namespace App\Domains\Grades\Services\Grades;
 
-use App\Models\Grade;
+use App\Domains\Grades\Models\Grade;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

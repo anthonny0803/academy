@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Grades\Requests\GradeColumns\StoreGradeColumnRequest;
+use App\Domains\Grades\Requests\GradeColumns\UpdateGradeColumnRequest;
+use App\Domains\Grades\Services\GradeColumns\DeleteGradeColumnService;
+use App\Domains\Grades\Services\GradeColumns\StoreGradeColumnService;
+use App\Domains\Grades\Services\GradeColumns\UpdateGradeColumnService;
 use App\Domains\Identity\Models\User;
-use App\Http\Requests\GradeColumns\StoreGradeColumnRequest;
-use App\Http\Requests\GradeColumns\UpdateGradeColumnRequest;
-use App\Models\GradeColumn;
-use App\Services\GradeColumns\DeleteGradeColumnService;
-use App\Services\GradeColumns\StoreGradeColumnService;
-use App\Services\GradeColumns\UpdateGradeColumnService;
 use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;

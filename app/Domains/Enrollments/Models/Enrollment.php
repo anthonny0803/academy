@@ -4,8 +4,8 @@ namespace App\Domains\Enrollments\Models;
 
 use App\Domains\Academics\Models\Section;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Grades\Models\Grade;
 use App\Domains\Students\Models\Student;
-use App\Models\Grade;
 use App\Shared\Contracts\HasEntityName;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

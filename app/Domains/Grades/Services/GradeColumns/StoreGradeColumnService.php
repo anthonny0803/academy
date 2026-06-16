@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\GradeColumns;
+namespace App\Domains\Grades\Services\GradeColumns;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
-use App\Models\GradeColumn;
+use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Support\Facades\DB;
 
 class StoreGradeColumnService

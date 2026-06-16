@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Policies;
+namespace App\Domains\Grades\Policies;
 
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Identity\Models\User;
-use App\Models\Grade;
-use App\Models\GradeColumn;
 use Illuminate\Auth\Access\Response;
 
 class GradePolicy
