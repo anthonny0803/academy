@@ -48,3 +48,41 @@ slices: each domain now owns its `Http/` layer. Rationale:
   delivery belongs to the domain it serves, while the Blade presentation is kept apart
   as just one consumer. Base `Controller` and non-domain middleware remain in `Shared`
   because they are genuinely cross-cutting, not business logic.
+
+## Domain boundary criterion (2026-06-16)
+
+How we decide where one domain ends and the next begins. Relationships (foreign keys,
+pivot/join tables) are **not** the criterion: almost every model is related, and a pivot
+exists just as often between separate contexts as within one. A boundary is decided by
+**behaviour and meaning**, using three tests:
+
+1. **Consistency boundary (invariants)**: data that must change together, atomically, to
+   stay valid belongs to the same context.
+2. **Ubiquitous language and owner of the workflow**: a different domain expert / role
+   doing the work signals a different context.
+3. **Reason and rate of change (cohesion)**: things that change for the same business
+   reason, at the same rhythm, belong together.
+
+Reusable rule: *if the same person changes two sets of entities, for the same business
+reason, and they must stay consistent together → one context; if different people change
+them for different reasons at different rhythms → different contexts, even when related.*
+
+Applied to this system:
+
+- **Academics** (AcademicPeriod, Section, Subject, Teacher and the SubjectTeacher /
+  SectionSubjectTeacher join entities): academic coordination composing "the offering /
+  timetable" — one owner, one consistency boundary (the timetable is only valid as a
+  whole), changes at term setup. The join entities are connective tissue with no
+  independent lifecycle, so they stay inside this context rather than forming domains of
+  their own.
+- **Enrollments**: the registrar placing and moving students (enrol / transfer /
+  withdraw) — its own lifecycle, owner and status invariants. It only *references*
+  Academics and Students.
+- **Grades**: teachers defining grade columns and recording marks — its own lifecycle
+  and owner. `GradeColumn` is anchored to the academic structure (not to any single
+  enrolment), which is what makes evaluation a context of its own that merely references
+  Enrollments and Academics.
+
+This boundary is a judgement call, not an algorithm, and is intentionally reversible: a
+sub-area is extracted into its own domain only when it diverges in owner, language or
+reason to change (e.g. `Teacher` growing genuine HR rules → a future `Staff` domain).
