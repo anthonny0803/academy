@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Grades\Http\Controllers;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Grades\Http\Requests\GradeColumns\StoreGradeColumnRequest;
+use App\Domains\Grades\Http\Requests\GradeColumns\UpdateGradeColumnRequest;
 use App\Domains\Grades\Models\GradeColumn;
-use App\Domains\Grades\Requests\GradeColumns\StoreGradeColumnRequest;
-use App\Domains\Grades\Requests\GradeColumns\UpdateGradeColumnRequest;
 use App\Domains\Grades\Services\GradeColumns\DeleteGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\StoreGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\UpdateGradeColumnService;

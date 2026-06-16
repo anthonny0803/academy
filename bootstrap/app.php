@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'public.token' => \App\Http\Middleware\ValidatePublicApiToken::class,
+            'public.token' => \App\Domains\Grades\Http\Middleware\ValidatePublicApiToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

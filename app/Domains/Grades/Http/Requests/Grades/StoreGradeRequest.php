@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Grades\Requests\Grades;
+namespace App\Domains\Grades\Http\Requests\Grades;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

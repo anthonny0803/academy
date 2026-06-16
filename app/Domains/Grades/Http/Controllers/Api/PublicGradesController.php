@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Domains\Grades\Http\Controllers\Api;
 
-use App\Domains\Grades\Requests\Api\PublicGradesRequest;
+use App\Domains\Grades\Http\Requests\Api\PublicGradesRequest;
 use App\Domains\Grades\Services\Api\PublicGradesService;
 use App\Domains\Shared\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
