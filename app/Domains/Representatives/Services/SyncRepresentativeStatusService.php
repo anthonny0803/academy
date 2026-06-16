@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Representatives;
+namespace App\Domains\Representatives\Services;
 
-use App\Models\Representative;
+use App\Domains\Representatives\Models\Representative;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

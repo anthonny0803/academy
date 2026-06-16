@@ -3,11 +3,11 @@
 namespace App\Providers;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Representatives\Models\Representative;
 use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
-use App\Models\Representative;
 use App\Models\Section;
 use App\Models\SectionSubjectTeacher;
 use App\Models\Student;

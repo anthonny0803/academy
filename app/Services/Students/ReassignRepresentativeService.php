@@ -2,8 +2,8 @@
 
 namespace App\Services\Students;
 
+use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Models\Student;
-use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

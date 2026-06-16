@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services\Representatives;
+namespace App\Domains\Representatives\Services;
 
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
-use App\Models\Representative;
+use App\Domains\Representatives\Models\Representative;
 use Illuminate\Support\Facades\DB;
 
 class StoreRepresentativeService

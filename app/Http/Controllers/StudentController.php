@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Identity\Models\User;
-use App\Enums\RelationshipType;
+use App\Domains\Representatives\Enums\RelationshipType;
+use App\Domains\Representatives\Models\Representative;
 use App\Enums\StudentSituation;
 use App\Http\Requests\Students\ChangeSituationRequest;
 use App\Http\Requests\Students\ConvertToSelfRepresentedRequest;
@@ -12,7 +13,6 @@ use App\Http\Requests\Students\StoreStudentRequest;
 use App\Http\Requests\Students\UpdateStudentRequest;
 use App\Http\Requests\Students\WithdrawStudentRequest;
 use App\Models\AcademicPeriod;
-use App\Models\Representative;
 use App\Models\Student;
 use App\Services\Students\ChangeSituationService;
 use App\Services\Students\ConvertToSelfRepresentedService;

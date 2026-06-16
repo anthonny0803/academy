@@ -3,7 +3,7 @@
 namespace App\Domains\Identity\Models;
 
 use App\Domains\Identity\Enums\Role;
-use App\Models\Representative;
+use App\Domains\Representatives\Models\Representative;
 use App\Models\Student;
 use App\Models\Teacher;
 use App\Shared\Contracts\HasEntityName;

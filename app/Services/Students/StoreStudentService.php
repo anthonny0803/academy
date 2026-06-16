@@ -4,12 +4,12 @@ namespace App\Services\Students;
 
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
+use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
 use App\Models\Enrollment;
-use App\Models\Representative;
 use App\Models\Student;
-use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\DB;
 
 class StoreStudentService

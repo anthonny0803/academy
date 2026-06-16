@@ -2,10 +2,10 @@
 
 namespace App\Services\Students;
 
-use App\Enums\RelationshipType;
-use App\Models\Representative;
+use App\Domains\Representatives\Enums\RelationshipType;
+use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Models\Student;
-use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

@@ -2,11 +2,11 @@
 
 namespace App\Services\Enrollments;
 
+use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
 use App\Models\Enrollment;
 use App\Models\Student;
-use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\DB;
 
 class StoreEnrollmentService

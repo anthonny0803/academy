@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums;
+namespace App\Domains\Representatives\Enums;
 
 enum RelationshipType: string
 {

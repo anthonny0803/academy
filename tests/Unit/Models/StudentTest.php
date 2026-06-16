@@ -3,7 +3,7 @@
 namespace Tests\Unit\Models;
 
 use App\Domains\Identity\Models\User;
-use App\Enums\RelationshipType;
+use App\Domains\Representatives\Enums\RelationshipType;
 use App\Models\Student;
 use Carbon\Carbon;
 use Tests\TestCase;

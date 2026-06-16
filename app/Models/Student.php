@@ -3,7 +3,8 @@
 namespace App\Models;
 
 use App\Domains\Identity\Models\User;
-use App\Enums\RelationshipType;
+use App\Domains\Representatives\Enums\RelationshipType;
+use App\Domains\Representatives\Models\Representative;
 use App\Enums\StudentSituation;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Traits\Activatable;

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Domains\Identity\Models\User;
-use App\Http\Requests\Representatives\StoreRepresentativeRequest;
-use App\Http\Requests\Representatives\UpdateRepresentativeRequest;
-use App\Models\Representative;
-use App\Services\Representatives\StoreRepresentativeService;
-use App\Services\Representatives\UpdateRepresentativeService;
+use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Requests\StoreRepresentativeRequest;
+use App\Domains\Representatives\Requests\UpdateRepresentativeRequest;
+use App\Domains\Representatives\Services\StoreRepresentativeService;
+use App\Domains\Representatives\Services\UpdateRepresentativeService;
 use App\Shared\Enums\Sex;
 use App\Shared\Traits\AuthorizesRedirect;
 use App\Shared\Traits\CanToggleActivation;
