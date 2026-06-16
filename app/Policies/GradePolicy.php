@@ -2,10 +2,10 @@
 
 namespace App\Policies;
 
+use App\Domains\Identity\Models\User;
 use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
-use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class GradePolicy

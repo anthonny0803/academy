@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
+use App\Domains\Identity\Models\User;
 use App\Models\Student;
-use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class StudentPolicy

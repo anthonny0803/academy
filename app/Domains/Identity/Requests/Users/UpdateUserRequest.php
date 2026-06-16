@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Users;
+namespace App\Domains\Identity\Requests\Users;
 
 use App\Http\Requests\Shared\UpdateEmployeeRequest;
 

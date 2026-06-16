@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
+use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Models\User;
 use App\Enums\EnrollmentStatus;
 use App\Enums\RelationshipType;
-use App\Enums\Role;
 use App\Enums\StudentSituation;
 use App\Models\Enrollment;
 use App\Models\Representative;
 use App\Models\Section;
 use App\Models\Student;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StudentFactory extends Factory

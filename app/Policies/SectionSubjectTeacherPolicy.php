@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
+use App\Domains\Identity\Models\User;
 use App\Models\SectionSubjectTeacher;
-use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class SectionSubjectTeacherPolicy

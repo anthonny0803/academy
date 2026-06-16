@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\User;
+use App\Domains\Identity\Models\User;
 use Illuminate\Auth\Access\Response;
 
 class RepresentativePolicy

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\Subjects\StoreSubjectRequest;
 use App\Http\Requests\Subjects\UpdateSubjectRequest;
 use App\Models\Subject;
-use App\Models\User;
 use App\Services\Subjects\DeleteSubjectService;
 use App\Services\Subjects\StoreSubjectService;
 use App\Services\Subjects\UpdateSubjectService;

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\AcademicPeriods\StoreAcademicPeriodRequest;
 use App\Http\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
 use App\Models\AcademicPeriod;
-use App\Models\User;
 use App\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Services\AcademicPeriods\StoreAcademicPeriodService;

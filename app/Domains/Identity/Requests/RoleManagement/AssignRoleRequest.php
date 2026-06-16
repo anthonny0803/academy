@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Requests\RoleManagement;
+namespace App\Domains\Identity\Requests\RoleManagement;
 
-use App\Enums\Role;
+use App\Domains\Identity\Enums\Role;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 

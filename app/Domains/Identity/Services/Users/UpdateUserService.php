@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Users;
+namespace App\Domains\Identity\Services\Users;
 
-use App\Models\User;
+use App\Domains\Identity\Models\User;
 use App\Shared\Services\UpdateEmployeeService;
 use Illuminate\Support\Facades\DB;
 

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\User;
+use App\Domains\Identity\Models\User;
 use Carbon\Carbon;
 use Tests\TestCase;
 

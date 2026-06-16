@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Role as RoleEnum;
-use App\Http\Requests\Users\StoreUserRequest;
-use App\Http\Requests\Users\UpdateUserRequest;
-use App\Models\User;
-use App\Services\Users\DeleteUserService;
-use App\Services\Users\RoleAssignmentService;
-use App\Services\Users\StoreUserService;
-use App\Services\Users\UpdateUserService;
+use App\Domains\Identity\Enums\Role as RoleEnum;
+use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Requests\Users\StoreUserRequest;
+use App\Domains\Identity\Requests\Users\UpdateUserRequest;
+use App\Domains\Identity\Services\Users\DeleteUserService;
+use App\Domains\Identity\Services\Users\RoleAssignmentService;
+use App\Domains\Identity\Services\Users\StoreUserService;
+use App\Domains\Identity\Services\Users\UpdateUserService;
 use App\Shared\Enums\Sex;
 use App\Shared\Traits\AuthorizesRedirect;
 use App\Shared\Traits\CanToggleActivation;

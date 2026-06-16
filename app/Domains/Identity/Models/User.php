@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Domains\Identity\Models;
 
-use App\Enums\Role;
+use App\Domains\Identity\Enums\Role;
+use App\Models\Representative;
+use App\Models\Student;
+use App\Models\Teacher;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Enums\Sex;
 use App\Shared\Traits\Activatable;

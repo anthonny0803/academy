@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\SectionSubjectTeacher\StoreSectionSubjectTeacherRequest;
 use App\Http\Requests\SectionSubjectTeacher\UpdateSectionSubjectTeacherRequest;
 use App\Models\SectionSubjectTeacher;
-use App\Models\User;
 use App\Services\SectionSubjectTeacher\DeleteSectionSubjectTeacherService;
 use App\Services\SectionSubjectTeacher\StoreSectionSubjectTeacherService;
 use App\Services\SectionSubjectTeacher\UpdateSectionSubjectTeacherService;

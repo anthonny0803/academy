@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domains\Identity\Models\User;
 use App\Enums\RelationshipType;
 use App\Enums\StudentSituation;
 use App\Shared\Contracts\HasEntityName;

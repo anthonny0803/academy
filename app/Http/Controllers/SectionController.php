@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\Sections\StoreSectionRequest;
 use App\Http\Requests\Sections\UpdateSectionRequest;
 use App\Models\AcademicPeriod;
 use App\Models\Section;
 use App\Models\Subject;
-use App\Models\User;
 use App\Services\Sections\DeleteSectionService;
 use App\Services\Sections\StoreSectionService;
 use App\Services\Sections\UpdateSectionService;

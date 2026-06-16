@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Models\Teacher;
-use App\Models\User;
 use App\Services\Teachers\StoreTeacherService;
 use App\Services\Teachers\UpdateTeacherService;
 use App\Shared\Enums\Sex;

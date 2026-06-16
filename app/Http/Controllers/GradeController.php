@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\Grades\StoreGradeRequest;
 use App\Http\Requests\Grades\UpdateGradeRequest;
 use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeColumn;
 use App\Models\SectionSubjectTeacher;
-use App\Models\User;
 use App\Services\Grades\DeleteGradeService;
 use App\Services\Grades\StoreGradeService;
 use App\Services\Grades\UpdateGradeService;

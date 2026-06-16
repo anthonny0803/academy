@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\AcademicPeriods;
 
+use App\Domains\Identity\Models\User;
 use App\Enums\EnrollmentStatus;
 use App\Enums\StudentSituation;
 use App\Models\AcademicPeriod;
@@ -11,7 +12,6 @@ use App\Models\Representative;
 use App\Models\Section;
 use App\Models\SectionSubjectTeacher;
 use App\Models\Student;
-use App\Models\User;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

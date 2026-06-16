@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Role;
-use App\Http\Requests\RoleManagement\AssignRoleRequest;
-use App\Models\User;
-use App\Services\RoleManagement\AssignRoleService;
-use App\Services\Users\RoleAssignmentService;
+use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Requests\RoleManagement\AssignRoleRequest;
+use App\Domains\Identity\Services\RoleManagement\AssignRoleService;
+use App\Domains\Identity\Services\Users\RoleAssignmentService;
 use App\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;

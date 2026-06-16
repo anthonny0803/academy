@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Enums\RelationshipType;
 use App\Enums\StudentSituation;
 use App\Http\Requests\Students\ChangeSituationRequest;
@@ -13,7 +14,6 @@ use App\Http\Requests\Students\WithdrawStudentRequest;
 use App\Models\AcademicPeriod;
 use App\Models\Representative;
 use App\Models\Student;
-use App\Models\User;
 use App\Services\Students\ChangeSituationService;
 use App\Services\Students\ConvertToSelfRepresentedService;
 use App\Services\Students\ReassignRepresentativeService;

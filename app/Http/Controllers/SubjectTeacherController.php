@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\SubjectTeacher\StoreSubjectTeacherRequest;
 use App\Models\Subject;
 use App\Models\SubjectTeacher;
 use App\Models\Teacher;
-use App\Models\User;
 use App\Services\SubjectTeacher\DeleteSubjectTeacherService;
 use App\Services\SubjectTeacher\StoreSubjectTeacherService;
 use App\Shared\Traits\AuthorizesRedirect;

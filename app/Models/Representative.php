@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domains\Identity\Models\User;
 use App\Shared\Contracts\HasEntityName;
 use App\Shared\Traits\Activatable;
 use Carbon\Carbon;

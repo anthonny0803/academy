@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Models;
 
+use App\Domains\Identity\Models\User;
 use App\Enums\RelationshipType;
 use App\Models\Student;
-use App\Models\User;
 use Carbon\Carbon;
 use Tests\TestCase;
 

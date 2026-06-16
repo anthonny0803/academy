@@ -2,7 +2,7 @@
 
 namespace App\Services\Teachers;
 
-use App\Enums\Role;
+use App\Domains\Identity\Enums\Role;
 use App\Models\Teacher;
 use App\Shared\Services\CreateEmployeeService;
 use Illuminate\Support\Facades\DB;

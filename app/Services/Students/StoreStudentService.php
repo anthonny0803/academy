@@ -2,13 +2,13 @@
 
 namespace App\Services\Students;
 
+use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Models\User;
 use App\Enums\EnrollmentStatus;
-use App\Enums\Role;
 use App\Enums\StudentSituation;
 use App\Models\Enrollment;
 use App\Models\Representative;
 use App\Models\Student;
-use App\Models\User;
 use App\Services\Representatives\SyncRepresentativeStatusService;
 use Illuminate\Support\Facades\DB;
 

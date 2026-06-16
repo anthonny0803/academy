@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Domains\Identity\Models\User;
 use App\Http\Requests\Representatives\StoreRepresentativeRequest;
 use App\Http\Requests\Representatives\UpdateRepresentativeRequest;
 use App\Models\Representative;
-use App\Models\User;
 use App\Services\Representatives\StoreRepresentativeService;
 use App\Services\Representatives\UpdateRepresentativeService;
 use App\Shared\Enums\Sex;

@@ -2,8 +2,8 @@
 
 namespace App\Services\Api;
 
+use App\Domains\Identity\Models\User;
 use App\Models\Student;
-use App\Models\User;
 
 class PublicGradesService
 {

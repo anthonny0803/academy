@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Domains\Identity\Models\User;
 use App\Models\AcademicPeriod;
 use App\Models\Enrollment;
 use App\Models\Grade;
@@ -13,7 +14,6 @@ use App\Models\Student;
 use App\Models\Subject;
 use App\Models\SubjectTeacher;
 use App\Models\Teacher;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\URL;

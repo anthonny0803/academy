@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\RoleManagement;
+namespace App\Domains\Identity\Services\RoleManagement;
 
-use App\Enums\Role;
+use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Models\User;
 use App\Models\Representative;
 use App\Models\Teacher;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class AssignRoleService

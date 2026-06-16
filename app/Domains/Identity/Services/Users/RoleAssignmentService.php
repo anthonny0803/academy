@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Services\Users;
+namespace App\Domains\Identity\Services\Users;
 
-use App\Enums\Role as EnumRole;
+use App\Domains\Identity\Enums\Role as EnumRole;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 class RoleAssignmentService

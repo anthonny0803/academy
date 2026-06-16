@@ -2,7 +2,7 @@
 
 namespace App\Shared\Services;
 
-use App\Models\User;
+use App\Domains\Identity\Models\User;
 
 class CreateEmployeeService
 {

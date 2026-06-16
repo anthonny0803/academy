@@ -2,9 +2,9 @@
 
 namespace App\Services\Representatives;
 
-use App\Enums\Role;
+use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Models\User;
 use App\Models\Representative;
-use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class StoreRepresentativeService
