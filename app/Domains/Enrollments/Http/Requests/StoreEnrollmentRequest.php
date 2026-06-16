@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domains\Enrollments\Requests;
+namespace App\Domains\Enrollments\Http\Requests;
 
 use App\Domains\Academics\Models\Section;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;

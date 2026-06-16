@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Domains\Enrollments\Http\Controllers;
 
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Http\Requests\PromoteEnrollmentRequest;
+use App\Domains\Enrollments\Http\Requests\StoreEnrollmentRequest;
+use App\Domains\Enrollments\Http\Requests\TransferEnrollmentRequest;
 use App\Domains\Enrollments\Models\Enrollment;
-use App\Domains\Enrollments\Requests\PromoteEnrollmentRequest;
-use App\Domains\Enrollments\Requests\StoreEnrollmentRequest;
-use App\Domains\Enrollments\Requests\TransferEnrollmentRequest;
 use App\Domains\Enrollments\Services\DeleteEnrollmentService;
 use App\Domains\Enrollments\Services\PromoteEnrollmentService;
 use App\Domains\Enrollments\Services\StoreEnrollmentService;

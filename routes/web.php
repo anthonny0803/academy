@@ -6,14 +6,14 @@ use App\Domains\Academics\Http\Controllers\SectionSubjectTeacherController;
 use App\Domains\Academics\Http\Controllers\SubjectController;
 use App\Domains\Academics\Http\Controllers\SubjectTeacherController;
 use App\Domains\Academics\Http\Controllers\TeacherController;
+use App\Domains\Enrollments\Http\Controllers\EnrollmentController;
 use App\Domains\Grades\Http\Controllers\GradeColumnController;
 use App\Domains\Grades\Http\Controllers\GradeController;
 use App\Domains\Identity\Http\Controllers\ProfileController;
 use App\Domains\Identity\Http\Controllers\RoleManagementController;
 use App\Domains\Identity\Http\Controllers\UserController;
-use App\Http\Controllers\EnrollmentController;
-use App\Http\Controllers\RepresentativeController;
-use App\Http\Controllers\StudentController;
+use App\Domains\Representatives\Http\Controllers\RepresentativeController;
+use App\Domains\Students\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 
