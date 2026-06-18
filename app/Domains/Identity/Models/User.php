@@ -14,11 +14,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements HasEntityName
 {
     use Activatable;
+    use HasApiTokens;
     use HasFactory;
     use HasRoles;
     use HasUuids;
@@ -150,6 +152,11 @@ class User extends Authenticatable implements HasEntityName
     }
 
     // Status Methods
+
+    public function canAuthenticate(): bool
+    {
+        return $this->isActive() || ($this->teacher?->isActive() ?? false);
+    }
 
     public function isDeveloper(): bool
     {

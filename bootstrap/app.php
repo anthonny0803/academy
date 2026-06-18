@@ -1,5 +1,6 @@
 <?php
 
+use App\Domains\Shared\Http\ApiExceptionRenderer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -25,6 +26,14 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->renderable(function (\Throwable $e, $request) {
+            if (! $request->expectsJson()) {
+                return null;
+            }
+
+            return ApiExceptionRenderer::render($e);
+        });
+
         $exceptions->renderable(function (\Throwable $e, $request) {
             // Excluir errores de validación
             if ($e instanceof ValidationException) {
