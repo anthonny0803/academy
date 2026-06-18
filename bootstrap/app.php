@@ -16,12 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\PreventBackHistory::class,
-            \App\Http\Middleware\CheckActiveUser::class,
+            \App\Domains\Shared\Http\Middleware\PreventBackHistory::class,
+            \App\Domains\Identity\Http\Middleware\CheckActiveUser::class,
         ]);
 
         $middleware->alias([
-            'public.token' => \App\Http\Middleware\ValidatePublicApiToken::class,
+            'public.token' => \App\Domains\Grades\Http\Middleware\ValidatePublicApiToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\AcademicPeriod;
+use App\Domains\Academics\Models\AcademicPeriod;
 use PHPUnit\Framework\TestCase;
 
 class AcademicPeriodTest extends TestCase

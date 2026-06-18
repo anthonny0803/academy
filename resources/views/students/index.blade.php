@@ -138,7 +138,7 @@
                                         'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
                                     'Sin actividad' => 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
                                 ];
-                                $situations = \App\Enums\StudentSituation::toArray();
+                                $situations = \App\Domains\Students\Enums\StudentSituation::toArray();
                             @endphp
 
                             @forelse ($students as $student)

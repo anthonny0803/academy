@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\AcademicPeriod;
+use App\Domains\Academics\Models\AcademicPeriod;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AcademicPeriodFactory extends Factory

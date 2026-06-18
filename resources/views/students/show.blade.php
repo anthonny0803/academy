@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $situations = \App\Enums\StudentSituation::toArray();
+        $situations = \App\Domains\Students\Enums\StudentSituation::toArray();
         $hasActiveEnrollments = $student->enrollments->where('status', 'activo')->count() > 0;
 
         $situationColors = [

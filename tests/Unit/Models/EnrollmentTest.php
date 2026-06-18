@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Models;
 
-use App\Enums\EnrollmentStatus;
-use App\Models\Enrollment;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Models\Enrollment;
 use PHPUnit\Framework\TestCase;
 
 class EnrollmentTest extends TestCase

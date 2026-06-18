@@ -2,16 +2,16 @@
 
 namespace Tests\Feature\AcademicPeriods;
 
-use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
-use App\Models\AcademicPeriod;
-use App\Models\Grade;
-use App\Models\GradeColumn;
-use App\Models\Representative;
-use App\Models\Section;
-use App\Models\SectionSubjectTeacher;
-use App\Models\Student;
-use App\Models\User;
+use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Models\Section;
+use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Identity\Models\User;
+use App\Domains\Representatives\Models\Representative;
+use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Domains\Enrollments\Http\Requests;
+
+use App\Domains\Academics\Models\Section;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Models\Enrollment;
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreEnrollmentRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'section_id' => [
+                'required',
+                'uuid',
+                'exists:sections,id',
+            ],
+        ];
+    }
+
+    /**
+     * Validación adicional: un estudiante no puede inscribirse
+     * más de una vez en el mismo período académico
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            $sectionId = $this->input('section_id');
+            $student = $this->route('student');
+
+            if (! $sectionId || ! $student) {
+                return;
+            }
+
+            $section = Section::find($sectionId);
+
+            if (! $section) {
+                return;
+            }
+
+            // Verificar si existe CUALQUIER inscripción del estudiante en este período
+            $existsInPeriod = Enrollment::where('student_id', $student->id)
+                ->where('status', EnrollmentStatus::Active->value)  // ← Agregar esta línea
+                ->whereHas('section', fn ($q) => $q->where('academic_period_id', $section->academic_period_id))
+                ->exists();
+
+            if ($existsInPeriod) {
+                $validator->errors()->add(
+                    'section_id',
+                    'El estudiante ya tiene una inscripción activa en este período académico.'
+                );
+            }
+        });
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'section_id' => 'sección',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'section_id.required' => 'La sección es obligatoria.',
+            'section_id.exists' => 'La sección seleccionada no existe.',
+        ];
+    }
+}

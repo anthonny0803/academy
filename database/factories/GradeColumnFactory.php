@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\GradeColumn;
-use App\Models\SectionSubjectTeacher;
+use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GradeColumnFactory extends Factory

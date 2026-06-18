@@ -1,19 +1,19 @@
 <?php
 
-use App\Http\Controllers\AcademicPeriodController;
-use App\Http\Controllers\EnrollmentController;
-use App\Http\Controllers\GradeColumnController;
-use App\Http\Controllers\GradeController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RepresentativeController;
-use App\Http\Controllers\RoleManagementController;
-use App\Http\Controllers\SectionController;
-use App\Http\Controllers\SectionSubjectTeacherController;
-use App\Http\Controllers\StudentController;
-use App\Http\Controllers\SubjectController;
-use App\Http\Controllers\SubjectTeacherController;
-use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\UserController;
+use App\Domains\Academics\Http\Controllers\AcademicPeriodController;
+use App\Domains\Academics\Http\Controllers\SectionController;
+use App\Domains\Academics\Http\Controllers\SectionSubjectTeacherController;
+use App\Domains\Academics\Http\Controllers\SubjectController;
+use App\Domains\Academics\Http\Controllers\SubjectTeacherController;
+use App\Domains\Academics\Http\Controllers\TeacherController;
+use App\Domains\Enrollments\Http\Controllers\EnrollmentController;
+use App\Domains\Grades\Http\Controllers\GradeColumnController;
+use App\Domains\Grades\Http\Controllers\GradeController;
+use App\Domains\Identity\Http\Controllers\ProfileController;
+use App\Domains\Identity\Http\Controllers\RoleManagementController;
+use App\Domains\Identity\Http\Controllers\UserController;
+use App\Domains\Representatives\Http\Controllers\RepresentativeController;
+use App\Domains\Students\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Middleware\RoleMiddleware;
 

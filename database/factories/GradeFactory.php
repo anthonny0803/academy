@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Enrollment;
-use App\Models\Grade;
-use App\Models\GradeColumn;
+use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class GradeFactory extends Factory

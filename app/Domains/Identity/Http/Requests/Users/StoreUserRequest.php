@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Domains\Identity\Http\Requests\Users;
+
+use App\Domains\Identity\Enums\Role;
+use App\Domains\Shared\Http\Requests\StoreEmployeeRequest;
+use Illuminate\Validation\Rule;
+
+class StoreUserRequest extends StoreEmployeeRequest
+{
+    public function rules(): array
+    {
+        return array_merge(parent::rules(), [
+            'role' => [
+                'required',
+                Rule::in(array_map(fn ($r) => $r->value, Role::administrativeRoles())),
+            ],
+        ]);
+    }
+
+    public function messages(): array
+    {
+        return array_merge(parent::messages(), [
+            'role.required' => 'El rol es obligatorio.',
+            'role.exists' => 'El rol seleccionado no es válido.',
+        ]);
+    }
+}

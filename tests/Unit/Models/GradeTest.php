@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Models;
 
-use App\Models\Grade;
-use App\Models\GradeColumn;
+use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Models\GradeColumn;
 use PHPUnit\Framework\TestCase;
 
 class GradeTest extends TestCase

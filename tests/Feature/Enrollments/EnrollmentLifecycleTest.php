@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Enrollments;
 
-use App\Enums\EnrollmentStatus;
-use App\Enums\StudentSituation;
-use App\Models\AcademicPeriod;
-use App\Models\Enrollment;
-use App\Models\Section;
-use App\Models\Student;
-use App\Models\User;
+use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Models\Section;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Identity\Models\User;
+use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
