@@ -3,10 +3,15 @@
 namespace App\Domains\Grades\Services\Api;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Students\Models\Student;
 
 class PublicGradesService
 {
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+
     public function getStudentGrades(string $documentId, string $birthDate): ?array
     {
         $user = $this->findUserByCredentials($documentId, $birthDate);
@@ -40,26 +45,23 @@ class PublicGradesService
 
     private function findUserByCredentials(string $documentId, string $birthDate): ?User
     {
-        return User::where('document_id', $documentId)
-            ->whereDate('birth_date', $birthDate)
-            ->with([
-                'student.enrollments.section.academicPeriod',
-                'student.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
-                    'subject',
-                    'teacher.user',
-                    'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
-                ]),
-                'student.enrollments.grades.gradeColumn',
-                'representative.students.user',
-                'representative.students.enrollments.section.academicPeriod',
-                'representative.students.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
-                    'subject',
-                    'teacher.user',
-                    'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
-                ]),
-                'representative.students.enrollments.grades.gradeColumn',
-            ])
-            ->first();
+        return $this->userRepository->findByCredentials($documentId, $birthDate, [
+            'student.enrollments.section.academicPeriod',
+            'student.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
+                'subject',
+                'teacher.user',
+                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
+            ]),
+            'student.enrollments.grades.gradeColumn',
+            'representative.students.user',
+            'representative.students.enrollments.section.academicPeriod',
+            'representative.students.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
+                'subject',
+                'teacher.user',
+                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
+            ]),
+            'representative.students.enrollments.grades.gradeColumn',
+        ]);
     }
 
     private function buildStudentData(Student $student): array

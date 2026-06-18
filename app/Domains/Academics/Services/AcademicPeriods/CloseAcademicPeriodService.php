@@ -3,11 +3,11 @@
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
 use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
-use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
-use App\Domains\Students\Enums\StudentSituation;
-use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +15,10 @@ use Illuminate\Support\Facades\Log;
 class CloseAcademicPeriodService
 {
     public function __construct(
-        private SyncRepresentativeStatusService $syncRepresentativeStatus
+        private SyncRepresentativeStatusService $syncRepresentativeStatus,
+        private StudentRepository $studentRepository,
+        private EnrollmentRepository $enrollmentRepository,
+        private SectionRepository $sectionRepository
     ) {}
 
     public function validateForClose(AcademicPeriod $academicPeriod): array
@@ -175,17 +178,12 @@ class CloseAcademicPeriodService
             ];
 
             // Get student IDs affected
-            $studentIds = Enrollment::whereHas('section', function ($q) use ($academicPeriod) {
-                $q->where('academic_period_id', $academicPeriod->id);
-            })
-                ->where('status', EnrollmentStatus::Active->value)
-                ->pluck('student_id')
+            $studentIds = $this->enrollmentRepository->studentIdsForActivePeriod($academicPeriod->id)
                 ->unique()
                 ->toArray();
 
             // Get representative IDs associated
-            $representativeIds = Student::whereIn('id', $studentIds)
-                ->pluck('representative_id')
+            $representativeIds = $this->studentRepository->representativeIdsFor($studentIds)
                 ->unique()
                 ->toArray();
 
@@ -200,7 +198,7 @@ class CloseAcademicPeriodService
                 foreach ($section->enrollments as $enrollment) {
                     $passed = $enrollment->calculatePassed() ?? false;
 
-                    $enrollment->update([
+                    $this->enrollmentRepository->update($enrollment, [
                         'status' => EnrollmentStatus::Completed->value,
                         'passed' => $passed,
                     ]);
@@ -217,22 +215,14 @@ class CloseAcademicPeriodService
                     ]);
                 }
 
-                $section->update(['is_active' => false]);
+                $this->sectionRepository->update($section, ['is_active' => false]);
                 $results['sections_deactivated']++;
             }
 
             $academicPeriod->update(['is_active' => false]);
 
             // BULK UPDATE: Deactivate students without active enrollments
-            $studentsDeactivated = Student::whereIn('id', $studentIds)
-                ->where('is_active', true)
-                ->whereDoesntHave('enrollments', function ($q) {
-                    $q->where('status', EnrollmentStatus::Active->value);
-                })
-                ->update([
-                    'is_active' => false,
-                    'situation' => StudentSituation::Inactive,
-                ]);
+            $studentsDeactivated = $this->studentRepository->deactivateWithoutActiveEnrollments($studentIds);
 
             $results['students_deactivated'] = $studentsDeactivated;
 

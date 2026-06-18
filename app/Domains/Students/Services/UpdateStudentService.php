@@ -2,11 +2,18 @@
 
 namespace App\Domains\Students\Services;
 
+use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\DB;
 
 class UpdateStudentService
 {
+    public function __construct(
+        private UserRepository $userRepository,
+        private StudentRepository $studentRepository
+    ) {}
+
     public function handle(Student $student, array $data): array
     {
         return DB::transaction(function () use ($student, $data) {
@@ -36,7 +43,7 @@ class UpdateStudentService
             ]));
 
             if (! empty($userFields)) {
-                $user->update($userFields);
+                $this->userRepository->update($user, $userFields);
             }
 
             $studentFields = array_intersect_key($data, array_flip([
@@ -44,7 +51,7 @@ class UpdateStudentService
             ]));
 
             if (! empty($studentFields)) {
-                $student->update($studentFields);
+                $this->studentRepository->update($student, $studentFields);
             }
 
             return [

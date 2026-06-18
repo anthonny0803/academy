@@ -2,7 +2,7 @@
 
 namespace App\Domains\Enrollments\Http\Requests;
 
-use App\Domains\Academics\Models\Section;
+use App\Domains\Academics\Repositories\SectionRepository;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -58,7 +58,7 @@ class PromoteEnrollmentRequest extends FormRequest
             // Validar que la sección destino pertenezca al MISMO período académico
             $sectionId = $this->input('section_id');
             if ($sectionId) {
-                $targetSection = Section::find($sectionId);
+                $targetSection = app(SectionRepository::class)->find($sectionId);
 
                 if ($targetSection && $targetSection->academic_period_id !== $academicPeriod->id) {
                     $validator->errors()->add(

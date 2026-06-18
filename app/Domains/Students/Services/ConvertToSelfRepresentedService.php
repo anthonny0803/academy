@@ -3,9 +3,10 @@
 namespace App\Domains\Students\Services;
 
 use App\Domains\Representatives\Enums\RelationshipType;
-use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +14,9 @@ use Illuminate\Support\Facades\Log;
 class ConvertToSelfRepresentedService
 {
     public function __construct(
-        private SyncRepresentativeStatusService $syncService
+        private SyncRepresentativeStatusService $syncService,
+        private RepresentativeRepository $representativeRepository,
+        private StudentRepository $studentRepository
     ) {}
 
     public function handle(Student $student, ?string $reason = null): Student
@@ -23,13 +26,10 @@ class ConvertToSelfRepresentedService
             $oldRelationshipType = $student->relationship_type;
 
             // Find or create representative record for the student's user
-            $selfRepresentative = Representative::firstOrCreate(
-                ['user_id' => $student->user_id],
-                ['is_active' => false] // Will be activated by sync
-            );
+            $selfRepresentative = $this->representativeRepository->firstOrCreateForUser($student->user_id);
 
             // Update student
-            $student->update([
+            $this->studentRepository->update($student, [
                 'representative_id' => $selfRepresentative->id,
                 'relationship_type' => RelationshipType::SelfRepresented->value,
             ]);

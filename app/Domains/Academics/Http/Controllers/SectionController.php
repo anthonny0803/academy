@@ -7,6 +7,7 @@ use App\Domains\Academics\Http\Requests\Sections\UpdateSectionRequest;
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Academics\Services\Sections\DeleteSectionService;
 use App\Domains\Academics\Services\Sections\StoreSectionService;
 use App\Domains\Academics\Services\Sections\UpdateSectionService;
@@ -26,6 +27,10 @@ class SectionController extends Controller
     use AuthorizesRequests;
     use CanToggleActivation;
 
+    public function __construct(
+        private SectionRepository $sectionRepository
+    ) {}
+
     protected function currentUser(): User
     {
         return Auth::user();
@@ -42,16 +47,15 @@ class SectionController extends Controller
                 ->orderBy('start_date', 'desc')
                 ->get();
 
-            $sections = Section::query()
-                ->with('academicPeriod')
-                ->withCount(['enrollments' => fn ($q) => $q->active()])
-                ->when($search !== '', fn ($q) => $q->search($search))
-                ->when($status && $status !== 'Todos', function ($q) use ($status) {
-                    $status === 'Activo' ? $q->active() : $q->inactive();
-                })
-                ->when($academicPeriodId && $academicPeriodId !== 'Todos', fn ($q) => $q->forAcademicPeriod($academicPeriodId))
-                ->orderBy('name')
-                ->paginate(6)
+            $isActive = match ($status) {
+                'Activo' => true,
+                'Inactivo' => false,
+                default => null,
+            };
+            $periodFilter = $academicPeriodId && $academicPeriodId !== 'Todos' ? $academicPeriodId : null;
+
+            $sections = $this->sectionRepository
+                ->paginateForListing($search, $isActive, $periodFilter, 6)
                 ->withQueryString();
 
             return view('sections.index', compact('sections', 'academicPeriods'));

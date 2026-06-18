@@ -2,13 +2,17 @@
 
 namespace App\Domains\Grades\Services\Grades;
 
-use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Grades\Repositories\GradeRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class BatchGradeService
 {
+    public function __construct(
+        private GradeRepository $gradeRepository
+    ) {}
+
     /**
      * Procesa un batch de notas (crear o actualizar)
      *
@@ -36,16 +40,14 @@ class BatchGradeService
                 }
 
                 // Buscar nota existente
-                $existingGrade = Grade::where('enrollment_id', $enrollmentId)
-                    ->where('grade_column_id', $gradeColumn->id)
-                    ->first();
+                $existingGrade = $this->gradeRepository->findByEnrollmentAndColumn($enrollmentId, $gradeColumn->id);
 
                 if ($existingGrade) {
                     // Actualizar solo si cambió el valor
                     if ((float) $existingGrade->value !== (float) $value
                         || $existingGrade->observation !== $observation
                     ) {
-                        $existingGrade->update([
+                        $this->gradeRepository->update($existingGrade, [
                             'value' => $value,
                             'observation' => $observation,
                             'last_modified_by' => $userId,
@@ -56,7 +58,7 @@ class BatchGradeService
                     }
                 } else {
                     // Crear nueva nota
-                    Grade::create([
+                    $this->gradeRepository->create([
                         'enrollment_id' => $enrollmentId,
                         'grade_column_id' => $gradeColumn->id,
                         'value' => $value,

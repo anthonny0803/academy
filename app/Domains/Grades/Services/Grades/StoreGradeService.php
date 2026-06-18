@@ -5,11 +5,16 @@ namespace App\Domains\Grades\Services\Grades;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Grades\Repositories\GradeRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class StoreGradeService
 {
+    public function __construct(
+        private GradeRepository $gradeRepository
+    ) {}
+
     public function handle(GradeColumn $gradeColumn, Enrollment $enrollment, array $data): Grade
     {
         return DB::transaction(function () use ($gradeColumn, $enrollment, $data) {
@@ -40,7 +45,7 @@ class StoreGradeService
                 );
             }
 
-            $grade = Grade::create([
+            $grade = $this->gradeRepository->create([
                 'enrollment_id' => $enrollment->id,
                 'grade_column_id' => $gradeColumn->id,
                 'value' => $data['value'],
@@ -80,7 +85,7 @@ class StoreGradeService
                     }
 
                     // Crear o actualizar (upsert)
-                    $grade = Grade::updateOrCreate(
+                    $grade = $this->gradeRepository->updateOrCreate(
                         [
                             'enrollment_id' => $gradeData['enrollment_id'],
                             'grade_column_id' => $gradeColumn->id,

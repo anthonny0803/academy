@@ -3,12 +3,17 @@
 namespace App\Domains\Enrollments\Services;
 
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class UpdateEnrollmentService
 {
+    public function __construct(
+        private EnrollmentRepository $enrollmentRepository
+    ) {}
+
     public function handle(Enrollment $enrollment, array $data): Enrollment
     {
         return DB::transaction(function () use ($enrollment, $data) {
@@ -40,7 +45,7 @@ class UpdateEnrollmentService
             }
 
             if (! empty($updateData)) {
-                $enrollment->update($updateData);
+                $this->enrollmentRepository->update($enrollment, $updateData);
             }
 
             // Auditoría

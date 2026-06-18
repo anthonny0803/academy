@@ -2,13 +2,17 @@
 
 namespace App\Domains\Representatives\Services;
 
-use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SyncRepresentativeStatusService
 {
+    public function __construct(
+        private RepresentativeRepository $representativeRepository
+    ) {}
+
     // Sync representative status based in if they have active students
 
     public function handle(string|array|Collection $representativeIds): array
@@ -22,21 +26,11 @@ class SyncRepresentativeStatusService
         return DB::transaction(function () use ($ids) {
             $results = ['activated' => 0, 'deactivated' => 0];
 
-            // Representatives must be actives if they have active students
-            $shouldBeActive = Representative::whereIn('id', $ids)
-                ->whereHas('students', fn ($q) => $q->active())
-                ->where('is_active', false)
-                ->pluck('id');
-
-            // Representatives must be inactives if they don't have active students
-            $shouldBeInactive = Representative::whereIn('id', $ids)
-                ->whereDoesntHave('students', fn ($q) => $q->active())
-                ->where('is_active', true)
-                ->pluck('id');
+            $shouldBeActive = $this->representativeRepository->idsToActivate($ids);
+            $shouldBeInactive = $this->representativeRepository->idsToDeactivate($ids);
 
             if ($shouldBeActive->isNotEmpty()) {
-                Representative::whereIn('id', $shouldBeActive)
-                    ->update(['is_active' => true]);
+                $this->representativeRepository->updateActiveStatus($shouldBeActive, true);
 
                 $results['activated'] = $shouldBeActive->count();
 
@@ -46,8 +40,7 @@ class SyncRepresentativeStatusService
             }
 
             if ($shouldBeInactive->isNotEmpty()) {
-                Representative::whereIn('id', $shouldBeInactive)
-                    ->update(['is_active' => false]);
+                $this->representativeRepository->updateActiveStatus($shouldBeInactive, false);
 
                 $results['deactivated'] = $shouldBeInactive->count();
 

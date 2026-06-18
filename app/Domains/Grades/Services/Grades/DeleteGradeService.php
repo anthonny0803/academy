@@ -3,12 +3,17 @@
 namespace App\Domains\Grades\Services\Grades;
 
 use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Repositories\GradeRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DeleteGradeService
 {
+    public function __construct(
+        private GradeRepository $gradeRepository
+    ) {}
+
     public function handle(Grade $grade): void
     {
         DB::transaction(function () use ($grade) {
@@ -23,10 +28,10 @@ class DeleteGradeService
             ]);
 
             // Actualizar quién eliminó antes del soft delete
-            $grade->update(['last_modified_by' => Auth::id()]);
+            $this->gradeRepository->update($grade, ['last_modified_by' => Auth::id()]);
 
             // Soft delete
-            $grade->delete();
+            $this->gradeRepository->delete($grade);
         });
     }
 
@@ -36,7 +41,7 @@ class DeleteGradeService
     public function restore(string $gradeId): Grade
     {
         return DB::transaction(function () use ($gradeId) {
-            $grade = Grade::withTrashed()->findOrFail($gradeId);
+            $grade = $this->gradeRepository->findWithTrashed($gradeId);
 
             Log::info('Grade restored', [
                 'grade_id' => $grade->id,
@@ -44,8 +49,8 @@ class DeleteGradeService
                 'restored_at' => now(),
             ]);
 
-            $grade->restore();
-            $grade->update(['last_modified_by' => Auth::id()]);
+            $this->gradeRepository->restore($grade);
+            $this->gradeRepository->update($grade, ['last_modified_by' => Auth::id()]);
 
             return $grade->fresh(['enrollment.student.user', 'gradeColumn']);
         });

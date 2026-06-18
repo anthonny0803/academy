@@ -3,10 +3,15 @@
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
 use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\SectionRepository;
 use Illuminate\Support\Facades\DB;
 
 class DeleteAcademicPeriodService
 {
+    public function __construct(
+        private SectionRepository $sectionRepository
+    ) {}
+
     /**
      * Elimina un período académico y sus secciones inactivas en cascada
      *
@@ -37,7 +42,7 @@ class DeleteAcademicPeriodService
                     $section->sectionSubjectTeachers()->delete();
 
                     // Eliminar la sección
-                    $section->delete();
+                    $this->sectionRepository->delete($section);
                     $deletedSections++;
                 }
             }

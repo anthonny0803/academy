@@ -4,12 +4,17 @@ namespace App\Domains\Enrollments\Services;
 
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PromoteEnrollmentService
 {
+    public function __construct(
+        private EnrollmentRepository $enrollmentRepository
+    ) {}
+
     /**
      * Promover estudiante a otra sección del MISMO período académico.
      *
@@ -26,10 +31,10 @@ class PromoteEnrollmentService
             $oldSectionName = $enrollment->section->name;
 
             // Marcar inscripción actual como promovido
-            $enrollment->update(['status' => EnrollmentStatus::Promoted->value]);
+            $this->enrollmentRepository->update($enrollment, ['status' => EnrollmentStatus::Promoted->value]);
 
             // Crear nueva inscripción activa
-            $newEnrollment = Enrollment::create([
+            $newEnrollment = $this->enrollmentRepository->create([
                 'student_id' => $enrollment->student_id,
                 'section_id' => $newSectionId,
                 'status' => EnrollmentStatus::Active->value,

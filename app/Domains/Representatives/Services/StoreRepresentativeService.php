@@ -3,16 +3,22 @@
 namespace App\Domains\Representatives\Services;
 
 use App\Domains\Identity\Enums\Role;
-use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use Illuminate\Support\Facades\DB;
 
 class StoreRepresentativeService
 {
+    public function __construct(
+        private UserRepository $userRepository,
+        private RepresentativeRepository $representativeRepository
+    ) {}
+
     public function handle(array $data): Representative
     {
         return DB::transaction(function () use ($data) {
-            $user = User::create([
+            $user = $this->userRepository->create([
                 'name' => $data['name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
@@ -27,7 +33,7 @@ class StoreRepresentativeService
 
             $user->assignRole(Role::Representative->value);
 
-            $representative = Representative::create([
+            $representative = $this->representativeRepository->create([
                 'user_id' => $user->id,
                 'is_active' => false, // Inactive until store a student associated
             ]);

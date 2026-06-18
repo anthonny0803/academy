@@ -6,6 +6,7 @@ use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
@@ -18,6 +19,7 @@ use App\Domains\Students\Http\Requests\StoreStudentRequest;
 use App\Domains\Students\Http\Requests\UpdateStudentRequest;
 use App\Domains\Students\Http\Requests\WithdrawStudentRequest;
 use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use App\Domains\Students\Services\ChangeSituationService;
 use App\Domains\Students\Services\ConvertToSelfRepresentedService;
 use App\Domains\Students\Services\ReassignRepresentativeService;
@@ -35,6 +37,11 @@ class StudentController extends Controller
     use AuthorizesRedirect;
     use AuthorizesRequests;
     use CanToggleActivation;
+
+    public function __construct(
+        private RepresentativeRepository $representativeRepository,
+        private StudentRepository $studentRepository
+    ) {}
 
     protected function currentUser(): User
     {
@@ -58,22 +65,14 @@ class StudentController extends Controller
             if (empty($search)) {
                 $students = collect();
             } else {
-                $students = Student::query()
-                    ->with(['user', 'representative.user', 'enrollments.section'])
-                    ->search($search)
-                    ->when($status && $status !== 'Todos', function ($q) use ($status) {
-                        $status === 'Activo' ? $q->active() : $q->inactive();
-                    })
-                    ->when($academicPeriodId, function ($q) use ($academicPeriodId) {
-                        $q->whereHas('enrollments.section', fn ($query) => $query->where('academic_period_id', $academicPeriodId));
-                    })
-                    ->when($sectionId, function ($q) use ($sectionId) {
-                        $q->whereHas('enrollments', fn ($query) => $query->where('section_id', $sectionId));
-                    })
-                    ->orderBy('users.name')
-                    ->orderBy('users.last_name')
-                    ->select('students.*')
-                    ->paginate(6)
+                $isActive = match ($status) {
+                    'Activo' => true,
+                    'Inactivo' => false,
+                    default => null,
+                };
+
+                $students = $this->studentRepository
+                    ->paginateForListing($search, $isActive, $academicPeriodId, $sectionId, 6)
                     ->withQueryString();
             }
 
@@ -153,13 +152,8 @@ class StudentController extends Controller
             $representatives = collect();
 
             if (! empty($search)) {
-                $representatives = Representative::with('user')
-                    ->search($search)
-                    ->join('users', 'representatives.user_id', '=', 'users.id')
-                    ->orderBy('users.name')
-                    ->orderBy('users.last_name')
-                    ->select('representatives.*')
-                    ->paginate(5)
+                $representatives = $this->representativeRepository
+                    ->paginateForSearch($search, 5)
                     ->withQueryString();
             }
 

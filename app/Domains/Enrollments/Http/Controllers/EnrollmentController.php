@@ -3,12 +3,13 @@
 namespace App\Domains\Enrollments\Http\Controllers;
 
 use App\Domains\Academics\Models\AcademicPeriod;
-use App\Domains\Academics\Models\Section;
+use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Http\Requests\PromoteEnrollmentRequest;
 use App\Domains\Enrollments\Http\Requests\StoreEnrollmentRequest;
 use App\Domains\Enrollments\Http\Requests\TransferEnrollmentRequest;
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Enrollments\Services\DeleteEnrollmentService;
 use App\Domains\Enrollments\Services\PromoteEnrollmentService;
 use App\Domains\Enrollments\Services\StoreEnrollmentService;
@@ -27,6 +28,11 @@ class EnrollmentController extends Controller
 {
     use AuthorizesRedirect;
     use AuthorizesRequests;
+
+    public function __construct(
+        private EnrollmentRepository $enrollmentRepository,
+        private SectionRepository $sectionRepository
+    ) {}
 
     protected function currentUser(): User
     {
@@ -48,16 +54,11 @@ class EnrollmentController extends Controller
 
             $statuses = EnrollmentStatus::toArray();
 
-            $enrollments = Enrollment::query()
-                ->with(['student.user', 'section.academicPeriod'])
-                ->when($search !== '', fn ($q) => $q->search($search))
-                ->when($status && $status !== 'Todos', fn ($q) => $q->byStatus($status))
-                ->when($academicPeriodId, function ($q) use ($academicPeriodId) {
-                    $q->whereHas('section', fn ($query) => $query->where('academic_period_id', $academicPeriodId));
-                })
-                ->when($sectionId && $sectionId !== 'Todos', fn ($q) => $q->forSection($sectionId))
-                ->orderBy('created_at', 'desc')
-                ->paginate(6)
+            $statusFilter = $status && $status !== 'Todos' ? $status : null;
+            $sectionFilter = $sectionId && $sectionId !== 'Todos' ? $sectionId : null;
+
+            $enrollments = $this->enrollmentRepository
+                ->paginateForListing($search, $statusFilter, $academicPeriodId, $sectionFilter, 6)
                 ->withQueryString();
 
             return view('enrollments.index', compact('enrollments', 'academicPeriods', 'statuses'));
@@ -199,11 +200,7 @@ class EnrollmentController extends Controller
             }
 
             // Secciones del MISMO perÃ­odo (excluyendo la actual)
-            $sections = Section::active()
-                ->where('academic_period_id', $academicPeriod->id)
-                ->where('id', '!=', $enrollment->section_id)
-                ->orderBy('name')
-                ->get();
+            $sections = $this->sectionRepository->activeForPeriodExcept($academicPeriod->id, $enrollment->section_id);
 
             return view('enrollments.promote', compact('enrollment', 'sections', 'academicPeriod'));
         });
