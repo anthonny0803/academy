@@ -4,8 +4,10 @@ namespace App\Domains\Enrollments\Services;
 
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Domains\Students\Enums\StudentSituation;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +15,9 @@ use Illuminate\Support\Facades\Log;
 class TransferEnrollmentService
 {
     public function __construct(
-        private SyncRepresentativeStatusService $syncRepresentativeStatus
+        private SyncRepresentativeStatusService $syncRepresentativeStatus,
+        private StudentRepository $studentRepository,
+        private EnrollmentRepository $enrollmentRepository
     ) {}
 
     public function handle(Enrollment $enrollment, string $reason): Enrollment
@@ -22,7 +26,7 @@ class TransferEnrollmentService
             $student = $enrollment->student;
             $representativeId = $student->representative_id;
 
-            $enrollment->update(['status' => EnrollmentStatus::Transferred->value]);
+            $this->enrollmentRepository->update($enrollment, ['status' => EnrollmentStatus::Transferred->value]);
 
             Log::info('Student transferred out of institution', [
                 'student_id' => $student->id,
@@ -37,7 +41,7 @@ class TransferEnrollmentService
             ]);
 
             if (! $student->hasActiveEnrollments()) {
-                $student->update([
+                $this->studentRepository->update($student, [
                     'is_active' => false,
                     'situation' => StudentSituation::Inactive,
                 ]);

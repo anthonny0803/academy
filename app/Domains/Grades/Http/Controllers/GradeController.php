@@ -3,11 +3,12 @@
 namespace App\Domains\Grades\Http\Controllers;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
-use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Grades\Http\Requests\Grades\StoreGradeRequest;
 use App\Domains\Grades\Http\Requests\Grades\UpdateGradeRequest;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Grades\Repositories\GradeRepository;
 use App\Domains\Grades\Services\Grades\DeleteGradeService;
 use App\Domains\Grades\Services\Grades\StoreGradeService;
 use App\Domains\Grades\Services\Grades\UpdateGradeService;
@@ -25,6 +26,11 @@ class GradeController extends Controller
 {
     use AuthorizesRedirect;
     use AuthorizesRequests;
+
+    public function __construct(
+        private EnrollmentRepository $enrollmentRepository,
+        private GradeRepository $gradeRepository
+    ) {}
 
     protected function currentUser(): User
     {
@@ -87,8 +93,7 @@ class GradeController extends Controller
             $passingGrade = $academicPeriod->passing_grade ?? 60;
 
             // Obtener todas las notas agrupadas por enrollment y luego por column
-            $grades = Grade::whereIn('grade_column_id', $gradeColumns->pluck('id'))
-                ->get();
+            $grades = $this->gradeRepository->forGradeColumns($gradeColumns->pluck('id')->all());
 
             // Agrupar: enrollment_id => [column_id => grade]
             $gradesByEnrollment = [];
@@ -118,7 +123,7 @@ class GradeController extends Controller
         StoreGradeService $storeService,
         GradeColumn $gradeColumn
     ): RedirectResponse|JsonResponse {
-        $enrollment = Enrollment::findOrFail($request->validated()['enrollment_id']);
+        $enrollment = $this->enrollmentRepository->findOrFail($request->validated()['enrollment_id']);
 
         return $this->authorizeOrRedirect('createForColumn', [Grade::class, $gradeColumn, $enrollment], function () use ($request, $storeService, $gradeColumn, $enrollment) {
             try {

@@ -6,6 +6,7 @@ use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Domains\Students\Enums\StudentSituation;
 use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +14,8 @@ use Illuminate\Support\Facades\Log;
 class WithdrawStudentService
 {
     public function __construct(
-        private SyncRepresentativeStatusService $syncRepresentativeStatus
+        private SyncRepresentativeStatusService $syncRepresentativeStatus,
+        private StudentRepository $studentRepository
     ) {}
 
     public function handle(Student $student, string $reason): array
@@ -38,7 +40,7 @@ class WithdrawStudentService
                 ->where('status', EnrollmentStatus::Active->value)
                 ->update(['status' => EnrollmentStatus::Withdrawn->value]);
 
-            $student->update([
+            $this->studentRepository->update($student, [
                 'is_active' => false,
                 'situation' => StudentSituation::Inactive,
             ]);

@@ -4,6 +4,7 @@ namespace App\Domains\Students\Services;
 
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Log;
 class ReassignRepresentativeService
 {
     public function __construct(
-        private SyncRepresentativeStatusService $syncService
+        private SyncRepresentativeStatusService $syncService,
+        private StudentRepository $studentRepository
     ) {}
 
     public function handle(Student $student, string $newRepresentativeId, string $relationshipType, string $reason): Student
@@ -20,7 +22,7 @@ class ReassignRepresentativeService
             $oldRepresentativeId = $student->representative_id;
             $oldRelationshipType = $student->relationship_type;
 
-            $student->update([
+            $this->studentRepository->update($student, [
                 'representative_id' => $newRepresentativeId,
                 'relationship_type' => $relationshipType,
             ]);

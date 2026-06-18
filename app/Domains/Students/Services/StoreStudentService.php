@@ -3,19 +3,23 @@
 namespace App\Domains\Students\Services;
 
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
-use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Identity\Enums\Role;
-use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
 use App\Domains\Students\Enums\StudentSituation;
 use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\DB;
 
 class StoreStudentService
 {
     public function __construct(
-        private SyncRepresentativeStatusService $syncRepresentativeStatus
+        private SyncRepresentativeStatusService $syncRepresentativeStatus,
+        private UserRepository $userRepository,
+        private StudentRepository $studentRepository,
+        private EnrollmentRepository $enrollmentRepository
     ) {}
 
     public function handle(Representative $representative, array $data): Student
@@ -30,7 +34,7 @@ class StoreStudentService
                     $user->assignRole(Role::Student->value);
                 }
             } else {
-                $user = User::create([
+                $user = $this->userRepository->create([
                     'name' => $data['name'],
                     'last_name' => $data['last_name'],
                     'email' => $data['email'] ?? null,
@@ -47,7 +51,7 @@ class StoreStudentService
             $isChild = $user->age < 18;
             $studentCode = $this->generateStudentCode($isChild);
 
-            $student = Student::create([
+            $student = $this->studentRepository->create([
                 'user_id' => $user->id,
                 'representative_id' => $representative->id,
                 'student_code' => $studentCode,
@@ -56,7 +60,7 @@ class StoreStudentService
                 'is_active' => true,
             ]);
 
-            Enrollment::create([
+            $this->enrollmentRepository->create([
                 'student_id' => $student->id,
                 'section_id' => $data['section_id'],
                 'status' => EnrollmentStatus::Active->value,
@@ -73,9 +77,7 @@ class StoreStudentService
     {
         $prefix = $isChild ? 'CHILD' : 'ADULT';
 
-        $lastCode = Student::where('student_code', 'like', "{$prefix}%")
-            ->orderBy('student_code', 'desc')
-            ->value('student_code');
+        $lastCode = $this->studentRepository->lastCodeForPrefix($prefix);
 
         $number = $lastCode
             ? (int) substr($lastCode, strlen($prefix)) + 1

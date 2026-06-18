@@ -5,11 +5,17 @@ namespace App\Domains\Identity\Services\RoleManagement;
 use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
-use App\Domains\Representatives\Models\Representative;
+use App\Domains\Identity\Repositories\UserRepository;
+use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use Illuminate\Support\Facades\DB;
 
 class AssignRoleService
 {
+    public function __construct(
+        private UserRepository $userRepository,
+        private RepresentativeRepository $representativeRepository
+    ) {}
+
     public function handle(User $user, Role $role, array $data): User
     {
         return DB::transaction(function () use ($user, $role, $data) {
@@ -53,7 +59,7 @@ class AssignRoleService
 
         // Activate user if not already active
         if (! $user->is_active) {
-            $user->update(['is_active' => true]);
+            $this->userRepository->update($user, ['is_active' => true]);
         }
     }
 
@@ -88,7 +94,7 @@ class AssignRoleService
         $user->assignRole(Role::Representative->value);
 
         // Create Representative profile
-        Representative::create([
+        $this->representativeRepository->create([
             'user_id' => $user->id,
             'is_active' => false, // Inactive until store a student associated
         ]);
@@ -97,7 +103,7 @@ class AssignRoleService
     private function updatePasswordIfNeeded(User $user, array $data): void
     {
         if (isset($data['password']) && ! empty($data['password'])) {
-            $user->update([
+            $this->userRepository->update($user, [
                 'password' => $data['password'],
             ]);
         }
@@ -115,7 +121,7 @@ class AssignRoleService
         }
 
         if (! empty($updates)) {
-            $user->update($updates);
+            $this->userRepository->update($user, $updates);
         }
     }
 }

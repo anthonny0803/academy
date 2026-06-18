@@ -3,12 +3,17 @@
 namespace App\Domains\Grades\Services\Grades;
 
 use App\Domains\Grades\Models\Grade;
+use App\Domains\Grades\Repositories\GradeRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class UpdateGradeService
 {
+    public function __construct(
+        private GradeRepository $gradeRepository
+    ) {}
+
     public function handle(Grade $grade, array $data): Grade
     {
         return DB::transaction(function () use ($grade, $data) {
@@ -38,7 +43,7 @@ class UpdateGradeService
                 ]);
             }
 
-            $grade->update([
+            $this->gradeRepository->update($grade, [
                 'value' => $data['value'],
                 'observation' => $data['observation'] ?? $grade->observation,
                 'last_modified_by' => Auth::id(),

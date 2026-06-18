@@ -2,11 +2,16 @@
 
 namespace App\Domains\Representatives\Services;
 
+use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Representatives\Models\Representative;
 use Illuminate\Support\Facades\DB;
 
 class UpdateRepresentativeService
 {
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+
     public function handle(Representative $representative, array $data): array
     {
         return DB::transaction(function () use ($representative, $data) {
@@ -35,7 +40,7 @@ class UpdateRepresentativeService
             ]));
 
             if (! empty($userFields)) {
-                $user->update($userFields);
+                $this->userRepository->update($user, $userFields);
             }
 
             return [

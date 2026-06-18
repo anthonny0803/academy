@@ -6,6 +6,7 @@ use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Http\Requests\StoreRepresentativeRequest;
 use App\Domains\Representatives\Http\Requests\UpdateRepresentativeRequest;
 use App\Domains\Representatives\Models\Representative;
+use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use App\Domains\Representatives\Services\StoreRepresentativeService;
 use App\Domains\Representatives\Services\UpdateRepresentativeService;
 use App\Domains\Shared\Enums\Sex;
@@ -24,6 +25,10 @@ class RepresentativeController extends Controller
     use AuthorizesRequests;
     use CanToggleActivation;
 
+    public function __construct(
+        private RepresentativeRepository $representativeRepository
+    ) {}
+
     protected function currentUser(): User
     {
         return Auth::user();
@@ -40,19 +45,19 @@ class RepresentativeController extends Controller
             if (empty($search)) {
                 $representatives = collect();
             } else {
-                $representatives = Representative::query()
-                    ->join('users', 'representatives.user_id', '=', 'users.id')
-                    ->select('representatives.*')
-                    ->search($search)
-                    ->when($status && $status !== 'Todos', function ($q) use ($status) {
-                        $status === 'Activo' ? $q->active() : $q->inactive();
-                    })
-                    ->when($studentsFilter === 'con', fn ($q) => $q->hasStudents())
-                    ->when($studentsFilter === 'sin', fn ($q) => $q->withoutStudents())
-                    ->with(['user', 'students'])
-                    ->orderBy('users.name')
-                    ->orderBy('users.last_name')
-                    ->paginate(6)
+                $isActive = match ($status) {
+                    'Activo' => true,
+                    'Inactivo' => false,
+                    default => null,
+                };
+                $hasStudents = match ($studentsFilter) {
+                    'con' => true,
+                    'sin' => false,
+                    default => null,
+                };
+
+                $representatives = $this->representativeRepository
+                    ->paginateForListing($search, $isActive, $hasStudents, 6)
                     ->withQueryString();
             }
 

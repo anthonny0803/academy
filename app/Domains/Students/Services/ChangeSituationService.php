@@ -4,18 +4,23 @@ namespace App\Domains\Students\Services;
 
 use App\Domains\Students\Enums\StudentSituation;
 use App\Domains\Students\Models\Student;
+use App\Domains\Students\Repositories\StudentRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ChangeSituationService
 {
+    public function __construct(
+        private StudentRepository $studentRepository
+    ) {}
+
     public function handle(Student $student, StudentSituation $situation): Student
     {
         return DB::transaction(function () use ($student, $situation) {
             $oldSituation = $student->situation;
 
-            $student->update(['situation' => $situation]);
+            $this->studentRepository->update($student, ['situation' => $situation]);
 
             if ($oldSituation !== $situation) {
                 Log::info('Student situation changed', [

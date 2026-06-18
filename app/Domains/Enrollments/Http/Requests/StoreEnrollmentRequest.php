@@ -2,9 +2,8 @@
 
 namespace App\Domains\Enrollments\Http\Requests;
 
-use App\Domains\Academics\Models\Section;
-use App\Domains\Enrollments\Enums\EnrollmentStatus;
-use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Academics\Repositories\SectionRepository;
+use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEnrollmentRequest extends FormRequest
@@ -39,17 +38,15 @@ class StoreEnrollmentRequest extends FormRequest
                 return;
             }
 
-            $section = Section::find($sectionId);
+            $section = app(SectionRepository::class)->find($sectionId);
 
             if (! $section) {
                 return;
             }
 
-            // Verificar si existe CUALQUIER inscripción del estudiante en este período
-            $existsInPeriod = Enrollment::where('student_id', $student->id)
-                ->where('status', EnrollmentStatus::Active->value)  // ← Agregar esta línea
-                ->whereHas('section', fn ($q) => $q->where('academic_period_id', $section->academic_period_id))
-                ->exists();
+            // Verificar si existe una inscripción activa del estudiante en este período
+            $existsInPeriod = app(EnrollmentRepository::class)
+                ->hasActiveEnrollmentInPeriod($student->id, $section->academic_period_id);
 
             if ($existsInPeriod) {
                 $validator->errors()->add(

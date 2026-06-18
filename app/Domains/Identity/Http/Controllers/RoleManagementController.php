@@ -5,6 +5,7 @@ namespace App\Domains\Identity\Http\Controllers;
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Http\Requests\RoleManagement\AssignRoleRequest;
 use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Identity\Services\RoleManagement\AssignRoleService;
 use App\Domains\Identity\Services\Users\RoleAssignmentService;
 use App\Domains\Shared\Http\Controllers\Controller;
@@ -20,6 +21,10 @@ class RoleManagementController extends Controller
     use AuthorizesRedirect;
     use AuthorizesRequests;
 
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
+
     protected function currentUser(): User
     {
         return Auth::user();
@@ -33,12 +38,8 @@ class RoleManagementController extends Controller
             if (empty($search)) {
                 $users = collect();
             } else {
-                $users = User::query()
-                    ->search($search)
-                    ->with(['roles', 'teacher', 'representative', 'student'])
-                    ->orderBy('name')
-                    ->orderBy('last_name')
-                    ->paginate(6)
+                $users = $this->userRepository
+                    ->paginateForRoleAssignment($search, 6)
                     ->withQueryString();
             }
 

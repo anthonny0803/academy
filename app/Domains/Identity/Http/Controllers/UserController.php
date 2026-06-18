@@ -6,6 +6,7 @@ use App\Domains\Identity\Enums\Role as RoleEnum;
 use App\Domains\Identity\Http\Requests\Users\StoreUserRequest;
 use App\Domains\Identity\Http\Requests\Users\UpdateUserRequest;
 use App\Domains\Identity\Models\User;
+use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Identity\Services\Users\DeleteUserService;
 use App\Domains\Identity\Services\Users\RoleAssignmentService;
 use App\Domains\Identity\Services\Users\StoreUserService;
@@ -26,6 +27,10 @@ class UserController extends Controller
     use AuthorizesRedirect;
     use AuthorizesRequests;
     use CanToggleActivation;
+
+    public function __construct(
+        private UserRepository $userRepository
+    ) {}
 
     protected function currentUser(): User
     {
@@ -50,16 +55,15 @@ class UserController extends Controller
             if (empty($search)) {
                 $users = collect();
             } else {
-                $users = User::query()
-                    ->employees()
-                    ->search($search)
-                    ->when($status && $status !== 'Todos', function ($q) use ($status) {
-                        $status === 'Activo' ? $q->active() : $q->inactive();
-                    })
-                    ->when($role && $role !== 'Todos', fn ($q) => $q->withRole($role))
-                    ->with('roles')
-                    ->orderByName()
-                    ->paginate(6)
+                $isActive = match ($status) {
+                    'Activo' => true,
+                    'Inactivo' => false,
+                    default => null,
+                };
+                $roleFilter = $role && $role !== 'Todos' ? $role : null;
+
+                $users = $this->userRepository
+                    ->paginateEmployees($search, $isActive, $roleFilter, 6)
                     ->withQueryString();
             }
 
