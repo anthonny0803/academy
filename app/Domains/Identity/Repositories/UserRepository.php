@@ -13,6 +13,8 @@ interface UserRepository
 
     public function findByCredentials(string $documentId, string $birthDate, array $with = []): ?User;
 
+    public function findByEmail(string $email): ?User;
+
     public function create(array $attributes): User;
 
     public function update(User $user, array $attributes): User;

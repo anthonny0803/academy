@@ -49,10 +49,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        $currentUser = Auth::user();
-        $isAllowedToLogin = $currentUser->isActive() || ($currentUser->teacher?->isActive() ?? false);
-
-        if (! $isAllowedToLogin) {
+        if (! Auth::user()->canAuthenticate()) {
             Auth::logout();
             throw ValidationException::withMessages([
                 'email' => 'Tu cuenta está inactiva, contacta con el administrador.',
