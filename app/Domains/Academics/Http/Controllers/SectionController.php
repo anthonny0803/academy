@@ -4,10 +4,10 @@ namespace App\Domains\Academics\Http\Controllers;
 
 use App\Domains\Academics\Http\Requests\Sections\StoreSectionRequest;
 use App\Domains\Academics\Http\Requests\Sections\UpdateSectionRequest;
-use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
-use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Academics\Repositories\SectionRepository;
+use App\Domains\Academics\Repositories\SubjectRepository;
 use App\Domains\Academics\Services\Sections\DeleteSectionService;
 use App\Domains\Academics\Services\Sections\StoreSectionService;
 use App\Domains\Academics\Services\Sections\UpdateSectionService;
@@ -28,7 +28,9 @@ class SectionController extends Controller
     use CanToggleActivation;
 
     public function __construct(
-        private SectionRepository $sectionRepository
+        private SectionRepository $sectionRepository,
+        private AcademicPeriodRepository $academicPeriodRepository,
+        private SubjectRepository $subjectRepository
     ) {}
 
     protected function currentUser(): User
@@ -43,9 +45,7 @@ class SectionController extends Controller
             $status = $request->input('status');
             $academicPeriodId = $request->input('academic_period_id');
 
-            $academicPeriods = AcademicPeriod::active()
-                ->orderBy('start_date', 'desc')
-                ->get();
+            $academicPeriods = $this->academicPeriodRepository->activeOrderedByStartDate();
 
             $isActive = match ($status) {
                 'Activo' => true,
@@ -88,7 +88,7 @@ class SectionController extends Controller
             ]);
 
             // Materias activas para el select del modal
-            $subjects = Subject::active()->orderBy('name')->get();
+            $subjects = $this->subjectRepository->activeOrdered();
 
             // Construir array de profesores agrupados por materia
             $teachersBySubject = [];

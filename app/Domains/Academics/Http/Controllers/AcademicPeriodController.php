@@ -5,6 +5,7 @@ namespace App\Domains\Academics\Http\Controllers;
 use App\Domains\Academics\Http\Requests\AcademicPeriods\StoreAcademicPeriodRequest;
 use App\Domains\Academics\Http\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
 use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Academics\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\StoreAcademicPeriodService;
@@ -23,6 +24,10 @@ class AcademicPeriodController extends Controller
     use AuthorizesRedirect;
     use AuthorizesRequests;
 
+    public function __construct(
+        private AcademicPeriodRepository $academicPeriodRepository
+    ) {}
+
     protected function currentUser(): User
     {
         return Auth::user();
@@ -34,14 +39,14 @@ class AcademicPeriodController extends Controller
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
 
-            $academicPeriods = AcademicPeriod::query()
-                ->withCount('sections') // Para saber si se pueden editar campos sensibles
-                ->when($search !== '', fn ($q) => $q->search($search))
-                ->when($status && $status !== 'Todos', function ($q) use ($status) {
-                    $status === 'Activo' ? $q->active() : $q->inactive();
-                })
-                ->orderBy('start_date', 'desc')
-                ->paginate(6)
+            $isActive = match ($status) {
+                'Activo' => true,
+                'Inactivo' => false,
+                default => null,
+            };
+
+            $academicPeriods = $this->academicPeriodRepository
+                ->paginateForListing($search, $isActive, 6)
                 ->withQueryString();
 
             return view('academic-periods.index', compact('academicPeriods'));

@@ -3,10 +3,15 @@
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
 use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use Illuminate\Support\Facades\DB;
 
 class StoreAcademicPeriodService
 {
+    public function __construct(
+        private AcademicPeriodRepository $academicPeriodRepository
+    ) {}
+
     public function handle(array $data): AcademicPeriod
     {
         return DB::transaction(function () use ($data) {
@@ -33,7 +38,7 @@ class StoreAcademicPeriodService
                 $academicPeriodData['max_grade'] = $data['max_grade'];
             }
 
-            return AcademicPeriod::create($academicPeriodData);
+            return $this->academicPeriodRepository->create($academicPeriodData);
         });
     }
 }

@@ -6,6 +6,7 @@ use App\Domains\Academics\Http\Requests\SubjectTeacher\StoreSubjectTeacherReques
 use App\Domains\Academics\Models\Subject;
 use App\Domains\Academics\Models\SubjectTeacher;
 use App\Domains\Academics\Models\Teacher;
+use App\Domains\Academics\Repositories\SubjectRepository;
 use App\Domains\Academics\Services\SubjectTeacher\DeleteSubjectTeacherService;
 use App\Domains\Academics\Services\SubjectTeacher\StoreSubjectTeacherService;
 use App\Domains\Identity\Models\User;
@@ -22,6 +23,10 @@ class SubjectTeacherController extends Controller
     use AuthorizesRedirect;
     use AuthorizesRequests;
 
+    public function __construct(
+        private SubjectRepository $subjectRepository
+    ) {}
+
     protected function currentUser(): User
     {
         return Auth::user();
@@ -33,18 +38,10 @@ class SubjectTeacherController extends Controller
             $search = trim((string) $request->input('search', ''));
             $subjectId = $request->input('subject_id');
 
-            $allSubjects = Subject::active()->orderBy('name')->get();
+            $allSubjects = $this->subjectRepository->activeOrdered();
 
-            $subjects = Subject::query()
-                ->with(['teachers' => function ($q) {
-                    $q->where('is_active', true)
-                        ->with('user');
-                }])
-                ->active()
-                ->when($search !== '', fn ($q) => $q->search($search))
-                ->when($subjectId, fn ($q) => $q->where('id', $subjectId))
-                ->orderBy('name')
-                ->paginate(6)
+            $subjects = $this->subjectRepository
+                ->paginateWithActiveTeachers($search, $subjectId, 6)
                 ->withQueryString();
 
             return view('subject-teacher.index', compact('subjects', 'allSubjects'));
@@ -55,7 +52,7 @@ class SubjectTeacherController extends Controller
     {
         return $this->authorizeOrRedirect('create', SubjectTeacher::class, function () use ($teacher) {
             $teacher->load('subjects');
-            $subjects = Subject::active()->orderBy('name')->get();
+            $subjects = $this->subjectRepository->activeOrdered();
 
             return view('subject-teacher.assign', compact('teacher', 'subjects'));
         });

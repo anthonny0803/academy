@@ -2,7 +2,7 @@
 
 namespace App\Domains\Enrollments\Http\Controllers;
 
-use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Http\Requests\PromoteEnrollmentRequest;
@@ -31,7 +31,8 @@ class EnrollmentController extends Controller
 
     public function __construct(
         private EnrollmentRepository $enrollmentRepository,
-        private SectionRepository $sectionRepository
+        private SectionRepository $sectionRepository,
+        private AcademicPeriodRepository $academicPeriodRepository
     ) {}
 
     protected function currentUser(): User
@@ -47,10 +48,7 @@ class EnrollmentController extends Controller
             $academicPeriodId = $request->input('academic_period_id');
             $sectionId = $request->input('section_id');
 
-            $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
-                ->orderBy('start_date', 'desc')
-                ->get();
+            $academicPeriods = $this->academicPeriodRepository->activeWithActiveSections();
 
             $statuses = EnrollmentStatus::toArray();
 
@@ -113,10 +111,7 @@ class EnrollmentController extends Controller
     public function create(Student $student): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('create', Enrollment::class, function () use ($student) {
-            $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
-                ->orderBy('start_date', 'desc')
-                ->get();
+            $academicPeriods = $this->academicPeriodRepository->activeWithActiveSections();
 
             return view('enrollments.create', compact('student', 'academicPeriods'));
         });
