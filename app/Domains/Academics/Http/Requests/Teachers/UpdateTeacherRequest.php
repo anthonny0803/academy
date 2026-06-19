@@ -6,7 +6,7 @@ use App\Domains\Shared\Http\Requests\UpdateEmployeeRequest;
 
 class UpdateTeacherRequest extends UpdateEmployeeRequest
 {
-    protected function getUserId(): int
+    protected function getUserId(): string
     {
         return $this->route('teacher')->user_id;
     }

@@ -12,7 +12,7 @@ abstract class UpdateEmployeeRequest extends FormRequest
         return true;
     }
 
-    abstract protected function getUserId(): int;
+    abstract protected function getUserId(): string;
 
     public function rules(): array
     {
