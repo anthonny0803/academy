@@ -17,9 +17,12 @@ class SubjectFactory extends Factory
 
     public function definition(): array
     {
+        static $sequence = 0;
+        $base = self::$subjects[$sequence % count(self::$subjects)];
+        $sequence++;
+
         return [
-            'name' => fake()->unique()->randomElement(self::$subjects)
-                ?? 'Asignatura '.fake()->unique()->numerify('##'),
+            'name' => "{$base} {$sequence}",
             'description' => fake()->sentence(),
             'is_active' => true,
         ];
