@@ -1,5 +1,8 @@
 <?php
 
+use App\Domains\Academics\Http\Controllers\Api\AcademicPeriodController;
+use App\Domains\Academics\Http\Controllers\Api\SectionController;
+use App\Domains\Academics\Http\Controllers\Api\SubjectController;
 use App\Domains\Grades\Http\Controllers\Api\PublicGradesController;
 use App\Domains\Identity\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +15,12 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout'])
             ->name('api.v1.auth.logout');
+    });
+
+    Route::middleware(['auth:sanctum', 'throttle:api'])->name('api.v1.')->group(function () {
+        Route::apiResource('academic-periods', AcademicPeriodController::class);
+        Route::apiResource('sections', SectionController::class);
+        Route::apiResource('subjects', SubjectController::class);
     });
 });
 

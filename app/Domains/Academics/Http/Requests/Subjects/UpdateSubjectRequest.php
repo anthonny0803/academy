@@ -14,7 +14,7 @@ class UpdateSubjectRequest extends FormRequest
         return true;
     }
 
-    protected function getSubjectId(): int
+    protected function getSubjectId(): string
     {
         return $this->route('subject')->id;
     }
