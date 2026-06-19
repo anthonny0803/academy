@@ -5,6 +5,7 @@ use App\Domains\Academics\Http\Controllers\Api\SectionController;
 use App\Domains\Academics\Http\Controllers\Api\SubjectController;
 use App\Domains\Grades\Http\Controllers\Api\PublicGradesController;
 use App\Domains\Identity\Http\Controllers\Api\AuthController;
+use App\Domains\Identity\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -21,6 +22,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('academic-periods', AcademicPeriodController::class);
         Route::apiResource('sections', SectionController::class);
         Route::apiResource('subjects', SubjectController::class);
+        Route::apiResource('users', UserController::class);
     });
 });
 
