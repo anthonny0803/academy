@@ -8,7 +8,6 @@ use App\Domains\Academics\Repositories\EloquentSubjectRepository;
 use App\Domains\Academics\Repositories\SubjectRepository;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class EloquentSubjectRepositoryTest extends TestCase
@@ -91,10 +90,7 @@ class EloquentSubjectRepositoryTest extends TestCase
 
         $activeTeacher = Teacher::factory()->create();
         $inactiveTeacher = Teacher::factory()->inactive()->create();
-        $subject->teachers()->attach([
-            $activeTeacher->id => ['id' => (string) Str::uuid()],
-            $inactiveTeacher->id => ['id' => (string) Str::uuid()],
-        ]);
+        $subject->teachers()->attach([$activeTeacher->id, $inactiveTeacher->id]);
 
         $result = $this->repository->paginateWithActiveTeachers('', null, 10);
 
