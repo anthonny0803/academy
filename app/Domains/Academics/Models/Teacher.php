@@ -44,6 +44,7 @@ class Teacher extends Model implements HasEntityName
     public function subjects(): BelongsToMany
     {
         return $this->belongsToMany(Subject::class, 'subject_teacher')
+            ->using(SubjectTeacher::class)
             ->withTimestamps();
     }
 
