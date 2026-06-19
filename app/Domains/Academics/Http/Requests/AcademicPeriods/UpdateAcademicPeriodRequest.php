@@ -23,7 +23,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
         return $this->route('academic_period');
     }
 
-    protected function getAcademicPeriodId(): int
+    protected function getAcademicPeriodId(): string
     {
         return $this->getAcademicPeriod()->id;
     }

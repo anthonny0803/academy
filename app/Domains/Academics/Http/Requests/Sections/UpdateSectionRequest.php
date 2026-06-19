@@ -14,7 +14,7 @@ class UpdateSectionRequest extends FormRequest
         return true;
     }
 
-    protected function getSectionId(): int
+    protected function getSectionId(): string
     {
         return $this->route('section')->id;
     }
