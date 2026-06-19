@@ -12,10 +12,10 @@ use App\Domains\Grades\Http\Controllers\GradeController;
 use App\Domains\Identity\Http\Controllers\ProfileController;
 use App\Domains\Identity\Http\Controllers\RoleManagementController;
 use App\Domains\Identity\Http\Controllers\UserController;
+use App\Domains\Identity\Http\Middleware\CheckDeveloperOrRole;
 use App\Domains\Representatives\Http\Controllers\RepresentativeController;
 use App\Domains\Students\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
-use Spatie\Permission\Middleware\RoleMiddleware;
 
 /* Public Routes */
 
@@ -35,7 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // Admin Routes (Supervisor | Administrador)
-    Route::middleware(RoleMiddleware::class.':Supervisor|Administrador')->group(function () {
+    Route::middleware(CheckDeveloperOrRole::class.':Supervisor|Administrador')->group(function () {
 
         // Users
         Route::resource('users', UserController::class);
