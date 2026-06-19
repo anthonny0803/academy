@@ -3,6 +3,7 @@
 namespace App\Domains\Academics\Services\Teachers;
 
 use App\Domains\Academics\Models\Teacher;
+use App\Domains\Academics\Repositories\TeacherRepository;
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Shared\Services\CreateEmployeeService;
 use Illuminate\Support\Facades\DB;
@@ -10,7 +11,8 @@ use Illuminate\Support\Facades\DB;
 class StoreTeacherService
 {
     public function __construct(
-        private CreateEmployeeService $createEmployeeService
+        private CreateEmployeeService $createEmployeeService,
+        private TeacherRepository $teacherRepository
     ) {}
 
     public function handle(array $data): Teacher
@@ -22,12 +24,10 @@ class StoreTeacherService
                 isActive: false
             );
 
-            $teacher = Teacher::create([
+            return $this->teacherRepository->create([
                 'user_id' => $user->id,
                 'is_active' => true,
             ]);
-
-            return $teacher;
         });
     }
 }

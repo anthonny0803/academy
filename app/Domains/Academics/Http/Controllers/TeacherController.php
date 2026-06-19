@@ -5,6 +5,7 @@ namespace App\Domains\Academics\Http\Controllers;
 use App\Domains\Academics\Http\Requests\Teachers\StoreTeacherRequest;
 use App\Domains\Academics\Http\Requests\Teachers\UpdateTeacherRequest;
 use App\Domains\Academics\Models\Teacher;
+use App\Domains\Academics\Repositories\TeacherRepository;
 use App\Domains\Academics\Services\Teachers\StoreTeacherService;
 use App\Domains\Academics\Services\Teachers\UpdateTeacherService;
 use App\Domains\Identity\Models\User;
@@ -24,6 +25,10 @@ class TeacherController extends Controller
     use AuthorizesRequests;
     use CanToggleActivation;
 
+    public function __construct(
+        private TeacherRepository $teacherRepository
+    ) {}
+
     protected function currentUser(): User
     {
         return Auth::user();
@@ -39,14 +44,14 @@ class TeacherController extends Controller
             if (empty($search)) {
                 $teachers = collect();
             } else {
-                $teachers = Teacher::query()
-                    ->search($search)
-                    ->when($status && $status !== 'Todos', function ($q) use ($status) {
-                        $status === 'Activo' ? $q->active() : $q->inactive();
-                    })
-                    ->orderByUserName()
-                    ->with('user')
-                    ->paginate(6)
+                $isActive = match ($status) {
+                    'Activo' => true,
+                    'Inactivo' => false,
+                    default => null,
+                };
+
+                $teachers = $this->teacherRepository
+                    ->paginateForListing($search, $isActive, 6)
                     ->withQueryString();
             }
 

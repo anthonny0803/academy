@@ -2,7 +2,7 @@
 
 namespace App\Domains\Students\Http\Controllers;
 
-use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
@@ -40,7 +40,8 @@ class StudentController extends Controller
 
     public function __construct(
         private RepresentativeRepository $representativeRepository,
-        private StudentRepository $studentRepository
+        private StudentRepository $studentRepository,
+        private AcademicPeriodRepository $academicPeriodRepository
     ) {}
 
     protected function currentUser(): User
@@ -56,10 +57,7 @@ class StudentController extends Controller
             $academicPeriodId = $request->input('academic_period_id');
             $sectionId = $request->input('section_id');
 
-            $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
-                ->orderBy('start_date', 'desc')
-                ->get();
+            $academicPeriods = $this->academicPeriodRepository->activeWithActiveSections();
 
             // If no search term is provided, return an empty collection
             if (empty($search)) {
@@ -95,10 +93,7 @@ class StudentController extends Controller
             $sexes = Sex::toArray();
             $relationshipTypes = RelationshipType::toArray();
 
-            $academicPeriods = AcademicPeriod::active()
-                ->with(['sections' => fn ($q) => $q->active()->orderBy('name')])
-                ->orderBy('start_date', 'desc')
-                ->get();
+            $academicPeriods = $this->academicPeriodRepository->activeWithActiveSections();
 
             return view('students.create', compact('representative', 'sexes', 'relationshipTypes', 'academicPeriods'));
         });

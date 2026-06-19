@@ -3,10 +3,15 @@
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
 use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use Illuminate\Support\Facades\DB;
 
 class UpdateAcademicPeriodService
 {
+    public function __construct(
+        private AcademicPeriodRepository $academicPeriodRepository
+    ) {}
+
     public function handle(AcademicPeriod $academicPeriod, array $data): AcademicPeriod
     {
         return DB::transaction(function () use ($academicPeriod, $data) {
@@ -45,9 +50,7 @@ class UpdateAcademicPeriodService
                 }
             }
 
-            $academicPeriod->update($updateData);
-
-            return $academicPeriod->fresh();
+            return $this->academicPeriodRepository->update($academicPeriod, $updateData)->fresh();
         });
     }
 }

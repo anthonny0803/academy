@@ -2,8 +2,14 @@
 
 namespace App\Providers;
 
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
+use App\Domains\Academics\Repositories\EloquentAcademicPeriodRepository;
 use App\Domains\Academics\Repositories\EloquentSectionRepository;
+use App\Domains\Academics\Repositories\EloquentSubjectRepository;
+use App\Domains\Academics\Repositories\EloquentTeacherRepository;
 use App\Domains\Academics\Repositories\SectionRepository;
+use App\Domains\Academics\Repositories\SubjectRepository;
+use App\Domains\Academics\Repositories\TeacherRepository;
 use App\Domains\Enrollments\Repositories\EloquentEnrollmentRepository;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Grades\Repositories\EloquentGradeRepository;
@@ -30,6 +36,9 @@ class RepositoryServiceProvider extends ServiceProvider
         EnrollmentRepository::class => EloquentEnrollmentRepository::class,
         GradeRepository::class => EloquentGradeRepository::class,
         SectionRepository::class => EloquentSectionRepository::class,
+        AcademicPeriodRepository::class => EloquentAcademicPeriodRepository::class,
+        SubjectRepository::class => EloquentSubjectRepository::class,
+        TeacherRepository::class => EloquentTeacherRepository::class,
     ];
 
     public function register(): void

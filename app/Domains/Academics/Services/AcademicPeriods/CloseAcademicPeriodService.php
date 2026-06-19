@@ -3,6 +3,7 @@
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
 use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
@@ -18,7 +19,8 @@ class CloseAcademicPeriodService
         private SyncRepresentativeStatusService $syncRepresentativeStatus,
         private StudentRepository $studentRepository,
         private EnrollmentRepository $enrollmentRepository,
-        private SectionRepository $sectionRepository
+        private SectionRepository $sectionRepository,
+        private AcademicPeriodRepository $academicPeriodRepository
     ) {}
 
     public function validateForClose(AcademicPeriod $academicPeriod): array
@@ -219,7 +221,7 @@ class CloseAcademicPeriodService
                 $results['sections_deactivated']++;
             }
 
-            $academicPeriod->update(['is_active' => false]);
+            $this->academicPeriodRepository->update($academicPeriod, ['is_active' => false]);
 
             // BULK UPDATE: Deactivate students without active enrollments
             $studentsDeactivated = $this->studentRepository->deactivateWithoutActiveEnrollments($studentIds);

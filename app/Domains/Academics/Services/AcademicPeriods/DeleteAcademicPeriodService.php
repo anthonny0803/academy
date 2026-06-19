@@ -3,13 +3,15 @@
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
 use App\Domains\Academics\Models\AcademicPeriod;
+use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Academics\Repositories\SectionRepository;
 use Illuminate\Support\Facades\DB;
 
 class DeleteAcademicPeriodService
 {
     public function __construct(
-        private SectionRepository $sectionRepository
+        private SectionRepository $sectionRepository,
+        private AcademicPeriodRepository $academicPeriodRepository
     ) {}
 
     /**
@@ -48,7 +50,7 @@ class DeleteAcademicPeriodService
             }
 
             // Eliminar el período
-            $academicPeriod->delete();
+            $this->academicPeriodRepository->delete($academicPeriod);
 
             return [
                 'sections_deleted' => $deletedSections,

@@ -2,7 +2,7 @@
 
 namespace App\Domains\Identity\Services\RoleManagement;
 
-use App\Domains\Academics\Models\Teacher;
+use App\Domains\Academics\Repositories\TeacherRepository;
 use App\Domains\Identity\Enums\Role;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Repositories\UserRepository;
@@ -13,7 +13,8 @@ class AssignRoleService
 {
     public function __construct(
         private UserRepository $userRepository,
-        private RepresentativeRepository $representativeRepository
+        private RepresentativeRepository $representativeRepository,
+        private TeacherRepository $teacherRepository
     ) {}
 
     public function handle(User $user, Role $role, array $data): User
@@ -74,7 +75,7 @@ class AssignRoleService
         $user->assignRole(Role::Teacher->value);
 
         // Create Teacher profile
-        Teacher::create([
+        $this->teacherRepository->create([
             'user_id' => $user->id,
             'is_active' => true,
         ]);

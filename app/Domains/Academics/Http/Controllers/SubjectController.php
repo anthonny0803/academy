@@ -5,6 +5,7 @@ namespace App\Domains\Academics\Http\Controllers;
 use App\Domains\Academics\Http\Requests\Subjects\StoreSubjectRequest;
 use App\Domains\Academics\Http\Requests\Subjects\UpdateSubjectRequest;
 use App\Domains\Academics\Models\Subject;
+use App\Domains\Academics\Repositories\SubjectRepository;
 use App\Domains\Academics\Services\Subjects\DeleteSubjectService;
 use App\Domains\Academics\Services\Subjects\StoreSubjectService;
 use App\Domains\Academics\Services\Subjects\UpdateSubjectService;
@@ -24,6 +25,10 @@ class SubjectController extends Controller
     use AuthorizesRequests;
     use CanToggleActivation;
 
+    public function __construct(
+        private SubjectRepository $subjectRepository
+    ) {}
+
     protected function currentUser(): User
     {
         return Auth::user();
@@ -35,13 +40,14 @@ class SubjectController extends Controller
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
 
-            $subjects = Subject::query()
-                ->when($search !== '', fn ($q) => $q->search($search))
-                ->when($status && $status !== 'Todos', function ($q) use ($status) {
-                    $status === 'Activo' ? $q->active() : $q->inactive();
-                })
-                ->orderBy('name')
-                ->paginate(6)
+            $isActive = match ($status) {
+                'Activo' => true,
+                'Inactivo' => false,
+                default => null,
+            };
+
+            $subjects = $this->subjectRepository
+                ->paginateForListing($search, $isActive, 6)
                 ->withQueryString();
 
             return view('subjects.index', compact('subjects'));
