@@ -7,6 +7,7 @@ use App\Domains\Academics\Http\Controllers\Api\TeacherController;
 use App\Domains\Grades\Http\Controllers\Api\PublicGradesController;
 use App\Domains\Identity\Http\Controllers\Api\AuthController;
 use App\Domains\Identity\Http\Controllers\Api\UserController;
+use App\Domains\Representatives\Http\Controllers\Api\RepresentativeController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -21,6 +22,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['auth:sanctum', 'throttle:api'])->name('api.v1.')->group(function () {
         Route::apiResource('academic-periods', AcademicPeriodController::class);
+        Route::apiResource('representatives', RepresentativeController::class)->except(['destroy']);
         Route::apiResource('sections', SectionController::class);
         Route::apiResource('subjects', SubjectController::class);
         Route::apiResource('teachers', TeacherController::class)->except(['destroy']);
