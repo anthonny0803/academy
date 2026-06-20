@@ -8,6 +8,7 @@ use App\Domains\Grades\Http\Controllers\Api\PublicGradesController;
 use App\Domains\Identity\Http\Controllers\Api\AuthController;
 use App\Domains\Identity\Http\Controllers\Api\UserController;
 use App\Domains\Representatives\Http\Controllers\Api\RepresentativeController;
+use App\Domains\Students\Http\Controllers\Api\StudentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -24,6 +25,8 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('academic-periods', AcademicPeriodController::class);
         Route::apiResource('representatives', RepresentativeController::class)->except(['destroy']);
         Route::apiResource('sections', SectionController::class);
+        Route::apiResource('representatives.students', StudentController::class)->shallow()->only(['store']);
+        Route::apiResource('students', StudentController::class)->only(['index', 'show', 'update']);
         Route::apiResource('subjects', SubjectController::class);
         Route::apiResource('teachers', TeacherController::class)->except(['destroy']);
         Route::apiResource('users', UserController::class);
