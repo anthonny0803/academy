@@ -4,6 +4,7 @@ use App\Domains\Academics\Http\Controllers\Api\AcademicPeriodController;
 use App\Domains\Academics\Http\Controllers\Api\SectionController;
 use App\Domains\Academics\Http\Controllers\Api\SubjectController;
 use App\Domains\Academics\Http\Controllers\Api\TeacherController;
+use App\Domains\Enrollments\Http\Controllers\Api\EnrollmentController;
 use App\Domains\Grades\Http\Controllers\Api\PublicGradesController;
 use App\Domains\Identity\Http\Controllers\Api\AuthController;
 use App\Domains\Identity\Http\Controllers\Api\UserController;
@@ -27,6 +28,8 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('sections', SectionController::class);
         Route::apiResource('representatives.students', StudentController::class)->shallow()->only(['store']);
         Route::apiResource('students', StudentController::class)->only(['index', 'show', 'update']);
+        Route::apiResource('students.enrollments', EnrollmentController::class)->shallow()->only(['store']);
+        Route::apiResource('enrollments', EnrollmentController::class)->only(['index', 'show', 'destroy']);
         Route::apiResource('subjects', SubjectController::class);
         Route::apiResource('teachers', TeacherController::class)->except(['destroy']);
         Route::apiResource('users', UserController::class);
