@@ -3,10 +3,20 @@
 namespace App\Domains\Grades\Repositories;
 
 use App\Domains\Grades\Models\Grade;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 class EloquentGradeRepository implements GradeRepository
 {
+    public function paginateForAssignment(string $sstId, int $perPage = 6): LengthAwarePaginator
+    {
+        return Grade::forAssignment($sstId)
+            ->with(['enrollment.student.user', 'gradeColumn'])
+            ->latest()
+            ->orderBy('id')
+            ->paginate($perPage);
+    }
+
     public function create(array $attributes): Grade
     {
         return Grade::create($attributes);

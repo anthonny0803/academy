@@ -3,10 +3,13 @@
 namespace App\Domains\Grades\Repositories;
 
 use App\Domains\Grades\Models\Grade;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 
 interface GradeRepository
 {
+    public function paginateForAssignment(string $sstId, int $perPage = 6): LengthAwarePaginator;
+
     public function create(array $attributes): Grade;
 
     public function update(Grade $grade, array $attributes): Grade;
