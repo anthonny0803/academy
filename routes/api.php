@@ -5,6 +5,7 @@ use App\Domains\Academics\Http\Controllers\Api\SectionController;
 use App\Domains\Academics\Http\Controllers\Api\SubjectController;
 use App\Domains\Academics\Http\Controllers\Api\TeacherController;
 use App\Domains\Enrollments\Http\Controllers\Api\EnrollmentController;
+use App\Domains\Grades\Http\Controllers\Api\GradeController;
 use App\Domains\Grades\Http\Controllers\Api\PublicGradesController;
 use App\Domains\Identity\Http\Controllers\Api\AuthController;
 use App\Domains\Identity\Http\Controllers\Api\UserController;
@@ -30,6 +31,13 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('students', StudentController::class)->only(['index', 'show', 'update']);
         Route::apiResource('students.enrollments', EnrollmentController::class)->shallow()->only(['store']);
         Route::apiResource('enrollments', EnrollmentController::class)->only(['index', 'show', 'destroy']);
+        Route::get('section-subject-teachers/{sectionSubjectTeacher}/grades', [GradeController::class, 'index'])
+            ->name('section-subject-teachers.grades.index');
+        Route::post('grade-columns/{gradeColumn}/grades', [GradeController::class, 'store'])
+            ->name('grade-columns.grades.store');
+        Route::post('grade-columns/{gradeColumn}/grades/batch', [GradeController::class, 'storeBatch'])
+            ->name('grade-columns.grades.batch');
+        Route::apiResource('grades', GradeController::class)->only(['show', 'update', 'destroy']);
         Route::apiResource('subjects', SubjectController::class);
         Route::apiResource('teachers', TeacherController::class)->except(['destroy']);
         Route::apiResource('users', UserController::class);
