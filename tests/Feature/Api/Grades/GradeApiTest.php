@@ -101,6 +101,35 @@ class GradeApiTest extends TestCase
             ->assertJsonPath('error.code', 'FORBIDDEN');
     }
 
+    public function test_index_allowed_for_owner_teacher(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        Grade::factory()->create([
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+        ]);
+        $token = $this->tokenFor($sst->teacher->user);
+
+        $response = $this->withToken($token)
+            ->getJson("/api/v1/section-subject-teachers/{$sst->id}/grades");
+
+        $response->assertOk()
+            ->assertJsonPath('meta.total', 1)
+            ->assertJsonPath('data.0.gradeColumnId', $column->id);
+    }
+
+    public function test_index_forbidden_for_non_owner_teacher(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $token = $this->tokenFor(Teacher::factory()->create()->user);
+
+        $response = $this->withToken($token)
+            ->getJson("/api/v1/section-subject-teachers/{$sst->id}/grades");
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+    }
+
     public function test_show_returns_a_grade_with_relations(): void
     {
         $token = $this->tokenFor(User::factory()->supervisor()->create());
@@ -215,6 +244,80 @@ class GradeApiTest extends TestCase
 
         $this->assertDatabaseHas('grades', [
             'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+        ]);
+    }
+
+    public function test_store_batch_allowed_for_owner_teacher(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $token = $this->tokenFor($sst->teacher->user);
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades/batch",
+            ['grades' => [['enrollment_id' => $enrollment->id, 'value' => 7.5]]]
+        );
+
+        $response->assertOk()
+            ->assertJsonPath('data.created', 1)
+            ->assertJsonPath('data.total', 1);
+
+        $this->assertDatabaseHas('grades', [
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+        ]);
+    }
+
+    public function test_store_batch_is_forbidden_for_non_owner_teacher(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $token = $this->tokenFor(Teacher::factory()->create()->user);
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades/batch",
+            ['grades' => [['enrollment_id' => $enrollment->id, 'value' => 7.5]]]
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+        $this->assertDatabaseMissing('grades', [
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+        ]);
+    }
+
+    public function test_store_batch_is_forbidden_for_supervisor(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades/batch",
+            ['grades' => [['enrollment_id' => $enrollment->id, 'value' => 7.5]]]
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+    }
+
+    public function test_store_batch_rejects_enrollment_from_other_section(): void
+    {
+        [$sst, $column] = $this->gradableGraph();
+        [, , $foreignEnrollment] = $this->gradableGraph();
+        $token = $this->tokenFor($sst->teacher->user);
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades/batch",
+            ['grades' => [['enrollment_id' => $foreignEnrollment->id, 'value' => 7.5]]]
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure([
+                'error' => ['code', 'message', 'fields' => ['grades.0.enrollment_id']],
+            ]);
+        $this->assertDatabaseMissing('grades', [
+            'enrollment_id' => $foreignEnrollment->id,
             'grade_column_id' => $column->id,
         ]);
     }

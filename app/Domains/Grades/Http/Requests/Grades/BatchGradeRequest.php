@@ -2,6 +2,8 @@
 
 namespace App\Domains\Grades\Http\Requests\Grades;
 
+use App\Domains\Enrollments\Models\Enrollment;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BatchGradeRequest extends FormRequest
@@ -76,9 +78,9 @@ class BatchGradeRequest extends FormRequest
     /**
      * Validación adicional después de las reglas básicas
      */
-    public function withValidator($validator)
+    public function withValidator(Validator $validator): void
     {
-        $validator->after(function ($validator) {
+        $validator->after(function (Validator $validator) {
             $gradeColumn = $this->getGradeColumn();
 
             if (! $gradeColumn) {
@@ -96,6 +98,32 @@ class BatchGradeRequest extends FormRequest
                     "No puedes calificar hasta completar la configuración. Faltan {$remaining}% para llegar al 100%."
                 );
             }
+
+            $this->validateEnrollmentsBelongToSection($validator, $sst->section_id);
         });
+    }
+
+    private function validateEnrollmentsBelongToSection(Validator $validator, string $sectionId): void
+    {
+        $grades = $this->input('grades', []);
+
+        $sectionByEnrollment = Enrollment::query()
+            ->whereIn('id', collect($grades)->pluck('enrollment_id')->filter()->unique())
+            ->pluck('section_id', 'id');
+
+        foreach ($grades as $index => $grade) {
+            $enrollmentId = $grade['enrollment_id'] ?? null;
+
+            if (! $enrollmentId || ! $sectionByEnrollment->has($enrollmentId)) {
+                continue;
+            }
+
+            if ($sectionByEnrollment->get($enrollmentId) !== $sectionId) {
+                $validator->errors()->add(
+                    "grades.{$index}.enrollment_id",
+                    'El estudiante no pertenece a esta sección.'
+                );
+            }
+        }
     }
 }
