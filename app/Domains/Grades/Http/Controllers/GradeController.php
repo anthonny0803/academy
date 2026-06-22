@@ -18,7 +18,6 @@ use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -70,7 +69,7 @@ class GradeController extends Controller
      */
     public function index(SectionSubjectTeacher $sectionSubjectTeacher): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('viewAny', Grade::class, function () use ($sectionSubjectTeacher) {
+        return $this->authorizeOrRedirect('viewForAssignment', [Grade::class, $sectionSubjectTeacher], function () use ($sectionSubjectTeacher) {
             $sectionSubjectTeacher->load([
                 'section.academicPeriod',
                 'section.enrollments' => fn ($q) => $q->active()->with('student.user'),
@@ -154,39 +153,6 @@ class GradeController extends Controller
                     ->with('error', $e->getMessage());
             }
         });
-    }
-
-    /**
-     * Almacenar notas en lote (para entrada rápida)
-     */
-    public function storeBatch(
-        Request $request,
-        StoreGradeService $storeService,
-        GradeColumn $gradeColumn
-    ): JsonResponse {
-        $this->authorize('create', Grade::class);
-
-        $request->validate([
-            'grades' => ['required', 'array'],
-            'grades.*.enrollment_id' => ['required', 'integer', 'exists:enrollments,id'],
-            'grades.*.value' => ['required', 'numeric'],
-            'grades.*.observation' => ['nullable', 'string', 'max:500'],
-        ]);
-
-        try {
-            $results = $storeService->handleBatch($gradeColumn, $request->input('grades'));
-
-            return response()->json([
-                'success' => true,
-                'message' => "Creadas: {$results['created']}, Actualizadas: {$results['updated']}",
-                'results' => $results,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
-        }
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Policies;
 
+use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
@@ -100,6 +101,25 @@ class GradePolicy
         return Response::deny('No tienes autorización para ver esta calificación.');
     }
 
+    private function cannotViewThisAssignment(User $user, SectionSubjectTeacher $sectionSubjectTeacher): ?Response
+    {
+        // Developer, Supervisor, Admin pueden ver cualquier asignación
+        if ($user->isDeveloper() || $user->isSupervisor() || $user->isAdmin()) {
+            return null;
+        }
+
+        // Teacher solo sus asignaciones
+        if ($user->isTeacher() && $user->teacher) {
+            if ($sectionSubjectTeacher->teacher_id !== $user->teacher->id) {
+                return Response::deny('Esta asignación no te corresponde.');
+            }
+
+            return null;
+        }
+
+        return Response::deny('No tienes autorización para ver estas calificaciones.');
+    }
+
     private function cannotManageGrades(User $user): ?Response
     {
         // Developer siempre puede (si user activo)
@@ -142,7 +162,7 @@ class GradePolicy
         return null;
     }
 
-    private function cannotCreateGradeForColumn(User $user, GradeColumn $gradeColumn, Enrollment $enrollment): ?Response
+    private function cannotManageColumn(User $user, GradeColumn $gradeColumn): ?Response
     {
         if ($user->isDeveloper()) {
             return null;
@@ -160,6 +180,23 @@ class GradePolicy
             return Response::deny('Esta asignación no está activa.');
         }
 
+        // Verificar que la configuración está completa (suma 100%)
+        if (! $sst->isConfigurationComplete()) {
+            return Response::deny('La configuración de evaluaciones debe sumar 100% antes de calificar.');
+        }
+
+        return null;
+    }
+
+    private function cannotCreateGradeForColumn(User $user, GradeColumn $gradeColumn, Enrollment $enrollment): ?Response
+    {
+        $denyColumn = $this->cannotManageColumn($user, $gradeColumn);
+        if ($denyColumn) {
+            return $denyColumn;
+        }
+
+        $sst = $gradeColumn->sectionSubjectTeacher;
+
         // Verificar que el estudiante pertenece a esta sección
         if ($enrollment->section_id !== $sst->section_id) {
             return Response::deny('El estudiante no pertenece a esta sección.');
@@ -168,11 +205,6 @@ class GradePolicy
         // Verificar inscripción activa
         if ($enrollment->status !== 'activo') {
             return Response::deny('La inscripción del estudiante no está activa.');
-        }
-
-        // Verificar que la configuración está completa (suma 100%)
-        if (! $sst->isConfigurationComplete()) {
-            return Response::deny('La configuración de evaluaciones debe sumar 100% antes de calificar.');
         }
 
         return null;
@@ -199,9 +231,23 @@ class GradePolicy
             ?? Response::allow();
     }
 
+    public function viewForAssignment(User $currentUser, SectionSubjectTeacher $sectionSubjectTeacher): Response
+    {
+        return $this->cannotViewGrades($currentUser)
+            ?? $this->cannotViewThisAssignment($currentUser, $sectionSubjectTeacher)
+            ?? Response::allow();
+    }
+
     public function create(User $currentUser): Response
     {
         return $this->cannotManageGrades($currentUser)
+            ?? Response::allow();
+    }
+
+    public function createBatch(User $currentUser, GradeColumn $gradeColumn): Response
+    {
+        return $this->cannotManageGrades($currentUser)
+            ?? $this->cannotManageColumn($currentUser, $gradeColumn)
             ?? Response::allow();
     }
 

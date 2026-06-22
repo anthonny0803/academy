@@ -34,7 +34,7 @@ class GradeController extends Controller
 
     public function index(Request $request, SectionSubjectTeacher $sectionSubjectTeacher): JsonResponse
     {
-        $this->authorize('viewAny', Grade::class);
+        $this->authorize('viewForAssignment', [Grade::class, $sectionSubjectTeacher]);
 
         $grades = $this->gradeRepository->paginateForAssignment(
             $sectionSubjectTeacher->id,
@@ -67,7 +67,7 @@ class GradeController extends Controller
 
     public function storeBatch(BatchGradeRequest $request, BatchGradeService $batchService, GradeColumn $gradeColumn): JsonResponse
     {
-        $this->authorize('create', Grade::class);
+        $this->authorize('createBatch', [Grade::class, $gradeColumn]);
 
         $results = $batchService->handle($gradeColumn, $request->validated()['grades']);
 
