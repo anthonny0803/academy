@@ -15,8 +15,10 @@ class ValidatePublicApiToken
 
         if (! $token || ! $validToken || ! hash_equals($validToken, $token)) {
             return response()->json([
-                'success' => false,
-                'message' => 'Token de acceso inválido.',
+                'error' => [
+                    'code' => 'UNAUTHENTICATED',
+                    'message' => 'Token de acceso inválido.',
+                ],
             ], 401);
         }
 
