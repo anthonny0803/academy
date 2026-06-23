@@ -217,6 +217,75 @@ class StudentApiTest extends TestCase
         $response->assertStatus(405);
     }
 
+    public function test_withdraw_deactivates_student_and_enrollments(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $section = Section::factory()->create();
+        $student = Student::factory()->inSection($section)->create();
+        $enrollment = $student->enrollments()->where('section_id', $section->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/students/{$student->id}/withdraw",
+            ['reason' => 'Motivo personal']
+        );
+
+        $response->assertOk()
+            ->assertJsonPath('data.id', $student->id)
+            ->assertJsonPath('data.isActive', false);
+
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'is_active' => false,
+        ]);
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'retirado',
+        ]);
+    }
+
+    public function test_withdraw_requires_reason(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $student = Student::factory()->create();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/students/{$student->id}/withdraw",
+            []
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure(['error' => ['code', 'message', 'fields' => ['reason']]]);
+    }
+
+    public function test_withdraw_forbidden_for_unauthorized_role(): void
+    {
+        $token = $this->tokenFor(User::factory()->create());
+        $student = Student::factory()->create();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/students/{$student->id}/withdraw",
+            ['reason' => 'Motivo personal']
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_withdraw_requires_authentication(): void
+    {
+        $student = Student::factory()->create();
+
+        $response = $this->patchJson("/api/v1/students/{$student->id}/withdraw", ['reason' => 'x']);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
     public function test_requires_authentication(): void
     {
         $response = $this->getJson('/api/v1/students');
