@@ -2,12 +2,13 @@
 
 namespace App\Domains\Grades\Http\Requests\Api;
 
-use Illuminate\Contracts\Validation\Validator;
+use App\Domains\Shared\Traits\ThrowsApiValidationException;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\ValidationException;
 
 class PublicGradesRequest extends FormRequest
 {
+    use ThrowsApiValidationException;
+
     public function authorize(): bool
     {
         return true;
@@ -46,10 +47,5 @@ class PublicGradesRequest extends FormRequest
             'birth_date.date' => 'La fecha de nacimiento no es válida.',
             'birth_date.before' => 'La fecha de nacimiento no es válida.',
         ];
-    }
-
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new ValidationException($validator);
     }
 }
