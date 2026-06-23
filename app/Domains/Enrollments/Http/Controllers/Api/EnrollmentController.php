@@ -2,12 +2,16 @@
 
 namespace App\Domains\Enrollments\Http\Controllers\Api;
 
+use App\Domains\Enrollments\Http\Requests\Api\Enrollments\PromoteEnrollmentRequest;
 use App\Domains\Enrollments\Http\Requests\Api\Enrollments\StoreEnrollmentRequest;
+use App\Domains\Enrollments\Http\Requests\Api\Enrollments\TransferEnrollmentRequest;
 use App\Domains\Enrollments\Http\Resources\EnrollmentResource;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Enrollments\Services\DeleteEnrollmentService;
+use App\Domains\Enrollments\Services\PromoteEnrollmentService;
 use App\Domains\Enrollments\Services\StoreEnrollmentService;
+use App\Domains\Enrollments\Services\TransferEnrollmentService;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\RespondsWithResources;
 use App\Domains\Students\Models\Student;
@@ -70,5 +74,23 @@ class EnrollmentController extends Controller
         $deleteService->handle($enrollment);
 
         return response()->noContent();
+    }
+
+    public function transfer(TransferEnrollmentRequest $request, TransferEnrollmentService $transferService, Enrollment $enrollment): EnrollmentResource
+    {
+        $this->authorize('transfer', $enrollment);
+
+        $transferred = $transferService->handle($enrollment, $request->validated()['reason']);
+
+        return new EnrollmentResource($transferred);
+    }
+
+    public function promote(PromoteEnrollmentRequest $request, PromoteEnrollmentService $promoteService, Enrollment $enrollment): EnrollmentResource
+    {
+        $this->authorize('promote', $enrollment);
+
+        $newEnrollment = $promoteService->handle($enrollment, $request->validated()['section_id']);
+
+        return new EnrollmentResource($newEnrollment);
     }
 }

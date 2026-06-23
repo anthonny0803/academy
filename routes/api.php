@@ -29,8 +29,11 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('sections', SectionController::class);
         Route::apiResource('representatives.students', StudentController::class)->shallow()->only(['store']);
         Route::apiResource('students', StudentController::class)->only(['index', 'show', 'update']);
+        Route::patch('students/{student}/withdraw', [StudentController::class, 'withdraw'])->name('students.withdraw');
         Route::apiResource('students.enrollments', EnrollmentController::class)->shallow()->only(['store']);
         Route::apiResource('enrollments', EnrollmentController::class)->only(['index', 'show', 'destroy']);
+        Route::patch('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])->name('enrollments.transfer');
+        Route::patch('enrollments/{enrollment}/promote', [EnrollmentController::class, 'promote'])->name('enrollments.promote');
         Route::get('section-subject-teachers/{sectionSubjectTeacher}/grades', [GradeController::class, 'index'])
             ->name('section-subject-teachers.grades.index');
         Route::post('grade-columns/{gradeColumn}/grades', [GradeController::class, 'store'])

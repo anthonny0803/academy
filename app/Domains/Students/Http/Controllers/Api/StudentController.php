@@ -7,11 +7,13 @@ use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\RespondsWithResources;
 use App\Domains\Students\Http\Requests\Api\Students\StoreStudentRequest;
 use App\Domains\Students\Http\Requests\Api\Students\UpdateStudentRequest;
+use App\Domains\Students\Http\Requests\Api\Students\WithdrawStudentRequest;
 use App\Domains\Students\Http\Resources\StudentResource;
 use App\Domains\Students\Models\Student;
 use App\Domains\Students\Repositories\StudentRepository;
 use App\Domains\Students\Services\StoreStudentService;
 use App\Domains\Students\Services\UpdateStudentService;
+use App\Domains\Students\Services\WithdrawStudentService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,6 +71,15 @@ class StudentController extends Controller
         $this->authorize('update', Student::class);
 
         $result = $updateService->handle($student, $request->validated());
+
+        return new StudentResource($result['student']->load('representative.user'));
+    }
+
+    public function withdraw(WithdrawStudentRequest $request, WithdrawStudentService $withdrawService, Student $student): StudentResource
+    {
+        $this->authorize('withdraw', $student);
+
+        $result = $withdrawService->handle($student, $request->validated()['reason']);
 
         return new StudentResource($result['student']->load('representative.user'));
     }

@@ -211,6 +211,211 @@ class EnrollmentApiTest extends TestCase
         $this->assertDatabaseHas('enrollments', ['id' => $enrollment->id]);
     }
 
+    public function test_transfer_marks_enrollment_as_transferred(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->transferable()->create();
+        $section = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->inSection($section)->create();
+        $enrollment = $student->enrollments()->where('section_id', $section->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/transfer",
+            ['reason' => 'Cambio de ciudad']
+        );
+
+        $response->assertOk()
+            ->assertJsonPath('data.id', $enrollment->id)
+            ->assertJsonPath('data.status', 'transferido');
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'transferido',
+        ]);
+    }
+
+    public function test_transfer_requires_reason(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->transferable()->create();
+        $section = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->inSection($section)->create();
+        $enrollment = $student->enrollments()->where('section_id', $section->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/transfer",
+            []
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure(['error' => ['code', 'message', 'fields' => ['reason']]]);
+    }
+
+    public function test_transfer_in_non_transferable_period_is_forbidden(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $section = Section::factory()->create();
+        $student = Student::factory()->inSection($section)->create();
+        $enrollment = $student->enrollments()->where('section_id', $section->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/transfer",
+            ['reason' => 'Cambio de ciudad']
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'activo',
+        ]);
+    }
+
+    public function test_transfer_non_active_enrollment_is_forbidden(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->transferable()->create();
+        $section = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->create();
+        $student->enrollments()->delete();
+        $enrollment = Enrollment::factory()->withdrawn()->create([
+            'student_id' => $student->id,
+            'section_id' => $section->id,
+        ]);
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/transfer",
+            ['reason' => 'Cambio de ciudad']
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'retirado',
+        ]);
+    }
+
+    public function test_transfer_forbidden_for_admin(): void
+    {
+        $token = $this->tokenFor(User::factory()->admin()->create());
+        $period = AcademicPeriod::factory()->transferable()->create();
+        $section = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->inSection($section)->create();
+        $enrollment = $student->enrollments()->where('section_id', $section->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/transfer",
+            ['reason' => 'Cambio de ciudad']
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+    }
+
+    public function test_transfer_requires_authentication(): void
+    {
+        $enrollment = Enrollment::factory()->create();
+
+        $response = $this->patchJson("/api/v1/enrollments/{$enrollment->id}/transfer", ['reason' => 'x']);
+
+        $response->assertStatus(401)
+            ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
+    public function test_promote_creates_new_active_enrollment_in_target_section(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->promotable()->create();
+        $origin = Section::factory()->create(['academic_period_id' => $period->id]);
+        $target = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->inSection($origin)->create();
+        $enrollment = $student->enrollments()->where('section_id', $origin->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/promote",
+            ['section_id' => $target->id]
+        );
+
+        $response->assertOk()
+            ->assertJsonPath('data.studentId', $student->id)
+            ->assertJsonPath('data.sectionId', $target->id)
+            ->assertJsonPath('data.status', 'activo');
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'promovido',
+        ]);
+        $this->assertDatabaseHas('enrollments', [
+            'student_id' => $student->id,
+            'section_id' => $target->id,
+            'status' => 'activo',
+        ]);
+    }
+
+    public function test_promote_requires_section_id(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->promotable()->create();
+        $origin = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->inSection($origin)->create();
+        $enrollment = $student->enrollments()->where('section_id', $origin->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/promote",
+            []
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure(['error' => ['code', 'message', 'fields' => ['section_id']]]);
+    }
+
+    public function test_promote_forbidden_for_admin(): void
+    {
+        $token = $this->tokenFor(User::factory()->admin()->create());
+        $period = AcademicPeriod::factory()->promotable()->create();
+        $origin = Section::factory()->create(['academic_period_id' => $period->id]);
+        $target = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->inSection($origin)->create();
+        $enrollment = $student->enrollments()->where('section_id', $origin->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/promote",
+            ['section_id' => $target->id]
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+    }
+
+    public function test_promote_non_active_enrollment_is_forbidden(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->promotable()->create();
+        $origin = Section::factory()->create(['academic_period_id' => $period->id]);
+        $target = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->create();
+        $student->enrollments()->delete();
+        $enrollment = Enrollment::factory()->withdrawn()->create([
+            'student_id' => $student->id,
+            'section_id' => $origin->id,
+        ]);
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/promote",
+            ['section_id' => $target->id]
+        );
+
+        $response->assertStatus(403)
+            ->assertJsonPath('error.code', 'FORBIDDEN');
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'retirado',
+        ]);
+    }
+
     public function test_update_route_is_not_registered(): void
     {
         $token = $this->tokenFor(User::factory()->supervisor()->create());
