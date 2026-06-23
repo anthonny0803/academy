@@ -3,13 +3,9 @@
 namespace App\Domains\Academics\Http\Requests\Api\Teachers;
 
 use App\Domains\Academics\Http\Requests\Teachers\StoreTeacherRequest as WebStoreTeacherRequest;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Validation\ValidationException;
+use App\Domains\Shared\Traits\ThrowsApiValidationException;
 
 class StoreTeacherRequest extends WebStoreTeacherRequest
 {
-    protected function failedValidation(Validator $validator): void
-    {
-        throw new ValidationException($validator);
-    }
+    use ThrowsApiValidationException;
 }

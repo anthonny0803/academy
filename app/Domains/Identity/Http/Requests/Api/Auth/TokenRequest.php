@@ -4,12 +4,15 @@ namespace App\Domains\Identity\Http\Requests\Api\Auth;
 
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Repositories\UserRepository;
+use App\Domains\Shared\Traits\ThrowsApiValidationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class TokenRequest extends FormRequest
 {
+    use ThrowsApiValidationException;
+
     public function authorize(): bool
     {
         return true;
