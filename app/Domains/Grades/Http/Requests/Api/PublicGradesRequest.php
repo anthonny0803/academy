@@ -4,7 +4,7 @@ namespace App\Domains\Grades\Http\Requests\Api;
 
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\ValidationException;
 
 class PublicGradesRequest extends FormRequest
 {
@@ -50,12 +50,6 @@ class PublicGradesRequest extends FormRequest
 
     protected function failedValidation(Validator $validator): void
     {
-        throw new HttpResponseException(
-            response()->json([
-                'success' => false,
-                'message' => 'Datos de validación incorrectos.',
-                'errors' => $validator->errors(),
-            ], 422)
-        );
+        throw new ValidationException($validator);
     }
 }
