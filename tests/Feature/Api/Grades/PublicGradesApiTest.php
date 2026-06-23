@@ -8,6 +8,7 @@ use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Students\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 class PublicGradesApiTest extends TestCase
@@ -21,6 +22,10 @@ class PublicGradesApiTest extends TestCase
         parent::setUp();
         $this->seed(RoleAndPermissionSeeder::class);
         config(['services.public_api.token' => self::TOKEN]);
+
+        // The shared IP-based rate limiter is not under test here and leaks
+        // across tests on a persistent cache store (CI uses redis).
+        $this->withoutMiddleware(ThrottleRequests::class);
     }
 
     /**
