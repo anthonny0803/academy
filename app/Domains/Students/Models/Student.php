@@ -2,6 +2,7 @@
 
 namespace App\Domains\Students\Models;
 
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Identity\Models\User;
@@ -160,7 +161,7 @@ class Student extends Model implements HasEntityName
     public function hasActiveEnrollments(): bool
     {
         return $this->enrollments()
-            ->where('status', 'activo')
+            ->where('status', EnrollmentStatus::Active->value)
             ->exists();
     }
 

@@ -2,7 +2,9 @@
 
 namespace App\Domains\Academics\Http\Requests\SectionSubjectTeacher;
 
+use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSectionSubjectTeacherRequest extends FormRequest
 {
@@ -15,7 +17,7 @@ class UpdateSectionSubjectTeacherRequest extends FormRequest
     {
         return [
             'is_primary' => ['nullable', 'boolean'],
-            'status' => ['required', 'in:activo,suplente,inactivo'],
+            'status' => ['required', Rule::in(SectionSubjectTeacherStatus::toArray())],
         ];
     }
 

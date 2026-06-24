@@ -2,6 +2,7 @@
 
 namespace App\Domains\Students\Policies;
 
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Identity\Models\User;
 use App\Domains\Students\Models\Student;
 use Illuminate\Auth\Access\Response;
@@ -47,7 +48,7 @@ class StudentPolicy
     private function cannotWithdrawStudentWithoutActiveEnrollments(Student $student): ?Response
     {
         $hasActiveEnrollments = $student->enrollments()
-            ->where('status', 'activo')
+            ->where('status', EnrollmentStatus::Active->value)
             ->exists();
 
         if (! $hasActiveEnrollments) {

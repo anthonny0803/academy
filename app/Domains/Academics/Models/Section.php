@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Models;
 
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Shared\Traits\Activatable;
@@ -91,7 +92,7 @@ class Section extends Model implements HasEntityName
     public function isFull(): bool
     {
         $enrolledCount = $this->enrollments()
-            ->where('status', 'activo')
+            ->where('status', EnrollmentStatus::Active->value)
             ->count();
 
         return $enrolledCount >= $this->capacity;

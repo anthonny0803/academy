@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Services\Grades;
 
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
@@ -33,7 +34,7 @@ class StoreGradeService
             }
 
             // Validar inscripción activa
-            if ($enrollment->status !== 'activo') {
+            if ($enrollment->status !== EnrollmentStatus::Active->value) {
                 throw new \Exception('La inscripción del estudiante no está activa.');
             }
 

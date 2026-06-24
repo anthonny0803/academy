@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Policies;
 
+use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Identity\Models\User;
@@ -86,7 +87,7 @@ class GradeColumnPolicy
             return Response::deny('No eres el profesor asignado a esta materia/sección.');
         }
 
-        if ($sst->status !== 'activo') {
+        if ($sst->status !== SectionSubjectTeacherStatus::Active->value) {
             return Response::deny('Esta asignación no está activa.');
         }
 
