@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Domains\Identity\Models\User;
+use App\Domains\Tenancy\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -24,6 +25,7 @@ class UserSeeder extends Seeder
             ]
         );
         $adminUser->is_developer = true;
+        $adminUser->tenant_id = Tenant::where('slug', TenantSeeder::DEMO_SLUG)->value('id');
         $adminUser->save();
         $adminUser->assignRole('Supervisor');
     }

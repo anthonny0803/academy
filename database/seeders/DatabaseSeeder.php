@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
         // Llamar al seeder de RoleAndPermission para crear los roles necesarios
         $this->call(RoleAndPermissionSeeder::class);
 
+        // Llama a TenantSeeder para crear la organización demo antes que los usuarios
+        $this->call(TenantSeeder::class);
+
         // Llama a UserSeeder para poblar la tabla de usuarios
         $this->call(UserSeeder::class);
 
