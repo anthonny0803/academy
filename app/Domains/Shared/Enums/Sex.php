@@ -2,14 +2,13 @@
 
 namespace App\Domains\Shared\Enums;
 
+use App\Domains\Shared\Traits\HasValues;
+
 enum Sex: string
 {
+    use HasValues;
+
     case Male = 'Masculino';
     case Female = 'Femenino';
     case Other = 'Otro';
-
-    public static function toArray(): array
-    {
-        return array_column(self::cases(), 'value');
-    }
 }
