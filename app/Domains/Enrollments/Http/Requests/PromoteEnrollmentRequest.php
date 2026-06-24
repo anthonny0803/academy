@@ -3,6 +3,7 @@
 namespace App\Domains\Enrollments\Http\Requests;
 
 use App\Domains\Academics\Repositories\SectionRepository;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -30,7 +31,7 @@ class PromoteEnrollmentRequest extends FormRequest
                 // No puede tener inscripción activa en esa sección
                 Rule::unique('enrollments')->where(function ($query) use ($studentId) {
                     return $query->where('student_id', $studentId)
-                        ->where('status', 'activo');
+                        ->where('status', EnrollmentStatus::Active->value);
                 }),
             ],
         ];

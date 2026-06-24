@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Models;
 
+use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -68,7 +69,7 @@ class SectionSubjectTeacher extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'activo');
+        return $query->where('status', SectionSubjectTeacherStatus::Active->value);
     }
 
     public function scopePrimary($query)
@@ -95,7 +96,7 @@ class SectionSubjectTeacher extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'activo';
+        return $this->status === SectionSubjectTeacherStatus::Active->value;
     }
 
     // Helper Methods - Configuración de Columnas
@@ -135,21 +136,6 @@ class SectionSubjectTeacher extends Model
     public function hasAnyGrades(): bool
     {
         return $this->grades()->exists();
-    }
-
-    public function getStudentCount(): int
-    {
-        return Enrollment::where('section_id', $this->section_id)
-            ->where('status', 'activo')
-            ->count();
-    }
-
-    public function getActiveEnrollments()
-    {
-        return Enrollment::where('section_id', $this->section_id)
-            ->where('status', 'activo')
-            ->with('student.user')
-            ->get();
     }
 
     // Calcula el promedio ponderado de un estudiante

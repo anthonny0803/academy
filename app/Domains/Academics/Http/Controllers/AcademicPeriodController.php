@@ -10,6 +10,7 @@ use App\Domains\Academics\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\StoreAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\UpdateAcademicPeriodService;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
@@ -66,8 +67,8 @@ class AcademicPeriodController extends Controller
             $academicPeriod->load([
                 'sections' => fn ($q) => $q->withCount([
                     'enrollments',
-                    'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', 'activo'),
-                    'enrollments as completed_enrollments_count' => fn ($q) => $q->where('status', 'completado'),
+                    'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', EnrollmentStatus::Active->value),
+                    'enrollments as completed_enrollments_count' => fn ($q) => $q->where('status', EnrollmentStatus::Completed->value),
                 ]),
             ]);
 

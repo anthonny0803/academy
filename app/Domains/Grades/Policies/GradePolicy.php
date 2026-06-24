@@ -2,7 +2,9 @@
 
 namespace App\Domains\Grades\Policies;
 
+use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
@@ -155,7 +157,7 @@ class GradePolicy
             return Response::deny('No eres el profesor asignado a esta materia/sección.');
         }
 
-        if ($sst->status !== 'activo') {
+        if ($sst->status !== SectionSubjectTeacherStatus::Active->value) {
             return Response::deny('Esta asignación no está activa.');
         }
 
@@ -176,7 +178,7 @@ class GradePolicy
         }
 
         // Verificar asignación activa
-        if ($sst->status !== 'activo') {
+        if ($sst->status !== SectionSubjectTeacherStatus::Active->value) {
             return Response::deny('Esta asignación no está activa.');
         }
 
@@ -203,7 +205,7 @@ class GradePolicy
         }
 
         // Verificar inscripción activa
-        if ($enrollment->status !== 'activo') {
+        if ($enrollment->status !== EnrollmentStatus::Active->value) {
             return Response::deny('La inscripción del estudiante no está activa.');
         }
 

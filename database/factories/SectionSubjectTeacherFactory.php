@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Academics\Models\Subject;
@@ -20,7 +21,7 @@ class SectionSubjectTeacherFactory extends Factory
             'subject_id' => Subject::factory(),
             'teacher_id' => Teacher::factory(),
             'is_primary' => true,
-            'status' => 'activo',
+            'status' => SectionSubjectTeacherStatus::Active->value,
         ];
     }
 
@@ -43,14 +44,14 @@ class SectionSubjectTeacherFactory extends Factory
 
     public function inactive(): static
     {
-        return $this->state(['status' => 'inactivo']);
+        return $this->state(['status' => SectionSubjectTeacherStatus::Inactive->value]);
     }
 
     public function substitute(): static
     {
         return $this->state([
             'is_primary' => false,
-            'status' => 'suplente',
+            'status' => SectionSubjectTeacherStatus::Substitute->value,
         ]);
     }
 }

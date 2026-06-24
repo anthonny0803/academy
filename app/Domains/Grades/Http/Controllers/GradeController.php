@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Http\Controllers;
 
+use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Grades\Http\Requests\Grades\StoreGradeRequest;
@@ -51,7 +52,7 @@ class GradeController extends Controller
         $teacher = $user->teacher;
 
         $assignments = SectionSubjectTeacher::where('teacher_id', $teacher->id)
-            ->where('status', 'activo')
+            ->where('status', SectionSubjectTeacherStatus::Active->value)
             ->with([
                 'section.academicPeriod',
                 'subject',
