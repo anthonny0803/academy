@@ -7,6 +7,7 @@ use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 class Section extends Model implements HasEntityName
 {
     use Activatable;
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 

@@ -6,6 +6,7 @@ use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Grade extends Model implements HasEntityName
 {
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
     use SoftDeletes;

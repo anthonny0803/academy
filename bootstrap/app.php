@@ -19,10 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Domains\Shared\Http\Middleware\PreventBackHistory::class,
             \App\Domains\Identity\Http\Middleware\CheckActiveUser::class,
+            \App\Domains\Tenancy\Http\Middleware\ResolveTenant::class,
         ]);
 
         $middleware->alias([
             'public.token' => \App\Domains\Grades\Http\Middleware\ValidatePublicApiToken::class,
+            'tenant.resolve' => \App\Domains\Tenancy\Http\Middleware\ResolveTenant::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

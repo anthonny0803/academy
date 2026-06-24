@@ -14,6 +14,7 @@ use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Support\CurrentTenant;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -50,7 +51,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(CurrentTenant::class);
     }
 
     /**

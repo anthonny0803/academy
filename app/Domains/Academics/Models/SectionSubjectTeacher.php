@@ -5,6 +5,7 @@ namespace App\Domains\Academics\Models;
 use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class SectionSubjectTeacher extends Model
 {
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 

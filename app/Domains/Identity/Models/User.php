@@ -10,6 +10,7 @@ use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
 use App\Domains\Tenancy\Models\Tenant;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +23,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements HasEntityName
 {
     use Activatable;
+    use BelongsToTenant;
     use HasApiTokens;
     use HasFactory;
     use HasRoles;

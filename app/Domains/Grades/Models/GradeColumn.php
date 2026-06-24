@@ -4,6 +4,7 @@ namespace App\Domains\Grades\Models;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Shared\Contracts\HasEntityName;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GradeColumn extends Model implements HasEntityName
 {
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 

@@ -7,6 +7,7 @@ use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Enrollment extends Model implements HasEntityName
 {
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 

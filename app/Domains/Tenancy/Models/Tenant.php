@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Tenant extends Model implements HasEntityName
 {
@@ -27,6 +28,13 @@ class Tenant extends Model implements HasEntityName
     public function getEntityName(): string
     {
         return 'Organización';
+    }
+
+    // Mutators
+
+    public function setSlugAttribute(?string $value): void
+    {
+        $this->attributes['slug'] = Str::slug((string) $value);
     }
 
     // Relationships

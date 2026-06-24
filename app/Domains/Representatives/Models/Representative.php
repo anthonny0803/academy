@@ -6,6 +6,7 @@ use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Representative extends Model implements HasEntityName
 {
     use Activatable;
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 
