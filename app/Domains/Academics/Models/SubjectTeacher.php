@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Models;
 
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\Concerns\AsPivot;
 class SubjectTeacher extends Model
 {
     use AsPivot;
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 

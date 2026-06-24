@@ -20,6 +20,8 @@ use App\Domains\Representatives\Repositories\EloquentRepresentativeRepository;
 use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use App\Domains\Students\Repositories\EloquentStudentRepository;
 use App\Domains\Students\Repositories\StudentRepository;
+use App\Domains\Tenancy\Repositories\EloquentTenantRepository;
+use App\Domains\Tenancy\Repositories\TenantRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -39,6 +41,7 @@ class RepositoryServiceProvider extends ServiceProvider
         AcademicPeriodRepository::class => EloquentAcademicPeriodRepository::class,
         SubjectRepository::class => EloquentSubjectRepository::class,
         TeacherRepository::class => EloquentTeacherRepository::class,
+        TenantRepository::class => EloquentTenantRepository::class,
     ];
 
     public function register(): void

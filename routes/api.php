@@ -18,12 +18,12 @@ Route::prefix('v1')->group(function () {
         ->middleware('throttle:6,1')
         ->name('api.v1.auth.token');
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'tenant.resolve'])->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout'])
             ->name('api.v1.auth.logout');
     });
 
-    Route::middleware(['auth:sanctum', 'throttle:api'])->name('api.v1.')->group(function () {
+    Route::middleware(['auth:sanctum', 'tenant.resolve', 'throttle:api'])->name('api.v1.')->group(function () {
         Route::apiResource('academic-periods', AcademicPeriodController::class);
         Route::apiResource('representatives', RepresentativeController::class)->except(['destroy']);
         Route::apiResource('sections', SectionController::class);

@@ -5,6 +5,7 @@ namespace App\Domains\Academics\Models;
 use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Shared\Traits\Activatable;
+use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Teacher extends Model implements HasEntityName
 {
     use Activatable;
+    use BelongsToTenant;
     use HasFactory;
     use HasUuids;
 
