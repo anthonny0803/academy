@@ -9,8 +9,10 @@ use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Models\Tenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -61,6 +63,11 @@ class User extends Authenticatable implements HasEntityName
     }
 
     // Relationships
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
 
     public function teacher(): HasOne
     {
