@@ -47,6 +47,11 @@ class AppServiceProvider extends ServiceProvider
     ];
 
     /**
+     * Per-user request quota for the `api` rate limiter, partitioned by tenant.
+     */
+    private const API_REQUESTS_PER_MINUTE = 60;
+
+    /**
      * Register any application services.
      */
     public function register(): void
@@ -61,8 +66,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::enforceMorphMap(self::MORPH_MAP);
 
-        RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(60)
-            ->by($request->user()?->id ?: $request->ip()));
+        RateLimiter::for('api', function (Request $request): Limit {
+            $user = $request->user();
+
+            if ($user === null) {
+                return Limit::perMinute(self::API_REQUESTS_PER_MINUTE)->by($request->ip());
+            }
+
+            return Limit::perMinute(self::API_REQUESTS_PER_MINUTE)->by($user->tenant_id.':'.$user->id);
+        });
 
         Factory::guessFactoryNamesUsing(
             fn (string $modelName): string => 'Database\\Factories\\'.class_basename($modelName).'Factory'
