@@ -24,14 +24,14 @@ class ResolveTenantTest extends TestCase
         Route::middleware('tenant.resolve')->get('/_test/current-tenant', fn () => response()->json([
             'tenantId' => app(CurrentTenant::class)->id(),
         ]));
+
+        app(CurrentTenant::class)->forget();
     }
 
     public function test_resolves_tenant_from_authenticated_user(): void
     {
         $tenant = Tenant::factory()->create();
-        $user = User::factory()->create();
-        $user->tenant_id = $tenant->id;
-        $user->save();
+        $user = $this->withinTenant($tenant, fn () => User::factory()->create());
 
         $this->actingAs($user)
             ->getJson('/_test/current-tenant')
@@ -55,14 +55,15 @@ class ResolveTenantTest extends TestCase
             ->assertJson(['tenantId' => null]);
     }
 
-    public function test_authenticated_user_without_tenant_ignores_subdomain(): void
+    public function test_authenticated_user_tenant_is_authoritative_over_subdomain(): void
     {
+        $userTenant = Tenant::factory()->create(['slug' => 'real-school']);
         Tenant::factory()->create(['slug' => 'academy-demo']);
-        $user = User::factory()->create();
+        $user = $this->withinTenant($userTenant, fn () => User::factory()->create());
 
         $this->actingAs($user)
             ->getJson('http://academy-demo.localhost/_test/current-tenant')
             ->assertOk()
-            ->assertJson(['tenantId' => null]);
+            ->assertJson(['tenantId' => $userTenant->id]);
     }
 }
