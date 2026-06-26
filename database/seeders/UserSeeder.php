@@ -14,7 +14,9 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminUser = User::firstOrCreate(
+        $demoTenant = Tenant::where('slug', TenantSeeder::DEMO_SLUG)->firstOrFail();
+
+        $adminUser = User::firstOrNew(
             ['email' => 'anthonny0803@gmail.com'],
             [
                 'name' => 'Admin',
@@ -24,8 +26,8 @@ class UserSeeder extends Seeder
                 'is_active' => true,
             ]
         );
+        $adminUser->tenant_id = $demoTenant->id;
         $adminUser->is_developer = true;
-        $adminUser->tenant_id = Tenant::where('slug', TenantSeeder::DEMO_SLUG)->value('id');
         $adminUser->save();
         $adminUser->assignRole('Supervisor');
     }

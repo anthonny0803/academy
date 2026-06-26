@@ -6,6 +6,7 @@ use App\Domains\Students\Models\Student;
 use App\Domains\Tenancy\Models\Tenant;
 use App\Domains\Tenancy\Support\CurrentTenant;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,21 +18,27 @@ class BelongsToTenantScopeTest extends TestCase
     {
         parent::setUp();
         $this->seed(RoleAndPermissionSeeder::class);
+        app(CurrentTenant::class)->forget();
     }
 
     public function test_query_is_not_scoped_without_a_resolved_tenant(): void
     {
-        Student::factory()->count(2)->create();
+        $tenantA = Tenant::factory()->create();
+        $this->withinTenant($tenantA, fn () => Student::factory()->count(2)->create());
 
-        $this->assertCount(2, Student::all());
+        $tenantB = Tenant::factory()->create();
+        $this->withinTenant($tenantB, fn () => Student::factory()->create());
+
+        $this->assertCount(3, Student::all());
     }
 
     public function test_query_is_scoped_to_the_resolved_tenant(): void
     {
-        Student::factory()->count(2)->create();
+        $tenantA = Tenant::factory()->create();
+        $this->withinTenant($tenantA, fn () => Student::factory()->count(2)->create());
 
-        $tenant = Tenant::factory()->create();
-        app(CurrentTenant::class)->set($tenant);
+        $tenantB = Tenant::factory()->create();
+        app(CurrentTenant::class)->set($tenantB);
         Student::factory()->create();
 
         $this->assertCount(1, Student::all());
@@ -47,10 +54,10 @@ class BelongsToTenantScopeTest extends TestCase
         $this->assertSame($tenant->id, $student->tenant_id);
     }
 
-    public function test_tenant_id_stays_null_on_create_without_a_resolved_tenant(): void
+    public function test_create_requires_a_resolved_tenant(): void
     {
-        $student = Student::factory()->create();
+        $this->expectException(QueryException::class);
 
-        $this->assertNull($student->tenant_id);
+        Student::factory()->create();
     }
 }

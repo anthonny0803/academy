@@ -4,6 +4,7 @@ namespace Tests\Feature\Tenancy;
 
 use App\Domains\Identity\Models\User;
 use App\Domains\Tenancy\Models\Tenant;
+use App\Domains\Tenancy\Support\CurrentTenant;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Database\Seeders\TenantSeeder;
 use Database\Seeders\UserSeeder;
@@ -30,19 +31,17 @@ class TenantMembershipTest extends TestCase
 
     public function test_user_belongs_to_a_tenant(): void
     {
-        $tenant = Tenant::factory()->create();
         $user = User::factory()->create();
 
-        $user->tenant_id = $tenant->id;
-        $user->save();
-
-        $this->assertDatabaseHas('users', ['id' => $user->id, 'tenant_id' => $tenant->id]);
-        $this->assertTrue($user->fresh()->tenant->is($tenant));
-        $this->assertTrue($tenant->users->contains($user));
+        $this->assertDatabaseHas('users', ['id' => $user->id, 'tenant_id' => $this->tenant->id]);
+        $this->assertTrue($user->fresh()->tenant->is($this->tenant));
+        $this->assertTrue($this->tenant->users->contains($user));
     }
 
     public function test_seeders_assign_admin_to_demo_tenant(): void
     {
+        app(CurrentTenant::class)->forget();
+
         $this->seed(TenantSeeder::class);
         $this->seed(UserSeeder::class);
 
