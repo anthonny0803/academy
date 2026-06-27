@@ -3,6 +3,7 @@
 namespace App\Domains\Identity\Http\Requests\RoleManagement;
 
 use App\Domains\Identity\Enums\Role;
+use App\Domains\Shared\Support\DocumentId;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -10,10 +11,9 @@ class AssignRoleRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
-        // Normalizar document_id (quitar guiones y espacios)
         if ($this->filled('document_id')) {
             $this->merge([
-                'document_id' => strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)),
+                'document_id' => DocumentId::normalize($this->document_id),
             ]);
         }
 

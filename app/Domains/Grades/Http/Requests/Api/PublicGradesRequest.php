@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Http\Requests\Api;
 
+use App\Domains\Shared\Support\DocumentId;
 use App\Domains\Shared\Traits\ThrowsApiValidationException;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -18,7 +19,7 @@ class PublicGradesRequest extends FormRequest
     {
         if ($this->document_id) {
             $this->merge([
-                'document_id' => strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)),
+                'document_id' => DocumentId::normalize($this->document_id),
             ]);
         }
     }

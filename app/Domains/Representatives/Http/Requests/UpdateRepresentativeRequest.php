@@ -3,6 +3,7 @@
 namespace App\Domains\Representatives\Http\Requests;
 
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Shared\Support\DocumentId;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +18,7 @@ class UpdateRepresentativeRequest extends FormRequest
     {
         if ($this->document_id) {
             $this->merge([
-                'document_id' => strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id)),
+                'document_id' => DocumentId::normalize($this->document_id),
             ]);
         }
 
