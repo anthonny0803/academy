@@ -2,14 +2,15 @@
 
 namespace App\Domains\Grades\Services\Api;
 
+use App\Domains\Grades\Services\Grades\StudentPerformanceSummaryService;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Repositories\UserRepository;
-use App\Domains\Students\Models\Student;
 
 class PublicGradesService
 {
     public function __construct(
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
+        private StudentPerformanceSummaryService $summaryService,
     ) {}
 
     public function getStudentGrades(string $documentId, string $birthDate): ?array
@@ -20,7 +21,7 @@ class PublicGradesService
             return null;
         }
 
-        return $this->buildStudentData($user->student);
+        return $this->summaryService->forStudent($user->student);
     }
 
     public function getRepresentativeGrades(string $documentId, string $birthDate): ?array
@@ -38,7 +39,7 @@ class PublicGradesService
                 'name' => $user->full_name,
             ],
             'students' => $representative->students
-                ->map(fn ($student) => $this->buildStudentData($student))
+                ->map(fn ($student) => $this->summaryService->forStudent($student))
                 ->toArray(),
         ];
     }
@@ -62,60 +63,5 @@ class PublicGradesService
             ]),
             'representative.students.enrollments.grades.gradeColumn',
         ]);
-    }
-
-    private function buildStudentData(Student $student): array
-    {
-        return [
-            'student' => [
-                'code' => $student->student_code,
-                'name' => $student->user->full_name,
-                'situation' => $student->situation?->value ?? 'N/A',
-                'relationship_type' => $student->relationship_type,
-                'is_active' => $student->is_active,
-            ],
-            'enrollments' => $student->enrollments
-                ->map(fn ($enrollment) => $this->buildEnrollmentData($enrollment))
-                ->toArray(),
-        ];
-    }
-
-    private function buildEnrollmentData($enrollment): array
-    {
-        $passingGrade = $enrollment->section->academicPeriod->passing_grade ?? 60;
-
-        return [
-            'academic_period' => $enrollment->section->academicPeriod->name,
-            'section' => $enrollment->section->name,
-            'status' => $enrollment->status,
-            'passed' => $enrollment->passed,
-            'subjects' => $enrollment->section->sectionSubjectTeachers
-                ->map(fn ($sst) => $this->buildSubjectData($sst, $enrollment, $passingGrade))
-                ->toArray(),
-        ];
-    }
-
-    private function buildSubjectData($sst, $enrollment, float $passingGrade): array
-    {
-        $evaluations = $sst->gradeColumns->map(function ($column) use ($enrollment) {
-            $grade = $enrollment->grades->firstWhere('grade_column_id', $column->id);
-
-            return [
-                'name' => $column->name,
-                'weight' => (float) $column->weight,
-                'grade' => $grade ? (float) $grade->value : null,
-                'observation' => $grade?->observation,
-            ];
-        });
-
-        $weightedAverage = $sst->calculateStudentAverage($enrollment->id);
-
-        return [
-            'name' => $sst->subject->name,
-            'teacher' => $sst->teacher->user->full_name,
-            'evaluations' => $evaluations->toArray(),
-            'weighted_average' => $weightedAverage,
-            'is_passing' => $weightedAverage !== null ? $weightedAverage >= $passingGrade : null,
-        ];
     }
 }
