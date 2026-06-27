@@ -19,4 +19,6 @@ interface SubjectRepository
     public function paginateWithActiveTeachers(string $search, ?string $subjectId, int $perPage = 6): LengthAwarePaginator;
 
     public function activeOrdered(): Collection;
+
+    public function activeOrderedWithActiveTeachers(): Collection;
 }

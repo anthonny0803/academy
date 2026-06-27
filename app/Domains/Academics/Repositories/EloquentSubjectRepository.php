@@ -51,4 +51,12 @@ class EloquentSubjectRepository implements SubjectRepository
             ->orderBy('name')
             ->get();
     }
+
+    public function activeOrderedWithActiveTeachers(): Collection
+    {
+        return Subject::active()
+            ->with(['teachers' => fn ($query) => $query->where('is_active', true)->with('user')])
+            ->orderBy('name')
+            ->get();
+    }
 }

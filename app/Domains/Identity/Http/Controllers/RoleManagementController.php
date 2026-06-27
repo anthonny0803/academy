@@ -7,7 +7,8 @@ use App\Domains\Identity\Http\Requests\RoleManagement\AssignRoleRequest;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Identity\Services\RoleManagement\AssignRoleService;
-use App\Domains\Identity\Services\Users\RoleAssignmentService;
+use App\Domains\Identity\Services\RoleManagement\AvailableRolesService;
+use App\Domains\Identity\Services\RoleManagement\RoleRequirementsService;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -47,23 +48,23 @@ class RoleManagementController extends Controller
         });
     }
 
-    public function showAssignOptions(User $user): View|RedirectResponse
+    public function showAssignOptions(User $user, AvailableRolesService $availableRolesService): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('assignManage', $user, function () use ($user) {
+        return $this->authorizeOrRedirect('assignManage', $user, function () use ($user, $availableRolesService) {
             $user->load(['roles', 'teacher', 'representative', 'student']);
-            $availableRoles = $this->getAvailableRoles($user);
+            $availableRoles = $availableRolesService->forUser($user, $this->currentUser());
 
             return view('role-management.assign-options', compact('user', 'availableRoles'));
         });
     }
 
-    public function showForm(User $user, string $role): View|RedirectResponse
+    public function showForm(User $user, string $role, RoleRequirementsService $roleRequirements): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('assignManage', $user, function () use ($user, $role) {
+        return $this->authorizeOrRedirect('assignManage', $user, function () use ($user, $role, $roleRequirements) {
             $roleEnum = Role::from($role);
 
             $user->load(['roles', 'teacher', 'representative', 'student']);
-            $missingFields = $this->getMissingFields($user, $roleEnum);
+            $missingFields = $roleRequirements->missingFieldsForRole($user, $roleEnum);
 
             if (empty($missingFields)) {
                 return $this->assignDirect($user, $roleEnum);
@@ -79,7 +80,6 @@ class RoleManagementController extends Controller
         User $user,
         string $role
     ): RedirectResponse {
-        // Validar con policy antes de asignar
         $this->authorize('assign', $user);
 
         $roleEnum = Role::from($role);
@@ -92,7 +92,6 @@ class RoleManagementController extends Controller
 
     private function assignDirect(User $user, Role $role): RedirectResponse
     {
-        // Validar con policy antes de asignar
         $this->authorize('assign', [$user, $role]);
 
         app(AssignRoleService::class)->handle($user, $role, []);
@@ -100,67 +99,5 @@ class RoleManagementController extends Controller
         return redirect()
             ->route('role-management.show-assign-options', $user)
             ->with('success', "¡Rol {$role->value} asignado correctamente!");
-    }
-
-    private function getAvailableRoles(User $user): array
-    {
-        $currentUser = $this->currentUser();
-        $currentRoles = $user->roles->pluck('name')->toArray();
-
-        $assignableRoles = app(RoleAssignmentService::class)
-            ->getAssignableRolesForAdditionalAssignment($currentUser);
-
-        $available = [];
-
-        foreach ($assignableRoles as $spatieRole) {
-            if (! in_array($spatieRole->name, $currentRoles)) {
-                $roleEnum = Role::from($spatieRole->name);
-
-                $available[] = [
-                    'role' => $roleEnum,
-                    'label' => $roleEnum->value,
-                    'description' => match ($roleEnum) {
-                        Role::Supervisor => 'Rol administrativo superior',
-                        Role::Admin => 'Rol administrativo',
-                        Role::Teacher => 'Se creará perfil de profesor',
-                        Role::Representative => 'Se creará perfil de representante',
-                    },
-                    'needs_form' => $this->roleNeedsForm($user, $roleEnum),
-                ];
-            }
-        }
-
-        return $available;
-    }
-
-    private function roleNeedsForm(User $user, Role $role): bool
-    {
-        return ! empty($this->getMissingFields($user, $role));
-    }
-
-    private function getMissingFields(User $user, Role $role): array
-    {
-        $missing = [];
-
-        if (empty($user->password)) {
-            $missing[] = 'password';
-        }
-
-        if ($role === Role::Representative) {
-            if (empty($user->document_id)) {
-                $missing[] = 'document_id';
-            }
-            if (empty($user->birth_date)) {
-                $missing[] = 'birth_date';
-            }
-            if (empty($user->phone)) {
-                $missing[] = 'phone';
-            }
-            if (empty($user->address)) {
-                $missing[] = 'address';
-            }
-        }
-
-        return $missing;
     }
 }
