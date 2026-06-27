@@ -4,6 +4,7 @@ namespace App\Domains\Representatives\Http\Requests;
 
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Support\DocumentId;
+use App\Domains\Shared\Support\Phone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,7 +25,7 @@ class UpdateRepresentativeRequest extends FormRequest
 
         if ($this->phone) {
             $this->merge([
-                'phone' => preg_replace('/[^0-9]/', '', $this->phone),
+                'phone' => Phone::normalize($this->phone),
             ]);
         }
     }

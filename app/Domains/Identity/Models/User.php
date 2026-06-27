@@ -7,7 +7,10 @@ use App\Domains\Identity\Enums\Role;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Shared\Support\Address;
 use App\Domains\Shared\Support\DocumentId;
+use App\Domains\Shared\Support\Occupation;
+use App\Domains\Shared\Support\Phone;
 use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
 use App\Domains\Tenancy\Models\Tenant;
@@ -224,18 +227,16 @@ class User extends Authenticatable implements HasEntityName
 
     protected function setPhoneAttribute($value): void
     {
-        $this->attributes['phone'] = $value
-            ? preg_replace('/[^0-9]/', '', $value)
-            : null;
+        $this->attributes['phone'] = Phone::normalize($value);
     }
 
     protected function setAddressAttribute($value): void
     {
-        $this->attributes['address'] = $value ? strtoupper(trim($value)) : null;
+        $this->attributes['address'] = Address::normalize($value);
     }
 
     protected function setOccupationAttribute($value): void
     {
-        $this->attributes['occupation'] = $value ? strtoupper(trim($value)) : null;
+        $this->attributes['occupation'] = Occupation::normalize($value);
     }
 }
