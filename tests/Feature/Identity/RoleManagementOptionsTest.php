@@ -76,4 +76,30 @@ class RoleManagementOptionsTest extends TestCase
         $response->assertRedirect(route('role-management.show-assign-options', $user));
         $this->assertTrue($user->fresh()->hasRole(Role::Admin->value));
     }
+
+    public function test_show_form_aborts_404_for_invalid_role(): void
+    {
+        $developer = User::factory()->developer()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($developer)->get(route('role-management.show-form', [
+            'user' => $user,
+            'role' => 'InvalidRole',
+        ]));
+
+        $response->assertNotFound();
+    }
+
+    public function test_assign_aborts_404_for_invalid_role(): void
+    {
+        $developer = User::factory()->developer()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($developer)->post(route('role-management.assign', [
+            'user' => $user,
+            'role' => 'InvalidRole',
+        ]));
+
+        $response->assertNotFound();
+    }
 }

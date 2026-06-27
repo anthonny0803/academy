@@ -61,7 +61,7 @@ class RoleManagementController extends Controller
     public function showForm(User $user, string $role, RoleRequirementsService $roleRequirements): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('assignManage', $user, function () use ($user, $role, $roleRequirements) {
-            $roleEnum = Role::from($role);
+            $roleEnum = Role::tryFrom($role) ?? abort(404);
 
             $user->load(['roles', 'teacher', 'representative', 'student']);
             $missingFields = $roleRequirements->missingFieldsForRole($user, $roleEnum);
@@ -82,7 +82,7 @@ class RoleManagementController extends Controller
     ): RedirectResponse {
         $this->authorize('assign', $user);
 
-        $roleEnum = Role::from($role);
+        $roleEnum = Role::tryFrom($role) ?? abort(404);
         $service->handle($user, $roleEnum, $request->validated());
 
         return redirect()
