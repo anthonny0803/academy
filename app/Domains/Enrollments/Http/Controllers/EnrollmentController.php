@@ -11,6 +11,7 @@ use App\Domains\Enrollments\Http\Requests\TransferEnrollmentRequest;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Enrollments\Services\DeleteEnrollmentService;
+use App\Domains\Enrollments\Services\EnrollmentDetailsService;
 use App\Domains\Enrollments\Services\PromoteEnrollmentService;
 use App\Domains\Enrollments\Services\StoreEnrollmentService;
 use App\Domains\Enrollments\Services\TransferEnrollmentService;
@@ -63,48 +64,10 @@ class EnrollmentController extends Controller
         });
     }
 
-    public function show(Enrollment $enrollment): View|RedirectResponse
+    public function show(Enrollment $enrollment, EnrollmentDetailsService $detailsService): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('view', $enrollment, function () use ($enrollment) {
-            $enrollment->load([
-                'student.user',
-                'student.representative.user',
-                'section.academicPeriod',
-                'section.sectionSubjectTeachers' => fn ($q) => $q->active()->with([
-                    'subject',
-                    'teacher.user',
-                    'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
-                ]),
-                'grades.gradeColumn',
-            ]);
-
-            $academicPeriod = $enrollment->section->academicPeriod;
-            $passingGrade = $academicPeriod->passing_grade ?? 60;
-
-            $subjectsData = $enrollment->section->sectionSubjectTeachers->map(function ($sst) use ($enrollment) {
-                $average = $sst->calculateStudentAverage($enrollment->id);
-
-                $gradesDetail = $sst->gradeColumns->map(function ($column) use ($enrollment) {
-                    $grade = $enrollment->grades->firstWhere('grade_column_id', $column->id);
-
-                    return [
-                        'column_name' => $column->name,
-                        'weight' => $column->weight,
-                        'value' => $grade?->value,
-                        'observation' => $grade?->observation,
-                    ];
-                });
-
-                return [
-                    'sst_id' => $sst->id,
-                    'subject_name' => $sst->subject->name,
-                    'teacher_name' => $sst->teacher->user->full_name,
-                    'average' => $average,
-                    'grades_detail' => $gradesDetail,
-                ];
-            });
-
-            return view('enrollments.show', compact('enrollment', 'subjectsData', 'passingGrade'));
+        return $this->authorizeOrRedirect('view', $enrollment, function () use ($enrollment, $detailsService) {
+            return view('enrollments.show', $detailsService->handle($enrollment));
         });
     }
 

@@ -2,16 +2,16 @@
 
 namespace App\Domains\Grades\Http\Controllers;
 
-use App\Domains\Academics\Enums\SectionSubjectTeacherStatus;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Grades\Http\Requests\Grades\StoreGradeRequest;
 use App\Domains\Grades\Http\Requests\Grades\UpdateGradeRequest;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
-use App\Domains\Grades\Repositories\GradeRepository;
 use App\Domains\Grades\Services\Grades\DeleteGradeService;
+use App\Domains\Grades\Services\Grades\GradesTableService;
 use App\Domains\Grades\Services\Grades\StoreGradeService;
+use App\Domains\Grades\Services\Grades\TeacherAssignmentsService;
 use App\Domains\Grades\Services\Grades\UpdateGradeService;
 use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
@@ -28,8 +28,7 @@ class GradeController extends Controller
     use AuthorizesRequests;
 
     public function __construct(
-        private EnrollmentRepository $enrollmentRepository,
-        private GradeRepository $gradeRepository
+        private EnrollmentRepository $enrollmentRepository
     ) {}
 
     protected function currentUser(): User
@@ -40,7 +39,7 @@ class GradeController extends Controller
     /**
      * Dashboard de asignaciones para el profesor logueado
      */
-    public function teacherAssignments(): View|RedirectResponse
+    public function teacherAssignments(TeacherAssignmentsService $assignmentsService): View|RedirectResponse
     {
         $user = $this->currentUser();
 
@@ -50,16 +49,7 @@ class GradeController extends Controller
         }
 
         $teacher = $user->teacher;
-
-        $assignments = SectionSubjectTeacher::where('teacher_id', $teacher->id)
-            ->where('status', SectionSubjectTeacherStatus::Active->value)
-            ->with([
-                'section.academicPeriod',
-                'subject',
-                'gradeColumns',
-            ])
-            ->get()
-            ->groupBy(fn ($sst) => $sst->section->academicPeriod->name);
+        $assignments = $assignmentsService->handle($teacher);
 
         return view('grades.teacher-assignments', compact('assignments', 'teacher'));
     }
@@ -68,50 +58,10 @@ class GradeController extends Controller
      * Vista principal: Tabla de calificaciones por asignación
      * Muestra estudiantes (filas) x evaluaciones (columnas)
      */
-    public function index(SectionSubjectTeacher $sectionSubjectTeacher): View|RedirectResponse
+    public function index(SectionSubjectTeacher $sectionSubjectTeacher, GradesTableService $tableService): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('viewForAssignment', [Grade::class, $sectionSubjectTeacher], function () use ($sectionSubjectTeacher) {
-            $sectionSubjectTeacher->load([
-                'section.academicPeriod',
-                'section.enrollments' => fn ($q) => $q->active()->with('student.user'),
-                'subject',
-                'teacher.user',
-                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
-            ]);
-
-            // Verificar que la configuración esté completa
-            $isConfigurationComplete = $sectionSubjectTeacher->isConfigurationComplete();
-
-            // Variables para la vista
-            $gradeColumns = $sectionSubjectTeacher->gradeColumns;
-            $enrollments = $sectionSubjectTeacher->section->enrollments;
-            $academicPeriod = $sectionSubjectTeacher->section->academicPeriod;
-
-            // Rango de notas desde el período académico (con defaults)
-            $minGrade = $academicPeriod->min_grade ?? 0;
-            $maxGrade = $academicPeriod->max_grade ?? 100;
-            $passingGrade = $academicPeriod->passing_grade ?? 60;
-
-            // Obtener todas las notas agrupadas por enrollment y luego por column
-            $grades = $this->gradeRepository->forGradeColumns($gradeColumns->pluck('id')->all());
-
-            // Agrupar: enrollment_id => [column_id => grade]
-            $gradesByEnrollment = [];
-            foreach ($grades as $grade) {
-                $gradesByEnrollment[$grade->enrollment_id][$grade->grade_column_id] = $grade;
-            }
-
-            return view('grades.index', compact(
-                'sectionSubjectTeacher',
-                'gradeColumns',
-                'enrollments',
-                'gradesByEnrollment',
-                'isConfigurationComplete',
-                'academicPeriod',
-                'minGrade',
-                'maxGrade',
-                'passingGrade'
-            ));
+        return $this->authorizeOrRedirect('viewForAssignment', [Grade::class, $sectionSubjectTeacher], function () use ($sectionSubjectTeacher, $tableService) {
+            return view('grades.index', $tableService->handle($sectionSubjectTeacher));
         });
     }
 
