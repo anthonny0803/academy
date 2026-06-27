@@ -6,11 +6,11 @@ use App\Domains\Academics\Http\Requests\AcademicPeriods\StoreAcademicPeriodReque
 use App\Domains\Academics\Http\Requests\AcademicPeriods\UpdateAcademicPeriodRequest;
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Repositories\AcademicPeriodRepository;
+use App\Domains\Academics\Services\AcademicPeriods\AcademicPeriodStatsService;
 use App\Domains\Academics\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\StoreAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\UpdateAcademicPeriodService;
-use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
@@ -60,35 +60,18 @@ class AcademicPeriodController extends Controller
      */
     public function show(
         AcademicPeriod $academicPeriod,
-        CloseAcademicPeriodService $closeService
+        CloseAcademicPeriodService $closeService,
+        AcademicPeriodStatsService $statsService
     ): View|RedirectResponse {
-        return $this->authorizeOrRedirect('view', $academicPeriod, function () use ($academicPeriod, $closeService) {
-            // Cargar relaciones necesarias
-            $academicPeriod->load([
-                'sections' => fn ($q) => $q->withCount([
-                    'enrollments',
-                    'enrollments as active_enrollments_count' => fn ($q) => $q->where('status', EnrollmentStatus::Active->value),
-                    'enrollments as completed_enrollments_count' => fn ($q) => $q->where('status', EnrollmentStatus::Completed->value),
-                ]),
-            ]);
+        return $this->authorizeOrRedirect('view', $academicPeriod, function () use ($academicPeriod, $closeService, $statsService) {
+            $stats = $statsService->handle($academicPeriod);
 
-            // Estadísticas generales
-            $stats = [
-                'total_sections' => $academicPeriod->sections->count(),
-                'active_sections' => $academicPeriod->sections->where('is_active', true)->count(),
-                'total_enrollments' => $academicPeriod->sections->sum('enrollments_count'),
-                'active_enrollments' => $academicPeriod->sections->sum('active_enrollments_count'),
-                'completed_enrollments' => $academicPeriod->sections->sum('completed_enrollments_count'),
-            ];
-
-            // Validación para cierre (solo si está activo)
             $closeValidation = null;
             $closePreview = null;
 
             if ($academicPeriod->isActive()) {
                 $closeValidation = $closeService->validateForClose($academicPeriod);
 
-                // Si puede cerrar, obtener preview
                 if ($closeValidation['can_close']) {
                     $closePreview = $closeService->getClosePreview($academicPeriod);
                 }

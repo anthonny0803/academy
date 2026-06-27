@@ -114,4 +114,26 @@ class EloquentSubjectRepositoryTest extends TestCase
         $this->assertTrue($result->first()->is($alpha));
         $this->assertTrue($result->contains($beta));
     }
+
+    public function test_active_ordered_with_active_teachers_excludes_inactive_subjects_and_loads_active_teachers(): void
+    {
+        $beta = Subject::factory()->create(['name' => 'Biologia']);
+        $alpha = Subject::factory()->create(['name' => 'Arte']);
+        $inactiveSubject = Subject::factory()->inactive()->create();
+
+        $activeTeacher = Teacher::factory()->create();
+        $inactiveTeacher = Teacher::factory()->inactive()->create();
+        $alpha->teachers()->attach([$activeTeacher->id, $inactiveTeacher->id]);
+
+        $result = $this->repository->activeOrderedWithActiveTeachers();
+
+        $this->assertFalse($result->contains($inactiveSubject));
+        $this->assertTrue($result->first()->is($alpha));
+        $this->assertTrue($result->contains($beta));
+
+        $loaded = $result->firstWhere('id', $alpha->id);
+        $this->assertTrue($loaded->relationLoaded('teachers'));
+        $this->assertTrue($loaded->teachers->contains($activeTeacher));
+        $this->assertFalse($loaded->teachers->contains($inactiveTeacher));
+    }
 }
