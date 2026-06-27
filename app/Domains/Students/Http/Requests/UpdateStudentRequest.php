@@ -4,6 +4,7 @@ namespace App\Domains\Students\Http\Requests;
 
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Shared\Support\DocumentId;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -23,7 +24,7 @@ class UpdateStudentRequest extends FormRequest
     {
         $this->merge([
             'email' => $this->filled('email') ? $this->email : null,
-            'document_id' => strtoupper(preg_replace('/[^A-Z0-9]/i', '', $this->document_id ?? '')),
+            'document_id' => DocumentId::normalize($this->document_id),
         ]);
     }
 

@@ -7,6 +7,7 @@ use App\Domains\Identity\Enums\Role;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Shared\Support\DocumentId;
 use App\Domains\Shared\Traits\Activatable;
 use App\Domains\Students\Models\Student;
 use App\Domains\Tenancy\Models\Tenant;
@@ -218,9 +219,7 @@ class User extends Authenticatable implements HasEntityName
 
     protected function setDocumentIdAttribute($value): void
     {
-        $this->attributes['document_id'] = $value
-            ? strtoupper(preg_replace('/[^A-Z0-9]/i', '', $value))
-            : null;
+        $this->attributes['document_id'] = DocumentId::normalize($value);
     }
 
     protected function setPhoneAttribute($value): void
