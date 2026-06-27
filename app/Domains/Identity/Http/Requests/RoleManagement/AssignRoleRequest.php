@@ -3,7 +3,10 @@
 namespace App\Domains\Identity\Http\Requests\RoleManagement;
 
 use App\Domains\Identity\Enums\Role;
+use App\Domains\Shared\Support\Address;
 use App\Domains\Shared\Support\DocumentId;
+use App\Domains\Shared\Support\Occupation;
+use App\Domains\Shared\Support\Phone;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -17,24 +20,21 @@ class AssignRoleRequest extends FormRequest
             ]);
         }
 
-        // Normalizar phone (solo números)
         if ($this->filled('phone')) {
             $this->merge([
-                'phone' => preg_replace('/[^0-9]/', '', $this->phone),
+                'phone' => Phone::normalize($this->phone),
             ]);
         }
 
-        // Normalizar address (mayúsculas y sin espacios extras)
         if ($this->filled('address')) {
             $this->merge([
-                'address' => strtoupper(trim($this->address)),
+                'address' => Address::normalize($this->address),
             ]);
         }
 
-        // Normalizar occupation (mayúsculas y sin espacios extras)
         if ($this->filled('occupation')) {
             $this->merge([
-                'occupation' => strtoupper(trim($this->occupation)),
+                'occupation' => Occupation::normalize($this->occupation),
             ]);
         }
     }
