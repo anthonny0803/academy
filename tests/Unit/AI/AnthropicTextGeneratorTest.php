@@ -4,6 +4,7 @@ namespace Tests\Unit\AI;
 
 use App\Domains\AI\Adapters\AnthropicTextGenerator;
 use App\Domains\AI\Exceptions\AiGenerationException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
@@ -64,6 +65,32 @@ class AnthropicTextGeneratorTest extends TestCase
         Http::fake([
             self::ENDPOINT => Http::response(['content' => []]),
         ]);
+
+        $this->expectException(AiGenerationException::class);
+
+        $this->generator()->generate('Hola');
+    }
+
+    public function test_concatenates_every_text_block_and_skips_other_types(): void
+    {
+        Http::fake([
+            self::ENDPOINT => Http::response([
+                'content' => [
+                    ['type' => 'thinking', 'thinking' => 'razonando...'],
+                    ['type' => 'text', 'text' => 'Primera parte. '],
+                    ['type' => 'text', 'text' => 'Segunda parte.'],
+                ],
+            ]),
+        ]);
+
+        $text = $this->generator()->generate('Hola');
+
+        $this->assertSame('Primera parte. Segunda parte.', $text);
+    }
+
+    public function test_throws_when_the_connection_fails(): void
+    {
+        Http::fake(fn () => throw new ConnectionException('Connection timed out'));
 
         $this->expectException(AiGenerationException::class);
 

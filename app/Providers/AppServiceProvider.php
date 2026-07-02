@@ -52,6 +52,12 @@ class AppServiceProvider extends ServiceProvider
     private const API_REQUESTS_PER_MINUTE = 60;
 
     /**
+     * Tighter per-user quota for the `ai` rate limiter guarding paid AI
+     * generation endpoints, partitioned by tenant.
+     */
+    private const AI_REQUESTS_PER_MINUTE = 10;
+
+    /**
      * Register any application services.
      */
     public function register(): void
@@ -66,15 +72,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Relation::enforceMorphMap(self::MORPH_MAP);
 
-        RateLimiter::for('api', function (Request $request): Limit {
-            $user = $request->user();
+        RateLimiter::for('api', fn (Request $request): Limit => $this->tenantScopedLimit($request, self::API_REQUESTS_PER_MINUTE));
 
-            if ($user === null) {
-                return Limit::perMinute(self::API_REQUESTS_PER_MINUTE)->by($request->ip());
-            }
-
-            return Limit::perMinute(self::API_REQUESTS_PER_MINUTE)->by($user->tenant_id.':'.$user->id);
-        });
+        RateLimiter::for('ai', fn (Request $request): Limit => $this->tenantScopedLimit($request, self::AI_REQUESTS_PER_MINUTE));
 
         Factory::guessFactoryNamesUsing(
             fn (string $modelName): string => 'Database\\Factories\\'.class_basename($modelName).'Factory'
@@ -83,5 +83,20 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
+    }
+
+    /**
+     * Build a per-minute rate limit keyed by tenant and user, falling back to
+     * the client IP for unauthenticated requests.
+     */
+    private function tenantScopedLimit(Request $request, int $perMinute): Limit
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return Limit::perMinute($perMinute)->by($request->ip());
+        }
+
+        return Limit::perMinute($perMinute)->by($user->tenant_id.':'.$user->id);
     }
 }

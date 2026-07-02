@@ -4,6 +4,7 @@ namespace App\Domains\AI\Adapters;
 
 use App\Domains\AI\Contracts\AiTextGenerator;
 use App\Domains\AI\Exceptions\AiGenerationException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
@@ -20,12 +21,16 @@ class AnthropicTextGenerator implements AiTextGenerator
 
     public function generate(string $prompt, ?string $system = null): string
     {
-        $response = Http::withHeaders([
-            'x-api-key' => $this->apiKey,
-            'anthropic-version' => $this->version,
-        ])
-            ->timeout($this->timeout)
-            ->post("{$this->baseUrl}/messages", $this->payload($prompt, $system));
+        try {
+            $response = Http::withHeaders([
+                'x-api-key' => $this->apiKey,
+                'anthropic-version' => $this->version,
+            ])
+                ->timeout($this->timeout)
+                ->post("{$this->baseUrl}/messages", $this->payload($prompt, $system));
+        } catch (ConnectionException $exception) {
+            throw AiGenerationException::connectionFailed($exception->getMessage());
+        }
 
         if ($response->failed()) {
             throw AiGenerationException::requestFailed(
@@ -56,12 +61,18 @@ class AnthropicTextGenerator implements AiTextGenerator
 
     private function extractText(Response $response): string
     {
+        $texts = [];
+
         foreach ($response->json('content', []) as $block) {
             if (($block['type'] ?? null) === 'text') {
-                return (string) $block['text'];
+                $texts[] = (string) $block['text'];
             }
         }
 
-        throw AiGenerationException::emptyResponse();
+        if ($texts === []) {
+            throw AiGenerationException::emptyResponse();
+        }
+
+        return implode('', $texts);
     }
 }
