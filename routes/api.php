@@ -4,6 +4,7 @@ use App\Domains\Academics\Http\Controllers\Api\AcademicPeriodController;
 use App\Domains\Academics\Http\Controllers\Api\SectionController;
 use App\Domains\Academics\Http\Controllers\Api\SubjectController;
 use App\Domains\Academics\Http\Controllers\Api\TeacherController;
+use App\Domains\AI\Http\Controllers\Api\StudentPerformanceObservationController;
 use App\Domains\Enrollments\Http\Controllers\Api\EnrollmentController;
 use App\Domains\Grades\Http\Controllers\Api\GradeController;
 use App\Domains\Grades\Http\Controllers\Api\PublicGradesController;
@@ -30,6 +31,11 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('representatives.students', StudentController::class)->shallow()->only(['store']);
         Route::apiResource('students', StudentController::class)->only(['index', 'show', 'update']);
         Route::patch('students/{student}/withdraw', [StudentController::class, 'withdraw'])->name('students.withdraw');
+        Route::post('students/{student}/performance-observations', [StudentPerformanceObservationController::class, 'store'])
+            ->middleware('throttle:ai')
+            ->name('students.performance-observations.store');
+        Route::apiResource('students.performance-observations', StudentPerformanceObservationController::class)
+            ->shallow()->only(['index', 'show']);
         Route::apiResource('students.enrollments', EnrollmentController::class)->shallow()->only(['store']);
         Route::apiResource('enrollments', EnrollmentController::class)->only(['index', 'show', 'destroy']);
         Route::patch('enrollments/{enrollment}/transfer', [EnrollmentController::class, 'transfer'])->name('enrollments.transfer');
