@@ -12,6 +12,7 @@ use App\Domains\Identity\Http\Controllers\Api\AuthController;
 use App\Domains\Identity\Http\Controllers\Api\UserController;
 use App\Domains\Representatives\Http\Controllers\Api\RepresentativeController;
 use App\Domains\Students\Http\Controllers\Api\StudentController;
+use App\Domains\Tenancy\Http\Controllers\Api\TenantController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -49,6 +50,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('grades', GradeController::class)->only(['show', 'update', 'destroy']);
         Route::apiResource('subjects', SubjectController::class);
         Route::apiResource('teachers', TeacherController::class)->except(['destroy']);
+        Route::apiResource('tenants', TenantController::class);
         Route::apiResource('users', UserController::class);
     });
 });
