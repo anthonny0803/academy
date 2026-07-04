@@ -5,6 +5,7 @@ namespace App\Domains\Tenancy\Models;
 use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\HasEntityName;
 use App\Domains\Tenancy\Enums\TenantStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,8 +20,6 @@ class Tenant extends Model implements HasEntityName
     protected $fillable = [
         'name',
         'slug',
-        'plan',
-        'status',
     ];
 
     // Contracts Implementation
@@ -35,6 +34,16 @@ class Tenant extends Model implements HasEntityName
     public function setSlugAttribute(?string $value): void
     {
         $this->attributes['slug'] = Str::slug((string) $value);
+    }
+
+    // Scopes
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function (Builder $query) use ($term): void {
+            $query->where('name', 'ilike', "%{$term}%")
+                ->orWhere('slug', 'ilike', "%{$term}%");
+        });
     }
 
     // Relationships

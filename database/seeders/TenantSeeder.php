@@ -16,13 +16,15 @@ class TenantSeeder extends Seeder
      */
     public function run(): void
     {
-        Tenant::firstOrCreate(
-            ['slug' => self::DEMO_SLUG],
-            [
-                'name' => 'Academy Demo',
-                'plan' => TenantPlan::Free->value,
-                'status' => TenantStatus::Active->value,
-            ]
-        );
+        if (Tenant::where('slug', self::DEMO_SLUG)->exists()) {
+            return;
+        }
+
+        $tenant = new Tenant;
+        $tenant->name = 'Academy Demo';
+        $tenant->slug = self::DEMO_SLUG;
+        $tenant->plan = TenantPlan::Free->value;
+        $tenant->status = TenantStatus::Active->value;
+        $tenant->save();
     }
 }
