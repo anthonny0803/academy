@@ -22,9 +22,7 @@ class StoreSectionSubjectTeacherService
 
             // Si se marca como principal, despromover al anterior principal (si existe)
             if (isset($data['is_primary']) && $data['is_primary']) {
-                SectionSubjectTeacher::where('section_id', $data['section_id'])
-                    ->where('subject_id', $data['subject_id'])
-                    ->where('is_primary', true)
+                SectionSubjectTeacher::primaryFor($data['section_id'], $data['subject_id'])
                     ->update(['is_primary' => false]);
             }
 
