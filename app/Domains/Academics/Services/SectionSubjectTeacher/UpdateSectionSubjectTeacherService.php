@@ -12,10 +12,7 @@ class UpdateSectionSubjectTeacherService
         return DB::transaction(function () use ($sst, $data) {
             // Si se marca como principal, despromover al anterior principal (si existe)
             if (isset($data['is_primary']) && $data['is_primary']) {
-                SectionSubjectTeacher::where('section_id', $sst->section_id)
-                    ->where('subject_id', $sst->subject_id)
-                    ->where('id', '!=', $sst->id)
-                    ->where('is_primary', true)
+                SectionSubjectTeacher::primaryFor($sst->section_id, $sst->subject_id, $sst->id)
                     ->update(['is_primary' => false]);
             }
 

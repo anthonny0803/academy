@@ -84,9 +84,12 @@ class SectionSubjectTeacher extends Model
         return $query->where('teacher_id', $teacherId);
     }
 
-    public function scopeForSection($query, string $sectionId)
+    public function scopePrimaryFor($query, string $sectionId, string $subjectId, ?string $exceptId = null)
     {
-        return $query->where('section_id', $sectionId);
+        return $query->where('section_id', $sectionId)
+            ->where('subject_id', $subjectId)
+            ->where('is_primary', true)
+            ->when($exceptId, fn ($subQuery) => $subQuery->where('id', '!=', $exceptId));
     }
 
     // Helper Methods - Estado
