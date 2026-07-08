@@ -8,6 +8,7 @@ use App\Domains\Identity\Models\User;
 use App\Domains\Students\Models\Student;
 use App\Domains\Tenancy\Models\Tenant;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -56,7 +57,7 @@ class StudentPerformanceObservationApiTest extends TestCase
     {
         $token = $this->tokenFor(User::factory()->supervisor()->create());
         $student = Student::factory()->create();
-        StudentPerformanceObservation::factory()->count(2)->create(['student_id' => $student->id]);
+        StudentPerformanceObservation::factory()->count(2)->completed()->create(['student_id' => $student->id]);
         StudentPerformanceObservation::factory()->create();
 
         $response = $this->withToken($token)
@@ -143,5 +144,66 @@ class StudentPerformanceObservationApiTest extends TestCase
         $this->postJson("/api/v1/students/{$student->id}/performance-observations")
             ->assertStatus(401)
             ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
+    public function test_store_conflicts_when_an_observation_is_already_pending(): void
+    {
+        Queue::fake();
+        $user = User::factory()->supervisor()->create();
+        $student = Student::factory()->create();
+        StudentPerformanceObservation::factory()->create(['student_id' => $student->id]);
+
+        $response = $this->withToken($this->tokenFor($user))
+            ->postJson("/api/v1/students/{$student->id}/performance-observations");
+
+        $response->assertStatus(409)
+            ->assertJsonPath('error.code', 'OBSERVATION_IN_PROGRESS');
+
+        Queue::assertNotPushed(GenerateStudentPerformanceObservationJob::class);
+        $this->assertDatabaseCount('student_performance_observations', 1);
+    }
+
+    public function test_store_conflicts_when_an_observation_is_already_processing(): void
+    {
+        Queue::fake();
+        $user = User::factory()->supervisor()->create();
+        $student = Student::factory()->create();
+        StudentPerformanceObservation::factory()->processing()->create(['student_id' => $student->id]);
+
+        $response = $this->withToken($this->tokenFor($user))
+            ->postJson("/api/v1/students/{$student->id}/performance-observations");
+
+        $response->assertStatus(409)
+            ->assertJsonPath('error.code', 'OBSERVATION_IN_PROGRESS');
+
+        Queue::assertNotPushed(GenerateStudentPerformanceObservationJob::class);
+        $this->assertDatabaseCount('student_performance_observations', 1);
+    }
+
+    public function test_store_allowed_when_previous_observation_is_terminal(): void
+    {
+        Queue::fake();
+        $user = User::factory()->supervisor()->create();
+        $student = Student::factory()->create();
+        StudentPerformanceObservation::factory()->completed()->create(['student_id' => $student->id]);
+
+        $response = $this->withToken($this->tokenFor($user))
+            ->postJson("/api/v1/students/{$student->id}/performance-observations");
+
+        $response->assertAccepted()
+            ->assertJsonPath('data.status', 'pendiente');
+
+        Queue::assertPushed(GenerateStudentPerformanceObservationJob::class);
+        $this->assertDatabaseCount('student_performance_observations', 2);
+    }
+
+    public function test_partial_unique_index_forbids_two_in_flight_observations_per_student(): void
+    {
+        $student = Student::factory()->create();
+        StudentPerformanceObservation::factory()->create(['student_id' => $student->id]);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        StudentPerformanceObservation::factory()->processing()->create(['student_id' => $student->id]);
     }
 }

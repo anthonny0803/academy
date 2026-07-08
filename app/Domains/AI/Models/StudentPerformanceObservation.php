@@ -6,6 +6,7 @@ use App\Domains\AI\Enums\ObservationStatus;
 use App\Domains\Identity\Models\User;
 use App\Domains\Students\Models\Student;
 use App\Domains\Tenancy\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,5 +42,14 @@ class StudentPerformanceObservation extends Model
     public function requestedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'requested_by_id');
+    }
+
+    // Scopes
+
+    public function scopeInProgressForStudent(Builder $query, string $studentId): Builder
+    {
+        return $query
+            ->where('student_id', $studentId)
+            ->whereIn('status', [ObservationStatus::Pending, ObservationStatus::Processing]);
     }
 }

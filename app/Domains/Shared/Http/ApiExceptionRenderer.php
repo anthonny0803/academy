@@ -2,6 +2,7 @@
 
 namespace App\Domains\Shared\Http;
 
+use App\Domains\Shared\Contracts\RenderableDomainException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -29,6 +30,10 @@ class ApiExceptionRenderer
 
         if ($e instanceof ModelNotFoundException || $e instanceof NotFoundHttpException) {
             return self::error(404, 'NOT_FOUND', 'El recurso solicitado no existe.');
+        }
+
+        if ($e instanceof RenderableDomainException) {
+            return self::error($e->statusCode(), $e->errorCode(), $e->getMessage());
         }
 
         if ($e instanceof HttpExceptionInterface) {
