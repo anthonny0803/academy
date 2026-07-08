@@ -1,12 +1,12 @@
 <?php
 
+use App\Domains\Shared\Contracts\RenderableDomainException;
 use App\Domains\Shared\Http\ApiExceptionRenderer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -37,26 +37,29 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->renderable(function (\Throwable $e, $request) {
-            // Excluir errores de validación
-            if ($e instanceof ValidationException) {
+            if ($request->expectsJson()) {
                 return null;
             }
 
-            if ($e instanceof TokenMismatchException) {
+            // The handler prepares exceptions before these callbacks run:
+            // TokenMismatchException arrives wrapped in an HttpException(419)
+            // and AuthorizationException as an AccessDeniedHttpException.
+            if ($e->getPrevious() instanceof TokenMismatchException) {
                 return redirect()->route('login')
                     ->with('error', 'Tu sesión ha expirado, inicia sesión nuevamente.');
             }
 
-            // Solo capturar otros errores
-            if (! $request->expectsJson() && ! app()->runningInConsole()) {
-                if (! Auth::check()) {
-                    return redirect()->route('login');
-                }
-
+            // The exact \Exception match bridges business rules not yet migrated
+            // to RenderableDomainException; remove it once that migration is done.
+            if ($e instanceof RenderableDomainException
+                || $e instanceof AccessDeniedHttpException
+                || get_class($e) === Exception::class) {
                 return redirect()
                     ->back()
                     ->withInput()
                     ->with('error', $e->getMessage());
             }
+
+            return null;
         });
     })->create();
