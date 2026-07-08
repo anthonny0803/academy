@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Http\Controllers;
 
+use App\Domains\Academics\Exceptions\TeacherNotQualifiedForSubjectException;
 use App\Domains\Academics\Http\Requests\SectionSubjectTeacher\StoreSectionSubjectTeacherRequest;
 use App\Domains\Academics\Http\Requests\SectionSubjectTeacher\UpdateSectionSubjectTeacherRequest;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
@@ -30,10 +31,17 @@ class SectionSubjectTeacherController extends Controller
         StoreSectionSubjectTeacherService $storeService
     ): RedirectResponse {
         return $this->authorizeOrRedirect('create', SectionSubjectTeacher::class, function () use ($request, $storeService) {
-            $sectionId = $request->validated()['section_id'];
-            $storeService->handle($request->validated());
+            $data = $request->validated();
 
-            return redirect()->route('sections.show', $sectionId)
+            try {
+                $storeService->handle($data);
+            } catch (TeacherNotQualifiedForSubjectException $e) {
+                return back()
+                    ->withErrors(['teacher_id' => $e->getMessage()])
+                    ->withInput();
+            }
+
+            return redirect()->route('sections.show', $data['section_id'])
                 ->with('success', '¡Materia/Profesor asignado correctamente!');
         });
     }
