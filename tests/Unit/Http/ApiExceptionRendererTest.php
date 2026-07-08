@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Http;
 
+use App\Domains\Shared\Contracts\RenderableDomainException;
 use App\Domains\Shared\Http\ApiExceptionRenderer;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -74,5 +75,28 @@ class ApiExceptionRendererTest extends TestCase
         $response = ApiExceptionRenderer::render(new RuntimeException('boom'));
 
         $this->assertSame('boom', $response->getData(true)['error']['message']);
+    }
+
+    public function test_renderable_domain_exception_maps_to_its_status_and_code(): void
+    {
+        $exception = new class('Regla de negocio violada.') extends RuntimeException implements RenderableDomainException
+        {
+            public function statusCode(): int
+            {
+                return 409;
+            }
+
+            public function errorCode(): string
+            {
+                return 'CUSTOM_CONFLICT';
+            }
+        };
+
+        $response = ApiExceptionRenderer::render($exception);
+        $payload = $response->getData(true);
+
+        $this->assertSame(409, $response->getStatusCode());
+        $this->assertSame('CUSTOM_CONFLICT', $payload['error']['code']);
+        $this->assertSame('Regla de negocio violada.', $payload['error']['message']);
     }
 }

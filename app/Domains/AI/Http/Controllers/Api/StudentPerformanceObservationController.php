@@ -2,10 +2,10 @@
 
 namespace App\Domains\AI\Http\Controllers\Api;
 
-use App\Domains\AI\Enums\ObservationStatus;
 use App\Domains\AI\Http\Resources\StudentPerformanceObservationResource;
 use App\Domains\AI\Jobs\GenerateStudentPerformanceObservationJob;
 use App\Domains\AI\Models\StudentPerformanceObservation;
+use App\Domains\AI\Services\RequestStudentPerformanceObservationService;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\RespondsWithResources;
 use App\Domains\Students\Models\Student;
@@ -31,15 +31,11 @@ class StudentPerformanceObservationController extends Controller
         return $this->paginatedResponse($observations, StudentPerformanceObservationResource::class);
     }
 
-    public function store(Request $request, Student $student): JsonResponse
+    public function store(Request $request, Student $student, RequestStudentPerformanceObservationService $service): JsonResponse
     {
         $this->authorize('create', [StudentPerformanceObservation::class, $student]);
 
-        $observation = StudentPerformanceObservation::create([
-            'student_id' => $student->id,
-            'requested_by_id' => $request->user()->id,
-            'status' => ObservationStatus::Pending,
-        ]);
+        $observation = $service->forStudent($student, $request->user());
 
         GenerateStudentPerformanceObservationJob::dispatch($observation);
 

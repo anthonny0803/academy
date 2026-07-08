@@ -23,6 +23,13 @@ class StudentPerformanceObservationFactory extends Factory
         ];
     }
 
+    public function processing(): static
+    {
+        return $this->state(fn () => [
+            'status' => ObservationStatus::Processing,
+        ]);
+    }
+
     public function completed(): static
     {
         return $this->state(fn () => [
