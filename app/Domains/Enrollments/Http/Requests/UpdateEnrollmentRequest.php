@@ -3,6 +3,7 @@
 namespace App\Domains\Enrollments\Http\Requests;
 
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,7 +23,7 @@ class UpdateEnrollmentRequest extends FormRequest
             'section_id' => [
                 'nullable',
                 'uuid',
-                'exists:sections,id',
+                TenantExists::in('sections'),
                 Rule::notIn([$enrollment->section_id]), // No puede ser la misma sección
             ],
             'reason' => ['nullable', 'string', 'max:500'],

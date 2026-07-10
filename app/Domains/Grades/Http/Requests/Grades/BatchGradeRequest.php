@@ -3,6 +3,7 @@
 namespace App\Domains\Grades\Http\Requests\Grades;
 
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -32,7 +33,7 @@ class BatchGradeRequest extends FormRequest
             'grades.*.enrollment_id' => [
                 'required',
                 'uuid',
-                'exists:enrollments,id',
+                TenantExists::in('enrollments'),
             ],
             'grades.*.value' => [
                 'nullable',
@@ -114,6 +115,7 @@ class BatchGradeRequest extends FormRequest
         foreach ($grades as $index => $grade) {
             $enrollmentId = $grade['enrollment_id'] ?? null;
 
+            // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
             if (! $enrollmentId || ! $sectionByEnrollment->has($enrollmentId)) {
                 continue;
             }

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Http\Requests\Sections;
 
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -17,7 +18,7 @@ class StoreSectionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'academic_period_id' => ['required', 'uuid', 'exists:academic_periods,id'],
+            'academic_period_id' => ['required', 'uuid', TenantExists::in('academic_periods')],
             'name' => [
                 'required',
                 'string',

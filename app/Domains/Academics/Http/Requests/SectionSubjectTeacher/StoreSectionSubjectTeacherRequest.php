@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Http\Requests\SectionSubjectTeacher;
 
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -15,16 +16,16 @@ class StoreSectionSubjectTeacherRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'section_id' => ['required', 'uuid', 'exists:sections,id'],
+            'section_id' => ['required', 'uuid', TenantExists::in('sections')],
             'subject_id' => [
                 'required',
                 'uuid',
-                'exists:subjects,id',
+                TenantExists::in('subjects'),
                 Rule::unique('section_subject_teacher')
                     ->where('section_id', $this->section_id)
                     ->where('subject_id', $this->subject_id),
             ],
-            'teacher_id' => ['required', 'uuid', 'exists:teachers,id'],
+            'teacher_id' => ['required', 'uuid', TenantExists::in('teachers')],
             'is_primary' => ['nullable', 'boolean'],
             'status' => ['required', 'in:activo,suplente,inactivo'],
         ];

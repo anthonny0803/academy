@@ -4,6 +4,7 @@ namespace App\Domains\Enrollments\Http\Requests;
 
 use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +26,7 @@ class PromoteEnrollmentRequest extends FormRequest
             'section_id' => [
                 'required',
                 'uuid',
-                'exists:sections,id',
+                TenantExists::in('sections'),
                 // No puede ser la misma sección
                 Rule::notIn([$currentSectionId]),
                 // No puede tener inscripción activa en esa sección
@@ -61,6 +62,7 @@ class PromoteEnrollmentRequest extends FormRequest
             if ($sectionId) {
                 $targetSection = app(SectionRepository::class)->find($sectionId);
 
+                // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
                 if ($targetSection && $targetSection->academic_period_id !== $academicPeriod->id) {
                     $validator->errors()->add(
                         'section_id',

@@ -4,6 +4,7 @@ namespace App\Domains\Enrollments\Http\Requests;
 
 use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreEnrollmentRequest extends FormRequest
@@ -19,7 +20,7 @@ class StoreEnrollmentRequest extends FormRequest
             'section_id' => [
                 'required',
                 'uuid',
-                'exists:sections,id',
+                TenantExists::in('sections'),
             ],
         ];
     }
@@ -40,6 +41,7 @@ class StoreEnrollmentRequest extends FormRequest
 
             $section = app(SectionRepository::class)->find($sectionId);
 
+            // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
             if (! $section) {
                 return;
             }

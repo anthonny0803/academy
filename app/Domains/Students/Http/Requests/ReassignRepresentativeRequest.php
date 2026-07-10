@@ -3,6 +3,7 @@
 namespace App\Domains\Students\Http\Requests;
 
 use App\Domains\Representatives\Enums\RelationshipType;
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +29,7 @@ class ReassignRepresentativeRequest extends FormRequest
             'representative_id' => [
                 'required',
                 'uuid',
-                'exists:representatives,id',
+                TenantExists::in('representatives'),
                 Rule::notIn([$currentRepresentativeId]),
             ],
             'relationship_type' => [
