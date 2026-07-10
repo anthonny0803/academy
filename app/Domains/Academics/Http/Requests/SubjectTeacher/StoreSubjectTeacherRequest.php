@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Http\Requests\SubjectTeacher;
 
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSubjectTeacherRequest extends FormRequest
@@ -15,7 +16,7 @@ class StoreSubjectTeacherRequest extends FormRequest
     {
         return [
             'subjects' => ['required', 'array', 'min:1'],
-            'subjects.*' => ['uuid', 'exists:subjects,id'],
+            'subjects.*' => ['uuid', TenantExists::in('subjects')],
         ];
     }
 

@@ -5,6 +5,7 @@ namespace App\Domains\Students\Http\Requests;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Support\DocumentId;
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -51,7 +52,7 @@ class StoreStudentRequest extends FormRequest
             ],
             'birth_date' => ['required', 'date', 'before:today'],
             'relationship_type' => ['required', Rule::in(RelationshipType::toArray())],
-            'section_id' => ['required', 'uuid', 'exists:sections,id'],
+            'section_id' => ['required', 'uuid', TenantExists::in('sections')],
             'is_self_represented' => ['nullable', 'boolean'],
         ];
     }

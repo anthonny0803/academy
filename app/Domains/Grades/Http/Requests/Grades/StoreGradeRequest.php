@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Http\Requests\Grades;
 
+use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,7 +25,7 @@ class StoreGradeRequest extends FormRequest
             'enrollment_id' => [
                 'required',
                 'uuid',
-                'exists:enrollments,id',
+                TenantExists::in('enrollments'),
                 Rule::unique('grades')
                     ->where('grade_column_id', $gradeColumn?->id),
             ],
