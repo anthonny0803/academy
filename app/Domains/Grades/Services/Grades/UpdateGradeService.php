@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Services\Grades;
 
+use App\Domains\Grades\Exceptions\GradeOutOfRangeException;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Repositories\GradeRepository;
 use Illuminate\Support\Facades\Auth;
@@ -22,9 +23,7 @@ class UpdateGradeService
 
             // Validar rango de nota
             if (! $academicPeriod->isGradeValid($data['value'])) {
-                throw new \Exception(
-                    "La nota debe estar entre {$academicPeriod->min_grade} y {$academicPeriod->max_grade}."
-                );
+                throw GradeOutOfRangeException::make($academicPeriod->min_grade, $academicPeriod->max_grade);
             }
 
             // Auditoría simple: registrar cambio

@@ -49,11 +49,8 @@ return Application::configure(basePath: dirname(__DIR__))
                     ->with('error', 'Tu sesión ha expirado, inicia sesión nuevamente.');
             }
 
-            // The exact \Exception match bridges business rules not yet migrated
-            // to RenderableDomainException; remove it once that migration is done.
             if ($e instanceof RenderableDomainException
-                || $e instanceof AccessDeniedHttpException
-                || get_class($e) === Exception::class) {
+                || $e instanceof AccessDeniedHttpException) {
                 return redirect()
                     ->back()
                     ->withInput()

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Services\Subjects;
 
+use App\Domains\Academics\Exceptions\SubjectInUseException;
 use App\Domains\Academics\Models\Subject;
 use App\Domains\Academics\Repositories\SubjectRepository;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +17,11 @@ class DeleteSubjectService
     {
         DB::transaction(function () use ($subject) {
             if ($subject->sectionSubjectTeachers()->exists()) {
-                throw new \Exception('No se puede eliminar una asignatura con asignaciones en secciones.');
+                throw SubjectInUseException::withSectionAssignments();
             }
 
             if ($subject->teachers()->exists()) {
-                throw new \Exception('No se puede eliminar una asignatura con profesores asignados.');
+                throw SubjectInUseException::withAssignedTeachers();
             }
 
             $this->subjectRepository->delete($subject);

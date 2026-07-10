@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Services\SubjectTeacher;
 
+use App\Domains\Academics\Exceptions\SubjectTeacherInUseException;
 use App\Domains\Academics\Models\Subject;
 use App\Domains\Academics\Models\Teacher;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ class DeleteSubjectTeacherService
                 ->exists();
 
             if ($hasAssociatedRecords) {
-                throw new \Exception('No se puede eliminar una asignación con registros asociados.');
+                throw SubjectTeacherInUseException::make();
             }
 
             $teacher->subjects()->detach($subject->id);

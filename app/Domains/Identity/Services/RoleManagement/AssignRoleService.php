@@ -4,6 +4,8 @@ namespace App\Domains\Identity\Services\RoleManagement;
 
 use App\Domains\Academics\Repositories\TeacherRepository;
 use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Exceptions\RoleAlreadyAssignedException;
+use App\Domains\Identity\Exceptions\UnsupportedRoleAssignmentException;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Representatives\Repositories\RepresentativeRepository;
@@ -24,7 +26,7 @@ class AssignRoleService
             // Validate existing roles
             // Administrative roles (Supervisor, Admin) can be swapped
             if (in_array($role, Role::profileRoles()) && $user->hasRole($role->value)) {
-                throw new \Exception("El usuario ya tiene el rol {$role->value}");
+                throw RoleAlreadyAssignedException::role($role);
             }
 
             // Update password if provided
@@ -35,7 +37,7 @@ class AssignRoleService
                 Role::Supervisor, Role::Admin => $this->handleAdministrativeRoleSwap($user, $role),
                 Role::Teacher => $this->handleTeacherRole($user),
                 Role::Representative => $this->handleRepresentativeRole($user, $data),
-                default => throw new \Exception("Rol {$role->value} no soportado para asignación"),
+                default => throw UnsupportedRoleAssignmentException::make($role),
             };
 
             // Return updated user with roles loaded
@@ -68,7 +70,7 @@ class AssignRoleService
     {
         // Verify the user does not already have a Teacher profile
         if ($user->teacher()->exists()) {
-            throw new \Exception('El usuario ya tiene un perfil de profesor');
+            throw RoleAlreadyAssignedException::teacherProfile();
         }
 
         // Assign the Spatie role
@@ -85,7 +87,7 @@ class AssignRoleService
     {
         // Verify the user does not already have a Representative profile
         if ($user->representative()->exists()) {
-            throw new \Exception('El usuario ya tiene un perfil de representante');
+            throw RoleAlreadyAssignedException::representativeProfile();
         }
 
         // Update user fields if they are missing

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
+use App\Domains\Academics\Exceptions\AcademicPeriodNotReadyForCloseException;
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Academics\Repositories\SectionRepository;
@@ -164,9 +165,7 @@ class CloseAcademicPeriodService
         $validation = $this->validateForClose($academicPeriod);
 
         if (! $validation['can_close'] && ! $forceClose) {
-            throw new \Exception(
-                'No se puede cerrar el período. Hay inscripciones con datos incompletos.'
-            );
+            throw AcademicPeriodNotReadyForCloseException::make();
         }
 
         return DB::transaction(function () use ($academicPeriod) {

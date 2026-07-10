@@ -34,13 +34,16 @@ class WebExceptionHandlingTest extends TestCase
             ->assertSessionHas('error', $exception->getMessage());
     }
 
-    public function test_exact_generic_exceptions_flash_their_message_and_redirect_back(): void
+    public function test_generic_exceptions_render_500_without_flashing_their_message(): void
     {
+        config(['app.debug' => false]);
+
         $response = $this->from(self::PREVIOUS_URL)
             ->get($this->routeThrowing(new Exception('No se puede eliminar este registro.')));
 
-        $response->assertRedirect(self::PREVIOUS_URL)
-            ->assertSessionHas('error', 'No se puede eliminar este registro.');
+        $response->assertServerError()
+            ->assertDontSee('No se puede eliminar este registro.')
+            ->assertSessionMissing('error');
     }
 
     public function test_authorization_exceptions_flash_their_message_and_redirect_back(): void
