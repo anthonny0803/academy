@@ -14,6 +14,7 @@ use App\Domains\Grades\Services\Grades\StoreGradeService;
 use App\Domains\Grades\Services\Grades\TeacherAssignmentsService;
 use App\Domains\Grades\Services\Grades\UpdateGradeService;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Contracts\RenderableDomainException;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -90,12 +91,12 @@ class GradeController extends Controller
                 return redirect()
                     ->back()
                     ->with('success', '¡Nota registrada correctamente!');
-            } catch (\Exception $e) {
+            } catch (RenderableDomainException $e) {
                 if (request()->expectsJson()) {
                     return response()->json([
                         'success' => false,
                         'message' => $e->getMessage(),
-                    ], 422);
+                    ], $e->statusCode());
                 }
 
                 return redirect()
@@ -129,12 +130,12 @@ class GradeController extends Controller
                 return redirect()
                     ->back()
                     ->with('success', '¡Nota actualizada correctamente!');
-            } catch (\Exception $e) {
+            } catch (RenderableDomainException $e) {
                 if (request()->expectsJson()) {
                     return response()->json([
                         'success' => false,
                         'message' => $e->getMessage(),
-                    ], 422);
+                    ], $e->statusCode());
                 }
 
                 return redirect()
@@ -153,31 +154,18 @@ class GradeController extends Controller
         DeleteGradeService $deleteService
     ): RedirectResponse|JsonResponse {
         return $this->authorizeOrRedirect('delete', $grade, function () use ($grade, $deleteService) {
-            try {
-                $deleteService->handle($grade);
+            $deleteService->handle($grade);
 
-                if (request()->expectsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => '¡Nota eliminada correctamente!',
-                    ]);
-                }
-
-                return redirect()
-                    ->back()
-                    ->with('success', '¡Nota eliminada correctamente!');
-            } catch (\Exception $e) {
-                if (request()->expectsJson()) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => $e->getMessage(),
-                    ], 422);
-                }
-
-                return redirect()
-                    ->back()
-                    ->with('error', $e->getMessage());
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '¡Nota eliminada correctamente!',
+                ]);
             }
+
+            return redirect()
+                ->back()
+                ->with('success', '¡Nota eliminada correctamente!');
         });
     }
 }

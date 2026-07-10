@@ -2,7 +2,9 @@
 
 namespace App\Domains\Shared\Contracts;
 
-interface RenderableDomainException
+use Throwable;
+
+interface RenderableDomainException extends Throwable
 {
     public function statusCode(): int;
 

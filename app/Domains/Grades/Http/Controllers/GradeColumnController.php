@@ -10,6 +10,7 @@ use App\Domains\Grades\Services\GradeColumns\DeleteGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\StoreGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\UpdateGradeColumnService;
 use App\Domains\Identity\Models\User;
+use App\Domains\Shared\Contracts\RenderableDomainException;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -62,7 +63,7 @@ class GradeColumnController extends Controller
                 return redirect()
                     ->route('grade-columns.index', $sectionSubjectTeacher)
                     ->with('success', '¡Evaluación registrada correctamente!');
-            } catch (\Exception $e) {
+            } catch (RenderableDomainException $e) {
                 return redirect()
                     ->back()
                     ->withInput()
@@ -83,7 +84,7 @@ class GradeColumnController extends Controller
                 return redirect()
                     ->route('grade-columns.index', $gradeColumn->section_subject_teacher_id)
                     ->with('success', '¡Evaluación actualizada correctamente!');
-            } catch (\Exception $e) {
+            } catch (RenderableDomainException $e) {
                 return redirect()
                     ->back()
                     ->withInput()
@@ -105,7 +106,7 @@ class GradeColumnController extends Controller
                 return redirect()
                     ->route('grade-columns.index', $sstId)
                     ->with('success', '¡Evaluación eliminada correctamente!');
-            } catch (\Exception $e) {
+            } catch (RenderableDomainException $e) {
                 return redirect()
                     ->back()
                     ->with('error', $e->getMessage());

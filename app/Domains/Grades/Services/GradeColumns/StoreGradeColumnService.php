@@ -3,6 +3,7 @@
 namespace App\Domains\Grades\Services\GradeColumns;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Grades\Exceptions\GradeColumnWeightExceededException;
 use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Support\Facades\DB;
 
@@ -13,10 +14,7 @@ class StoreGradeColumnService
         return DB::transaction(function () use ($sst, $data) {
             // Validar que no exceda el 100%
             if (! $sst->canAddColumn($data['weight'])) {
-                $remaining = $sst->getRemainingWeight();
-                throw new \Exception(
-                    "No se puede agregar esta evaluación. Peso restante disponible: {$remaining}%"
-                );
+                throw GradeColumnWeightExceededException::remaining($sst->getRemainingWeight());
             }
 
             // Calcular display_order si no viene

@@ -142,6 +142,9 @@ class CloseAcademicPeriodTest extends TestCase
 
         // Service throws exception, controller catches and redirects with error
         $response->assertRedirect(route('academic-periods.show', $academicPeriod));
-        $response->assertSessionHas('error');
+        $response->assertSessionHas(
+            'error',
+            'No se puede cerrar el período. Hay inscripciones con datos incompletos.'
+        );
     }
 }

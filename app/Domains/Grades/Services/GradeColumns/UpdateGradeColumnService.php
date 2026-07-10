@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Services\GradeColumns;
 
+use App\Domains\Grades\Exceptions\GradeColumnWeightExceededException;
 use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Support\Facades\DB;
 
@@ -19,9 +20,7 @@ class UpdateGradeColumnService
 
                 if ($newTotal > 100) {
                     $maxAllowed = 100 - $currentTotal + $gradeColumn->weight;
-                    throw new \Exception(
-                        "El peso total excedería el 100%. Máximo permitido para esta evaluación: {$maxAllowed}%"
-                    );
+                    throw GradeColumnWeightExceededException::maxAllowed($maxAllowed);
                 }
             }
 

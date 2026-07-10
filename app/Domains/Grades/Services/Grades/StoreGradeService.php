@@ -4,6 +4,9 @@ namespace App\Domains\Grades\Services\Grades;
 
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Grades\Exceptions\EnrollmentNotGradableException;
+use App\Domains\Grades\Exceptions\GradeOutOfRangeException;
+use App\Domains\Grades\Exceptions\GradingConfigurationIncompleteException;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Repositories\GradeRepository;
@@ -23,27 +26,23 @@ class StoreGradeService
 
             // Validar que la configuración esté completa
             if (! $sst->isConfigurationComplete()) {
-                throw new \Exception(
-                    'La configuración de evaluaciones debe sumar 100% antes de calificar.'
-                );
+                throw GradingConfigurationIncompleteException::make();
             }
 
             // Validar que el estudiante pertenece a esta sección
             if ($enrollment->section_id !== $sst->section_id) {
-                throw new \Exception('El estudiante no pertenece a esta sección.');
+                throw EnrollmentNotGradableException::outsideSection();
             }
 
             // Validar inscripción activa
             if ($enrollment->status !== EnrollmentStatus::Active->value) {
-                throw new \Exception('La inscripción del estudiante no está activa.');
+                throw EnrollmentNotGradableException::inactive();
             }
 
             // Validar rango de nota
             $academicPeriod = $sst->section->academicPeriod;
             if (! $academicPeriod->isGradeValid($data['value'])) {
-                throw new \Exception(
-                    "La nota debe estar entre {$academicPeriod->min_grade} y {$academicPeriod->max_grade}."
-                );
+                throw GradeOutOfRangeException::make($academicPeriod->min_grade, $academicPeriod->max_grade);
             }
 
             $grade = $this->gradeRepository->create([

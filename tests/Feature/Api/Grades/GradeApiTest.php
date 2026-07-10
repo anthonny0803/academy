@@ -228,6 +228,34 @@ class GradeApiTest extends TestCase
             ]);
     }
 
+    public function test_store_with_incomplete_configuration_returns_a_domain_conflict(): void
+    {
+        $sst = SectionSubjectTeacher::factory()->create();
+        $column = GradeColumn::factory()->create([
+            'section_subject_teacher_id' => $sst->id,
+            'weight' => 60,
+        ]);
+        $student = Student::factory()->inSection($sst->section)->create();
+        $enrollment = $student->enrollments()->where('section_id', $sst->section_id)->first();
+        $token = $this->tokenFor(User::factory()->developer()->create());
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades",
+            ['enrollment_id' => $enrollment->id, 'value' => 8.5]
+        );
+
+        $response->assertStatus(409)
+            ->assertJsonPath('error.code', 'GRADING_CONFIGURATION_INCOMPLETE')
+            ->assertJsonPath(
+                'error.message',
+                'La configuración de evaluaciones debe sumar 100% antes de calificar.'
+            );
+        $this->assertDatabaseMissing('grades', [
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+        ]);
+    }
+
     public function test_store_batch_upserts_grades(): void
     {
         [$sst, $column, $enrollment] = $this->gradableGraph();
