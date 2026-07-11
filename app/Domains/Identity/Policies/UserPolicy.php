@@ -184,10 +184,10 @@ class UserPolicy
             ?? Response::allow();
     }
 
-    public function assign(User $currentUser, User $targetUser, ?Role $role = null): Response
+    public function assign(User $currentUser, User $targetUser, Role $role): Response
     {
         return $this->cannotAssignRolesToUser($currentUser, $targetUser)
-            ?? ($role ? $this->cannotSelfDemote($currentUser, $targetUser, $role) : null)
+            ?? $this->cannotSelfDemote($currentUser, $targetUser, $role)
             ?? Response::allow();
     }
 }
