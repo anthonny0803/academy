@@ -80,9 +80,9 @@ class RoleManagementController extends Controller
         User $user,
         string $role
     ): RedirectResponse {
-        $this->authorize('assign', $user);
-
         $roleEnum = Role::tryFrom($role) ?? abort(404);
+        $this->authorize('assign', [$user, $roleEnum]);
+
         $service->handle($user, $roleEnum, $request->validated());
 
         return redirect()
