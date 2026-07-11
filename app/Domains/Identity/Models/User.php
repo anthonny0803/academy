@@ -164,6 +164,16 @@ class User extends Authenticatable implements HasEntityName
         return $this->hasRole(Role::Student->value);
     }
 
+    public function assignableRolesForAdditionalAssignment(): array
+    {
+        return match (true) {
+            $this->isDeveloper() => Role::assignableByDeveloperForAdditionalRoles(),
+            $this->isSupervisor() => Role::assignableBySupervisorForAdditionalRoles(),
+            $this->isAdmin() => Role::assignableByAdminForAdditionalRoles(),
+            default => [],
+        };
+    }
+
     // Status Methods
 
     public function canAuthenticate(): bool
