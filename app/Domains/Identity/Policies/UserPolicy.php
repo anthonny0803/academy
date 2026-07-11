@@ -120,6 +120,15 @@ class UserPolicy
         return null;
     }
 
+    private function cannotAssignRoleOutsideAssignableSet(User $currentUser, Role $role): ?Response
+    {
+        if (! in_array($role, $currentUser->assignableRolesForAdditionalAssignment(), true)) {
+            return Response::deny('No tienes autorización para asignar este rol.');
+        }
+
+        return null;
+    }
+
     // Policy Methods
 
     public function viewAny(User $currentUser): Response
@@ -187,7 +196,9 @@ class UserPolicy
     public function assign(User $currentUser, User $targetUser, Role $role): Response
     {
         return $this->cannotAssignRolesToUser($currentUser, $targetUser)
+            ?? $this->cannotAdminManageHigherOrEqualRole($currentUser, $targetUser)
             ?? $this->cannotSelfDemote($currentUser, $targetUser, $role)
+            ?? $this->cannotAssignRoleOutsideAssignableSet($currentUser, $role)
             ?? Response::allow();
     }
 }
