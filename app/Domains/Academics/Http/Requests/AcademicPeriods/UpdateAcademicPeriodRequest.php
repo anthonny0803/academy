@@ -2,10 +2,10 @@
 
 namespace App\Domains\Academics\Http\Requests\AcademicPeriods;
 
+use App\Domains\Tenancy\Rules\TenantUnique;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 
 class UpdateAcademicPeriodRequest extends FormRequest
 {
@@ -38,7 +38,7 @@ class UpdateAcademicPeriodRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('academic_periods')->ignore($academicPeriod->id),
+                TenantUnique::in('academic_periods')->ignore($academicPeriod->id),
             ],
             'notes' => ['nullable', 'string', 'max:255'],
         ];

@@ -2,10 +2,10 @@
 
 namespace App\Domains\Academics\Http\Requests\Subjects;
 
+use App\Domains\Tenancy\Rules\TenantUnique;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 
 class UpdateSubjectRequest extends FormRequest
 {
@@ -25,8 +25,8 @@ class UpdateSubjectRequest extends FormRequest
             'name' => [
                 'required',
                 'string',
-                'max:255',
-                Rule::unique('subjects')->ignore($this->getSubjectId()),
+                'max:100',
+                TenantUnique::in('subjects')->ignore($this->getSubjectId()),
             ],
             'description' => ['required', 'string', 'max:255'],
         ];
@@ -44,7 +44,7 @@ class UpdateSubjectRequest extends FormRequest
     {
         return [
             'name.required' => 'El nombre es obligatorio.',
-            'name.max' => 'El nombre no puede superar los 255 caracteres.',
+            'name.max' => 'El nombre no puede superar los 100 caracteres.',
             'name.unique' => 'Ya existe una asignatura con este nombre.',
             'description.required' => 'La descripción es obligatoria.',
             'description.max' => 'La descripción no puede superar los 255 caracteres.',
