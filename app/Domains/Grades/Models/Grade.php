@@ -96,21 +96,6 @@ class Grade extends Model implements HasEntityName
         return $this->enrollment->student;
     }
 
-    public function getSection(): Section
-    {
-        return $this->gradeColumn->sectionSubjectTeacher->section;
-    }
-
-    public function getSubject(): Subject
-    {
-        return $this->gradeColumn->sectionSubjectTeacher->subject;
-    }
-
-    public function getTeacher(): Teacher
-    {
-        return $this->gradeColumn->sectionSubjectTeacher->teacher;
-    }
-
     public function getColumnName(): string
     {
         return $this->gradeColumn->name;
@@ -119,15 +104,6 @@ class Grade extends Model implements HasEntityName
     public function getWeight(): float
     {
         return (float) $this->gradeColumn->weight;
-    }
-
-    public function isPassing(): bool
-    {
-        $passingGrade = $this->getSection()
-            ->academicPeriod
-            ->passing_grade;
-
-        return $this->value >= $passingGrade;
     }
 
     public function getWeightedValue(): float
