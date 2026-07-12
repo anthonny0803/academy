@@ -9,6 +9,7 @@ use App\Domains\Grades\Exceptions\GradeOutOfRangeException;
 use App\Domains\Grades\Exceptions\GradingConfigurationIncompleteException;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Grades\Services\Grades\BatchGradeService;
 use App\Domains\Grades\Services\Grades\StoreGradeService;
 use App\Domains\Grades\Services\Grades\UpdateGradeService;
 use App\Domains\Students\Models\Student;
@@ -113,6 +114,41 @@ class GradeDomainExceptionsTest extends TestCase
             $this->assertSame('La nota debe estar entre 0.00 y 10.00.', $e->getMessage());
         }
 
+        $this->assertSame(0, Grade::count());
+    }
+
+    public function test_batch_throws_when_a_writing_row_targets_an_inactive_enrollment(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $enrollment->status = EnrollmentStatus::Withdrawn->value;
+        $enrollment->save();
+
+        try {
+            app(BatchGradeService::class)->handle($column, [
+                ['enrollment_id' => $enrollment->id, 'value' => 8.5],
+            ]);
+
+            $this->fail('Expected EnrollmentNotGradableException was not thrown.');
+        } catch (EnrollmentNotGradableException $e) {
+            $this->assertSame(422, $e->statusCode());
+            $this->assertSame('ENROLLMENT_NOT_GRADABLE', $e->errorCode());
+            $this->assertSame('La inscripción del estudiante no está activa.', $e->getMessage());
+        }
+
+        $this->assertSame(0, Grade::count());
+    }
+
+    public function test_batch_skips_rows_without_value_even_for_an_inactive_enrollment(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $enrollment->status = EnrollmentStatus::Withdrawn->value;
+        $enrollment->save();
+
+        $result = app(BatchGradeService::class)->handle($column, [
+            ['enrollment_id' => $enrollment->id, 'value' => null],
+        ]);
+
+        $this->assertSame(1, $result['skipped']);
         $this->assertSame(0, Grade::count());
     }
 
