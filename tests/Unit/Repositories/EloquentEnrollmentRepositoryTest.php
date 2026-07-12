@@ -93,6 +93,19 @@ class EloquentEnrollmentRepositoryTest extends TestCase
         $this->assertFalse($result->contains($active));
     }
 
+    public function test_paginate_for_listing_combines_search_with_status_filter(): void
+    {
+        $user = User::factory()->create(['name' => 'Carlos']);
+        $student = Student::factory()->create(['user_id' => $user->id]);
+        $active = Enrollment::factory()->create(['student_id' => $student->id]);
+        $withdrawn = Enrollment::factory()->withdrawn()->create(['student_id' => $student->id]);
+
+        $result = $this->repository->paginateForListing('Carlos', EnrollmentStatus::Withdrawn->value, null, null, 50);
+
+        $this->assertTrue($result->contains($withdrawn));
+        $this->assertFalse($result->contains($active));
+    }
+
     public function test_has_active_enrollment_in_period(): void
     {
         $section = Section::factory()->create();

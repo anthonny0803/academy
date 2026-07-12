@@ -63,11 +63,13 @@ class Enrollment extends Model implements HasEntityName
     {
         $term = strtoupper($term);
 
-        return $query->whereHas('student.user', function ($q) use ($term) {
-            $q->where('name', 'like', "%{$term}%")
-                ->orWhere('last_name', 'like', "%{$term}%");
-        })->orWhereHas('student', function ($q) use ($term) {
-            $q->where('student_code', 'like', "%{$term}%");
+        return $query->where(function ($q) use ($term) {
+            $q->whereHas('student.user', function ($userQuery) use ($term) {
+                $userQuery->where('name', 'like', "%{$term}%")
+                    ->orWhere('last_name', 'like', "%{$term}%");
+            })->orWhereHas('student', function ($studentQuery) use ($term) {
+                $studentQuery->where('student_code', 'like', "%{$term}%");
+            });
         });
     }
 
