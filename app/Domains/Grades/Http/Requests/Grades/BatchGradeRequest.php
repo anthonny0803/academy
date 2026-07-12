@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Http\Requests\Grades;
 
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Tenancy\Rules\TenantExists;
 use Illuminate\Contracts\Validation\Validator;
@@ -21,12 +22,7 @@ class BatchGradeRequest extends FormRequest
 
     public function rules(): array
     {
-        $gradeColumn = $this->getGradeColumn();
-        $sst = $gradeColumn?->sectionSubjectTeacher;
-        $academicPeriod = $sst?->section?->academicPeriod;
-
-        $minGrade = $academicPeriod?->min_grade ?? 0;
-        $maxGrade = $academicPeriod?->max_grade ?? 100;
+        [$minGrade, $maxGrade] = $this->gradeRange();
 
         return [
             'grades' => ['required', 'array', 'min:1'],
@@ -57,12 +53,7 @@ class BatchGradeRequest extends FormRequest
 
     public function messages(): array
     {
-        $gradeColumn = $this->getGradeColumn();
-        $sst = $gradeColumn?->sectionSubjectTeacher;
-        $academicPeriod = $sst?->section?->academicPeriod;
-
-        $minGrade = $academicPeriod?->min_grade ?? 0;
-        $maxGrade = $academicPeriod?->max_grade ?? 100;
+        [$minGrade, $maxGrade] = $this->gradeRange();
 
         return [
             'grades.required' => 'Debe enviar al menos una calificación.',
@@ -76,9 +67,6 @@ class BatchGradeRequest extends FormRequest
         ];
     }
 
-    /**
-     * Validación adicional después de las reglas básicas
-     */
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator) {
@@ -100,30 +88,57 @@ class BatchGradeRequest extends FormRequest
                 );
             }
 
-            $this->validateEnrollmentsBelongToSection($validator, $sst->section_id);
+            $this->validateEnrollmentsAreGradable($validator, $sst->section_id);
         });
     }
 
-    private function validateEnrollmentsBelongToSection(Validator $validator, string $sectionId): void
+    private function gradeRange(): array
+    {
+        $academicPeriod = $this->getGradeColumn()?->sectionSubjectTeacher?->section?->academicPeriod;
+
+        return [
+            $academicPeriod?->min_grade ?? 0,
+            $academicPeriod?->max_grade ?? 100,
+        ];
+    }
+
+    private function validateEnrollmentsAreGradable(Validator $validator, string $sectionId): void
     {
         $grades = $this->input('grades', []);
 
-        $sectionByEnrollment = Enrollment::query()
+        // After hooks run even when base rules fail: the 'array' rule already reported a scalar.
+        if (! is_array($grades)) {
+            return;
+        }
+
+        $enrollments = Enrollment::query()
             ->whereIn('id', collect($grades)->pluck('enrollment_id')->filter()->unique())
-            ->pluck('section_id', 'id');
+            ->get(['id', 'section_id', 'status'])
+            ->keyBy('id');
 
         foreach ($grades as $index => $grade) {
             $enrollmentId = $grade['enrollment_id'] ?? null;
 
             // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
-            if (! $enrollmentId || ! $sectionByEnrollment->has($enrollmentId)) {
+            if (! $enrollmentId || ! $enrollments->has($enrollmentId)) {
                 continue;
             }
 
-            if ($sectionByEnrollment->get($enrollmentId) !== $sectionId) {
+            $enrollment = $enrollments->get($enrollmentId);
+
+            if ($enrollment->section_id !== $sectionId) {
                 $validator->errors()->add(
                     "grades.{$index}.enrollment_id",
                     'El estudiante no pertenece a esta sección.'
+                );
+
+                continue;
+            }
+
+            if ($enrollment->status !== EnrollmentStatus::Active->value) {
+                $validator->errors()->add(
+                    "grades.{$index}.enrollment_id",
+                    'La inscripción del estudiante no está activa.'
                 );
             }
         }

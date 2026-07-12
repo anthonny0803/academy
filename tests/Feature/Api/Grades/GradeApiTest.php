@@ -4,6 +4,8 @@ namespace Tests\Feature\Api\Grades;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Academics\Models\Teacher;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Identity\Models\User;
@@ -348,6 +350,67 @@ class GradeApiTest extends TestCase
             'enrollment_id' => $foreignEnrollment->id,
             'grade_column_id' => $column->id,
         ]);
+    }
+
+    public function test_store_batch_rejects_inactive_enrollment(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $enrollment->status = EnrollmentStatus::Withdrawn->value;
+        $enrollment->save();
+        $token = $this->tokenFor($sst->teacher->user);
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades/batch",
+            ['grades' => [['enrollment_id' => $enrollment->id, 'value' => 7.5]]]
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR');
+        $this->assertSame(
+            'La inscripción del estudiante no está activa.',
+            $response->json('error.fields')['grades.0.enrollment_id']
+        );
+        $this->assertDatabaseMissing('grades', [
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+        ]);
+    }
+
+    public function test_store_batch_with_mixed_rows_creates_nothing(): void
+    {
+        [$sst, $column, $activeEnrollment] = $this->gradableGraph();
+        $withdrawnEnrollment = Enrollment::factory()->withdrawn()->create([
+            'section_id' => $sst->section_id,
+        ]);
+        $token = $this->tokenFor($sst->teacher->user);
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades/batch",
+            ['grades' => [
+                ['enrollment_id' => $activeEnrollment->id, 'value' => 8.0],
+                ['enrollment_id' => $withdrawnEnrollment->id, 'value' => 7.5],
+            ]]
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR');
+        $this->assertArrayHasKey('grades.1.enrollment_id', $response->json('error.fields'));
+        $this->assertSame(0, Grade::count());
+    }
+
+    public function test_store_batch_rejects_non_array_grades_payload(): void
+    {
+        [$sst, $column] = $this->gradableGraph();
+        $token = $this->tokenFor($sst->teacher->user);
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/grade-columns/{$column->id}/grades/batch",
+            ['grades' => 'not-an-array']
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR');
+        $this->assertArrayHasKey('grades', $response->json('error.fields'));
     }
 
     public function test_update_changes_grade_value(): void

@@ -2,6 +2,9 @@
 
 namespace App\Domains\Grades\Services\Grades;
 
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Grades\Exceptions\EnrollmentNotGradableException;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Repositories\GradeRepository;
 use Illuminate\Support\Facades\Auth;
@@ -14,13 +17,13 @@ class BatchGradeService
     ) {}
 
     /**
-     * Procesa un batch de notas (crear o actualizar)
-     *
-     * @param  array  $gradesData  Array de ['enrollment_id' => x, 'value' => y, 'observation' => z]
-     * @return array Resumen de operaciones
+     * @param  array  $gradesData  Array of ['enrollment_id' => x, 'value' => y, 'observation' => z]
+     * @return array Summary of operations: ['created' => int, 'updated' => int, 'skipped' => int, 'total' => int]
      */
     public function handle(GradeColumn $gradeColumn, array $gradesData): array
     {
+        $this->assertWritingEnrollmentsAreActive($gradesData);
+
         return DB::transaction(function () use ($gradeColumn, $gradesData) {
             $created = 0;
             $updated = 0;
@@ -32,18 +35,15 @@ class BatchGradeService
                 $value = $gradeData['value'] ?? null;
                 $observation = $gradeData['observation'] ?? null;
 
-                // Si no hay valor, saltar (permite dejar campos vacíos)
-                if ($value === null || $value === '') {
+                if (! $this->hasValue($gradeData)) {
                     $skipped++;
 
                     continue;
                 }
 
-                // Buscar nota existente
                 $existingGrade = $this->gradeRepository->findByEnrollmentAndColumn($enrollmentId, $gradeColumn->id);
 
                 if ($existingGrade) {
-                    // Actualizar solo si cambió el valor
                     if ((float) $existingGrade->value !== (float) $value
                         || $existingGrade->observation !== $observation
                     ) {
@@ -57,7 +57,6 @@ class BatchGradeService
                         $skipped++;
                     }
                 } else {
-                    // Crear nueva nota
                     $this->gradeRepository->create([
                         'enrollment_id' => $enrollmentId,
                         'grade_column_id' => $gradeColumn->id,
@@ -76,5 +75,33 @@ class BatchGradeService
                 'total' => count($gradesData),
             ];
         });
+    }
+
+    private function assertWritingEnrollmentsAreActive(array $gradesData): void
+    {
+        $writingEnrollmentIds = collect($gradesData)
+            ->filter(fn (array $gradeData) => $this->hasValue($gradeData))
+            ->pluck('enrollment_id')
+            ->unique();
+
+        if ($writingEnrollmentIds->isEmpty()) {
+            return;
+        }
+
+        $hasInactiveEnrollment = Enrollment::query()
+            ->whereIn('id', $writingEnrollmentIds)
+            ->where('status', '!=', EnrollmentStatus::Active->value)
+            ->exists();
+
+        if ($hasInactiveEnrollment) {
+            throw EnrollmentNotGradableException::inactive();
+        }
+    }
+
+    private function hasValue(array $gradeData): bool
+    {
+        $value = $gradeData['value'] ?? null;
+
+        return $value !== null && $value !== '';
     }
 }
