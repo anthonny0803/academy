@@ -78,21 +78,6 @@ class GradeColumn extends Model implements HasEntityName
         return ! $this->hasGrades();
     }
 
-    public function getSection(): Section
-    {
-        return $this->sectionSubjectTeacher->section;
-    }
-
-    public function getSubject(): Subject
-    {
-        return $this->sectionSubjectTeacher->subject;
-    }
-
-    public function getTeacher(): Teacher
-    {
-        return $this->sectionSubjectTeacher->teacher;
-    }
-
     // Mutators
 
     protected function setNameAttribute($value): void
