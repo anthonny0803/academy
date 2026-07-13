@@ -10,6 +10,7 @@ use App\Domains\Tenancy\Http\Resources\TenantResource;
 use App\Domains\Tenancy\Models\Tenant;
 use App\Domains\Tenancy\Repositories\TenantRepository;
 use App\Domains\Tenancy\Services\Tenants\DeleteTenantService;
+use App\Domains\Tenancy\Services\Tenants\IssuePublicApiTokenService;
 use App\Domains\Tenancy\Services\Tenants\StoreTenantService;
 use App\Domains\Tenancy\Services\Tenants\UpdateTenantService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -70,5 +71,19 @@ class TenantController extends Controller
         $deleteService->handle($tenant);
 
         return response()->noContent();
+    }
+
+    public function issuePublicToken(Tenant $tenant, IssuePublicApiTokenService $issueService): JsonResponse
+    {
+        $this->authorize('issueToken', $tenant);
+
+        $token = $issueService->handle($tenant);
+
+        return response()->json([
+            'data' => [
+                'token' => $token,
+                'tokenType' => 'Bearer',
+            ],
+        ]);
     }
 }

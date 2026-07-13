@@ -12,6 +12,11 @@ class EloquentTenantRepository implements TenantRepository
         return Tenant::where('slug', $slug)->first();
     }
 
+    public function findByPublicApiTokenHash(string $hash): ?Tenant
+    {
+        return Tenant::where('public_api_token_hash', $hash)->first();
+    }
+
     public function create(array $attributes): Tenant
     {
         $tenant = new Tenant;
@@ -30,6 +35,14 @@ class EloquentTenantRepository implements TenantRepository
         $tenant->slug = $attributes['slug'];
         $tenant->plan = $attributes['plan'];
         $tenant->status = $attributes['status'];
+        $tenant->save();
+
+        return $tenant;
+    }
+
+    public function updatePublicApiTokenHash(Tenant $tenant, string $hash): Tenant
+    {
+        $tenant->public_api_token_hash = $hash;
         $tenant->save();
 
         return $tenant;

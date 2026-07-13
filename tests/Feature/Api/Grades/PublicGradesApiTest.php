@@ -6,6 +6,9 @@ use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Enums\TenantStatus;
+use App\Domains\Tenancy\Models\Tenant;
+use App\Domains\Tenancy\Services\Tenants\IssuePublicApiTokenService;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -15,13 +18,13 @@ class PublicGradesApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const TOKEN = 'test-token';
+    private string $plainToken;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->seed(RoleAndPermissionSeeder::class);
-        config(['services.public_api.token' => self::TOKEN]);
+        $this->plainToken = app(IssuePublicApiTokenService::class)->handle($this->tenant);
 
         // The shared IP-based rate limiter is not under test here and leaks
         // across tests on a persistent cache store (CI uses redis).
@@ -62,7 +65,7 @@ class PublicGradesApiTest extends TestCase
     {
         $student = $this->gradedStudent();
 
-        $response = $this->withToken(self::TOKEN)
+        $response = $this->withToken($this->plainToken)
             ->getJson('/api/public/student/grades?'.$this->credentials($student->user));
 
         $response->assertOk()
@@ -96,7 +99,7 @@ class PublicGradesApiTest extends TestCase
         $student = $this->gradedStudent();
         $representativeUser = $student->representative->user;
 
-        $response = $this->withToken(self::TOKEN)
+        $response = $this->withToken($this->plainToken)
             ->getJson('/api/public/representative/grades?'.$this->credentials($representativeUser));
 
         $response->assertOk()
@@ -117,7 +120,7 @@ class PublicGradesApiTest extends TestCase
 
     public function test_returns_not_found_for_unknown_credentials(): void
     {
-        $response = $this->withToken(self::TOKEN)
+        $response = $this->withToken($this->plainToken)
             ->getJson('/api/public/student/grades?document_id=V99999999&birth_date=1990-01-01');
 
         $response->assertNotFound()
@@ -126,7 +129,7 @@ class PublicGradesApiTest extends TestCase
 
     public function test_validation_error_uses_contract_envelope(): void
     {
-        $response = $this->withToken(self::TOKEN)
+        $response = $this->withToken($this->plainToken)
             ->getJson('/api/public/student/grades');
 
         $response->assertStatus(422)
@@ -151,5 +154,76 @@ class PublicGradesApiTest extends TestCase
 
         $response->assertStatus(401)
             ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
+    public function test_rejects_token_of_suspended_tenant(): void
+    {
+        $this->tenant->status = TenantStatus::Suspended->value;
+        $this->tenant->save();
+
+        $response = $this->withToken($this->plainToken)
+            ->getJson('/api/public/student/grades?document_id=V12345678&birth_date=2000-01-01');
+
+        $response->assertStatus(401)
+            ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
+    public function test_student_grades_are_isolated_per_tenant(): void
+    {
+        $tenantB = Tenant::factory()->create();
+
+        // Relations of tenant-scoped models must be loaded inside the
+        // callback: outside it the global scope filters them to tenant A.
+        [$studentB, $studentUserB] = $this->withinTenant($tenantB, function () {
+            $student = $this->gradedStudent();
+
+            return [$student, $student->user];
+        });
+
+        $foreignToken = $this->withToken($this->plainToken)
+            ->getJson('/api/public/student/grades?'.$this->credentials($studentUserB));
+
+        $foreignToken->assertNotFound()
+            ->assertJsonPath('error.code', 'NOT_FOUND');
+
+        $ownToken = app(IssuePublicApiTokenService::class)->handle($tenantB);
+
+        $this->withToken($ownToken)
+            ->getJson('/api/public/student/grades?'.$this->credentials($studentUserB))
+            ->assertOk()
+            ->assertJsonPath('data.student.code', $studentB->student_code);
+    }
+
+    public function test_representative_grades_are_isolated_per_tenant(): void
+    {
+        $tenantB = Tenant::factory()->create();
+
+        $representativeUserB = $this->withinTenant(
+            $tenantB,
+            fn () => $this->gradedStudent()->representative->user
+        );
+
+        $response = $this->withToken($this->plainToken)
+            ->getJson('/api/public/representative/grades?'.$this->credentials($representativeUserB));
+
+        $response->assertNotFound()
+            ->assertJsonPath('error.code', 'NOT_FOUND');
+    }
+
+    public function test_rotating_the_token_invalidates_the_previous_one(): void
+    {
+        $student = $this->gradedStudent();
+
+        $newToken = app(IssuePublicApiTokenService::class)->handle($this->tenant);
+
+        $this->withToken($this->plainToken)
+            ->getJson('/api/public/student/grades?'.$this->credentials($student->user))
+            ->assertStatus(401)
+            ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+
+        $this->withToken($newToken)
+            ->getJson('/api/public/student/grades?'.$this->credentials($student->user))
+            ->assertOk()
+            ->assertJsonPath('data.student.code', $student->student_code);
     }
 }

@@ -49,6 +49,12 @@ class TenantPolicy
             ?? Response::allow();
     }
 
+    public function issueToken(User $currentUser, Tenant $tenant): Response
+    {
+        return $this->cannotManageTenants($currentUser)
+            ?? Response::allow();
+    }
+
     public function delete(User $currentUser, Tenant $tenant): Response
     {
         return $this->cannotManageTenants($currentUser)

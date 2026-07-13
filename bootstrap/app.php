@@ -23,8 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'public.token' => \App\Domains\Grades\Http\Middleware\ValidatePublicApiToken::class,
             'tenant.resolve' => \App\Domains\Tenancy\Http\Middleware\ResolveTenant::class,
+            'tenant.token' => \App\Domains\Tenancy\Http\Middleware\AuthenticateTenantToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
