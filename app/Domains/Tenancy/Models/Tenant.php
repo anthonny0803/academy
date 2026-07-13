@@ -22,6 +22,10 @@ class Tenant extends Model implements HasEntityName
         'slug',
     ];
 
+    protected $hidden = [
+        'public_api_token_hash',
+    ];
+
     // Contracts Implementation
 
     public function getEntityName(): string

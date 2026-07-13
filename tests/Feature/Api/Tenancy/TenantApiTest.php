@@ -208,4 +208,78 @@ class TenantApiTest extends TestCase
 
         $response->assertStatus(403)->assertJsonPath('error.code', 'FORBIDDEN');
     }
+
+    public function test_issue_public_token_returns_plaintext_and_stores_hash(): void
+    {
+        $token = $this->tokenFor(User::factory()->developer()->create());
+        $tenant = Tenant::factory()->create();
+
+        $response = $this->withToken($token)->postJson("/api/v1/tenants/{$tenant->id}/public-token");
+
+        $response->assertOk()
+            ->assertJsonStructure(['data' => ['token', 'tokenType']])
+            ->assertJsonPath('data.tokenType', 'Bearer');
+
+        $plainToken = $response->json('data.token');
+
+        $this->assertDatabaseHas('tenants', [
+            'id' => $tenant->id,
+            'public_api_token_hash' => hash('sha256', $plainToken),
+        ]);
+    }
+
+    public function test_issue_public_token_rotates_the_previous_token(): void
+    {
+        $token = $this->tokenFor(User::factory()->developer()->create());
+        $tenant = Tenant::factory()->create();
+
+        $first = $this->withToken($token)
+            ->postJson("/api/v1/tenants/{$tenant->id}/public-token")->json('data.token');
+        $second = $this->withToken($token)
+            ->postJson("/api/v1/tenants/{$tenant->id}/public-token")->json('data.token');
+
+        $this->assertNotSame($first, $second);
+        $this->assertDatabaseMissing('tenants', ['public_api_token_hash' => hash('sha256', $first)]);
+        $this->assertDatabaseHas('tenants', [
+            'id' => $tenant->id,
+            'public_api_token_hash' => hash('sha256', $second),
+        ]);
+    }
+
+    public function test_issue_public_token_is_forbidden_for_non_developer(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $tenant = Tenant::factory()->create();
+
+        $response = $this->withToken($token)->postJson("/api/v1/tenants/{$tenant->id}/public-token");
+
+        $response->assertStatus(403)->assertJsonPath('error.code', 'FORBIDDEN');
+        $this->assertDatabaseHas('tenants', ['id' => $tenant->id, 'public_api_token_hash' => null]);
+    }
+
+    public function test_issue_public_token_requires_authentication(): void
+    {
+        $tenant = Tenant::factory()->create();
+
+        $response = $this->postJson("/api/v1/tenants/{$tenant->id}/public-token");
+
+        $response->assertStatus(401)->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
+    public function test_tenant_payloads_do_not_expose_the_token_hash(): void
+    {
+        $token = $this->tokenFor(User::factory()->developer()->create());
+        $tenant = Tenant::factory()->create();
+        $this->withToken($token)->postJson("/api/v1/tenants/{$tenant->id}/public-token")->assertOk();
+
+        $storedHash = $tenant->fresh()->public_api_token_hash;
+
+        $show = $this->withToken($token)->getJson("/api/v1/tenants/{$tenant->id}");
+        $show->assertOk()->assertJsonMissingPath('data.publicApiTokenHash');
+        $this->assertStringNotContainsString($storedHash, $show->getContent());
+
+        $index = $this->withToken($token)->getJson('/api/v1/tenants');
+        $index->assertOk();
+        $this->assertStringNotContainsString($storedHash, $index->getContent());
+    }
 }

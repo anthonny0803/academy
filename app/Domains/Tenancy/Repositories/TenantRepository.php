@@ -9,9 +9,13 @@ interface TenantRepository
 {
     public function findBySlug(string $slug): ?Tenant;
 
+    public function findByPublicApiTokenHash(string $hash): ?Tenant;
+
     public function create(array $attributes): Tenant;
 
     public function update(Tenant $tenant, array $attributes): Tenant;
+
+    public function updatePublicApiTokenHash(Tenant $tenant, string $hash): Tenant;
 
     public function delete(Tenant $tenant): void;
 

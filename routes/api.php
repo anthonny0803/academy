@@ -51,11 +51,13 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('subjects', SubjectController::class);
         Route::apiResource('teachers', TeacherController::class)->except(['destroy']);
         Route::apiResource('tenants', TenantController::class);
+        Route::post('tenants/{tenant}/public-token', [TenantController::class, 'issuePublicToken'])
+            ->name('tenants.public-token');
         Route::apiResource('users', UserController::class);
     });
 });
 
-Route::middleware(['public.token', 'throttle:10,1'])->prefix('public')->group(function () {
+Route::middleware(['throttle:10,1', 'tenant.token'])->prefix('public')->group(function () {
     Route::get('student/grades', [PublicGradesController::class, 'studentGrades'])
         ->name('api.public.student.grades');
 
