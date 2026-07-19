@@ -2,6 +2,7 @@
 
 namespace App\Domains\Students\Http\Requests;
 
+use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Support\DocumentId;
@@ -72,6 +73,27 @@ class StoreStudentRequest extends FormRequest
                         'Este representante ya tiene un perfil de estudiante registrado, puedes inscribirlo directamente en el módulo de estudiantes.'
                     );
                 }
+            }
+
+            $sectionId = $this->input('section_id');
+
+            // After-hooks run even when base rules failed; guard against non-string input.
+            if (! is_string($sectionId) || $sectionId === '') {
+                return;
+            }
+
+            $section = app(SectionRepository::class)->find($sectionId);
+
+            // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
+            if (! $section) {
+                return;
+            }
+
+            if ($section->isFull()) {
+                $validator->errors()->add(
+                    'section_id',
+                    'La sección seleccionada ha alcanzado su capacidad máxima.'
+                );
             }
         });
     }

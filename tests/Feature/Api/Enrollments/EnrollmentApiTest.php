@@ -159,6 +159,24 @@ class EnrollmentApiTest extends TestCase
             ]);
     }
 
+    public function test_store_rejects_enrollment_when_section_is_full(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $fullSection = Section::factory()->withCapacity(1)->create();
+        Student::factory()->inSection($fullSection)->create();
+        $student = Student::factory()->create();
+        $student->enrollments()->delete();
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/students/{$student->id}/enrollments",
+            ['section_id' => $fullSection->id]
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonPath('error.fields.section_id', 'La sección seleccionada ha alcanzado su capacidad máxima.');
+    }
+
     public function test_store_validation_error_returns_envelope(): void
     {
         $token = $this->tokenFor(User::factory()->supervisor()->create());
@@ -167,6 +185,23 @@ class EnrollmentApiTest extends TestCase
         $response = $this->withToken($token)->postJson(
             "/api/v1/students/{$student->id}/enrollments",
             []
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure([
+                'error' => ['code', 'message', 'fields' => ['section_id']],
+            ]);
+    }
+
+    public function test_store_with_array_section_id_returns_validation_error(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $student = Student::factory()->create();
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/students/{$student->id}/enrollments",
+            ['section_id' => ['not-a-uuid']]
         );
 
         $response->assertStatus(422)
@@ -354,6 +389,31 @@ class EnrollmentApiTest extends TestCase
         ]);
     }
 
+    public function test_promote_rejects_promotion_when_target_section_is_full(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->promotable()->create();
+        $origin = Section::factory()->create(['academic_period_id' => $period->id]);
+        $target = Section::factory()->withCapacity(1)->create(['academic_period_id' => $period->id]);
+        Student::factory()->inSection($target)->create();
+        $student = Student::factory()->inSection($origin)->create();
+        $enrollment = $student->enrollments()->where('section_id', $origin->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/promote",
+            ['section_id' => $target->id]
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonPath('error.fields.section_id', 'La sección seleccionada ha alcanzado su capacidad máxima.');
+
+        $this->assertDatabaseHas('enrollments', [
+            'id' => $enrollment->id,
+            'status' => 'activo',
+        ]);
+    }
+
     public function test_promote_requires_section_id(): void
     {
         $token = $this->tokenFor(User::factory()->supervisor()->create());
@@ -370,6 +430,26 @@ class EnrollmentApiTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonPath('error.code', 'VALIDATION_ERROR')
             ->assertJsonStructure(['error' => ['code', 'message', 'fields' => ['section_id']]]);
+    }
+
+    public function test_promote_with_array_section_id_returns_validation_error(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $period = AcademicPeriod::factory()->promotable()->create();
+        $origin = Section::factory()->create(['academic_period_id' => $period->id]);
+        $student = Student::factory()->inSection($origin)->create();
+        $enrollment = $student->enrollments()->where('section_id', $origin->id)->first();
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/enrollments/{$enrollment->id}/promote",
+            ['section_id' => ['not-a-uuid']]
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure([
+                'error' => ['code', 'message', 'fields' => ['section_id']],
+            ]);
     }
 
     public function test_promote_forbidden_for_admin(): void

@@ -159,6 +159,44 @@ class StudentApiTest extends TestCase
         ]);
     }
 
+    public function test_store_rejects_student_when_section_is_full(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $representative = Representative::factory()->create();
+        $fullSection = Section::factory()->withCapacity(1)->create();
+        Student::factory()->inSection($fullSection)->create();
+
+        $studentsBefore = Student::count();
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/representatives/{$representative->id}/students",
+            $this->validPayload(['section_id' => $fullSection->id])
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonPath('error.fields.section_id', 'La sección seleccionada ha alcanzado su capacidad máxima.');
+
+        $this->assertSame($studentsBefore, Student::count());
+    }
+
+    public function test_store_with_array_section_id_returns_validation_error(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $representative = Representative::factory()->create();
+
+        $response = $this->withToken($token)->postJson(
+            "/api/v1/representatives/{$representative->id}/students",
+            $this->validPayload(['section_id' => ['not-a-uuid']])
+        );
+
+        $response->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonStructure([
+                'error' => ['code', 'message', 'fields' => ['section_id']],
+            ]);
+    }
+
     public function test_store_validation_error_returns_envelope(): void
     {
         $token = $this->tokenFor(User::factory()->supervisor()->create());

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Enrollments\Services;
 
+use App\Domains\Academics\Services\Sections\EnsureSectionHasCapacityService;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 class PromoteEnrollmentService
 {
     public function __construct(
+        private EnsureSectionHasCapacityService $ensureSectionHasCapacity,
         private EnrollmentRepository $enrollmentRepository
     ) {}
 
@@ -27,6 +29,8 @@ class PromoteEnrollmentService
     public function handle(Enrollment $enrollment, string $newSectionId): Enrollment
     {
         return DB::transaction(function () use ($enrollment, $newSectionId) {
+            $this->ensureSectionHasCapacity->handle($newSectionId);
+
             $oldSectionId = $enrollment->section_id;
             $oldSectionName = $enrollment->section->name;
 
