@@ -35,7 +35,8 @@ class StoreEnrollmentRequest extends FormRequest
             $sectionId = $this->input('section_id');
             $student = $this->route('student');
 
-            if (! $sectionId || ! $student) {
+            // After-hooks run even when base rules failed; guard against non-string input.
+            if (! is_string($sectionId) || $sectionId === '' || ! $student) {
                 return;
             }
 
@@ -44,6 +45,13 @@ class StoreEnrollmentRequest extends FormRequest
             // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
             if (! $section) {
                 return;
+            }
+
+            if ($section->isFull()) {
+                $validator->errors()->add(
+                    'section_id',
+                    'La sección seleccionada ha alcanzado su capacidad máxima.'
+                );
             }
 
             // Verificar si existe una inscripción activa del estudiante en este período

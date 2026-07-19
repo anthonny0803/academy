@@ -2,6 +2,7 @@
 
 namespace App\Domains\Enrollments\Services;
 
+use App\Domains\Academics\Services\Sections\EnsureSectionHasCapacityService;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 class StoreEnrollmentService
 {
     public function __construct(
+        private EnsureSectionHasCapacityService $ensureSectionHasCapacity,
         private SyncRepresentativeStatusService $syncRepresentativeStatus,
         private StudentRepository $studentRepository,
         private EnrollmentRepository $enrollmentRepository
@@ -22,6 +24,8 @@ class StoreEnrollmentService
     public function handle(Student $student, array $data): Enrollment
     {
         return DB::transaction(function () use ($student, $data) {
+            $this->ensureSectionHasCapacity->handle($data['section_id']);
+
             $updates = [];
             $wasInactive = ! $student->isActive();
 

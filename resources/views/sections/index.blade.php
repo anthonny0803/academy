@@ -143,7 +143,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-center">
                                         @php
                                             $enrolled = $section->enrollments_count;
-                                            $isFull = $enrolled >= $section->capacity;
+                                            $isFull = ! is_null($section->capacity) && $enrolled >= $section->capacity;
                                         @endphp
                                         <span
                                             class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm font-semibold {{ $isFull ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' }}">

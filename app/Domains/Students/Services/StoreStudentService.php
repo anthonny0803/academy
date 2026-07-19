@@ -2,6 +2,7 @@
 
 namespace App\Domains\Students\Services;
 
+use App\Domains\Academics\Services\Sections\EnsureSectionHasCapacityService;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Identity\Enums\Role;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 class StoreStudentService
 {
     public function __construct(
+        private EnsureSectionHasCapacityService $ensureSectionHasCapacity,
         private SyncRepresentativeStatusService $syncRepresentativeStatus,
         private UserRepository $userRepository,
         private StudentRepository $studentRepository,
@@ -25,6 +27,8 @@ class StoreStudentService
     public function handle(Representative $representative, array $data): Student
     {
         return DB::transaction(function () use ($representative, $data) {
+            $this->ensureSectionHasCapacity->handle($data['section_id']);
+
             $isSelfRepresented = $data['is_self_represented'] ?? false;
 
             if ($isSelfRepresented) {

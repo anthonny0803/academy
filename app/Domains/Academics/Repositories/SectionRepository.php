@@ -16,6 +16,8 @@ interface SectionRepository
 
     public function find(string $id): ?Section;
 
+    public function findOrFailForUpdate(string $id): Section;
+
     public function paginateForListing(string $search, ?bool $isActive, ?string $academicPeriodId, int $perPage = 6): LengthAwarePaginator;
 
     public function activeForPeriodExcept(string $academicPeriodId, string $exceptSectionId): Collection;

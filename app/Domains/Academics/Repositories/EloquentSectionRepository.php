@@ -30,6 +30,11 @@ class EloquentSectionRepository implements SectionRepository
         return Section::find($id);
     }
 
+    public function findOrFailForUpdate(string $id): Section
+    {
+        return Section::whereKey($id)->lockForUpdate()->firstOrFail();
+    }
+
     public function paginateForListing(string $search, ?bool $isActive, ?string $academicPeriodId, int $perPage = 6): LengthAwarePaginator
     {
         return Section::query()

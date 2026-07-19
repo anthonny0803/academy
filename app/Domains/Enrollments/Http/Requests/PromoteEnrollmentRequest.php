@@ -20,7 +20,6 @@ class PromoteEnrollmentRequest extends FormRequest
         $enrollment = $this->route('enrollment');
         $currentSectionId = $enrollment->section_id;
         $studentId = $enrollment->student_id;
-        $currentAcademicPeriodId = $enrollment->section->academic_period_id;
 
         return [
             'section_id' => [
@@ -57,18 +56,35 @@ class PromoteEnrollmentRequest extends FormRequest
                 return;
             }
 
-            // Validar que la sección destino pertenezca al MISMO período académico
             $sectionId = $this->input('section_id');
-            if ($sectionId) {
-                $targetSection = app(SectionRepository::class)->find($sectionId);
 
-                // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
-                if ($targetSection && $targetSection->academic_period_id !== $academicPeriod->id) {
-                    $validator->errors()->add(
-                        'section_id',
-                        'La sección destino debe pertenecer al mismo período académico.'
-                    );
-                }
+            // After-hooks run even when base rules failed; guard against non-string input.
+            if (! is_string($sectionId) || $sectionId === '') {
+                return;
+            }
+
+            $targetSection = app(SectionRepository::class)->find($sectionId);
+
+            // Unresolved id within the tenant: the tenant-scoped exists rule already reported it.
+            if (! $targetSection) {
+                return;
+            }
+
+            // Validar que la sección destino pertenezca al MISMO período académico
+            if ($targetSection->academic_period_id !== $academicPeriod->id) {
+                $validator->errors()->add(
+                    'section_id',
+                    'La sección destino debe pertenecer al mismo período académico.'
+                );
+
+                return;
+            }
+
+            if ($targetSection->isFull()) {
+                $validator->errors()->add(
+                    'section_id',
+                    'La sección seleccionada ha alcanzado su capacidad máxima.'
+                );
             }
         });
     }
