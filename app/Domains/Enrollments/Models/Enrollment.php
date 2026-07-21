@@ -184,49 +184,6 @@ class Enrollment extends Model implements HasEntityName
     }
 
     /**
-     * Calcula el promedio ponderado para una asignatura específica
-     */
-    public function getWeightedAverageForAssignment(string $sstId): ?float
-    {
-        $grades = $this->grades()
-            ->whereHas('gradeColumn', function ($q) use ($sstId) {
-                $q->where('section_subject_teacher_id', $sstId);
-            })
-            ->with('gradeColumn')
-            ->get();
-
-        if ($grades->isEmpty()) {
-            return null;
-        }
-
-        $totalWeight = $grades->sum(fn ($g) => $g->gradeColumn->weight);
-
-        if ($totalWeight == 0) {
-            return null;
-        }
-
-        $weightedSum = $grades->sum(fn ($g) => $g->value * $g->gradeColumn->weight);
-
-        return round($weightedSum / $totalWeight, 2);
-    }
-
-    /**
-     * Verifica si el estudiante aprobó una asignatura específica
-     */
-    public function hasPassedAssignment(string $sstId): ?bool
-    {
-        $average = $this->getWeightedAverageForAssignment($sstId);
-
-        if ($average === null) {
-            return null; // No hay notas
-        }
-
-        $passingGrade = $this->section->academicPeriod->passing_grade ?? 60;
-
-        return $average >= $passingGrade;
-    }
-
-    /**
      * Verifica si el estudiante tiene TODAS las notas completas
      * para TODAS las asignaturas de su sección
      */
@@ -252,31 +209,6 @@ class Enrollment extends Model implements HasEntityName
                 if (! $hasGrade) {
                     return false;
                 }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Calcula si el estudiante aprobó TODAS las asignaturas
-     */
-    public function calculatePassed(): ?bool
-    {
-        $assignments = $this->section->sectionSubjectTeachers()
-            ->active()
-            ->get();
-
-        if ($assignments->isEmpty()) {
-            return null;
-        }
-
-        foreach ($assignments as $sst) {
-            $passed = $this->hasPassedAssignment($sst->id);
-
-            // Si alguna está sin notas o reprobada, no aprobó
-            if ($passed === null || $passed === false) {
-                return false;
             }
         }
 
