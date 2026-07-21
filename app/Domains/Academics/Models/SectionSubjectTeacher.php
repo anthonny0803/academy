@@ -33,6 +33,8 @@ class SectionSubjectTeacher extends Model
         'is_primary' => 'boolean',
     ];
 
+    private const WEIGHT_PRECISION = 2;
+
     // Relationships
 
     public function section(): BelongsTo
@@ -108,7 +110,11 @@ class SectionSubjectTeacher extends Model
 
     public function getTotalWeight(): float
     {
-        return (float) $this->gradeColumns()->sum('weight');
+        $total = $this->relationLoaded('gradeColumns')
+            ? $this->gradeColumns->sum('weight')
+            : $this->gradeColumns()->sum('weight');
+
+        return round((float) $total, self::WEIGHT_PRECISION);
     }
 
     public function isConfigurationComplete(): bool

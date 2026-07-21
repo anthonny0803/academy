@@ -4,6 +4,7 @@ namespace App\Domains\Grades\Services\Grades;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Grades\Repositories\GradeRepository;
+use App\Domains\Grades\Support\GradeMatrix;
 
 class GradesTableService
 {
@@ -37,7 +38,7 @@ class GradesTableService
 
         $isConfigurationComplete = $sectionSubjectTeacher->isConfigurationComplete();
 
-        $gradesByEnrollment = $this->groupGradesByEnrollment($gradeColumns->pluck('id')->all());
+        $gradesByEnrollment = $this->gradeMatrixFor($gradeColumns->pluck('id')->all())->toArray();
 
         return compact(
             'sectionSubjectTeacher',
@@ -52,15 +53,8 @@ class GradesTableService
         );
     }
 
-    private function groupGradesByEnrollment(array $gradeColumnIds): array
+    private function gradeMatrixFor(array $gradeColumnIds): GradeMatrix
     {
-        $grades = $this->gradeRepository->forGradeColumns($gradeColumnIds);
-
-        $gradesByEnrollment = [];
-        foreach ($grades as $grade) {
-            $gradesByEnrollment[$grade->enrollment_id][$grade->grade_column_id] = $grade;
-        }
-
-        return $gradesByEnrollment;
+        return GradeMatrix::fromGrades($this->gradeRepository->forGradeColumns($gradeColumnIds));
     }
 }
