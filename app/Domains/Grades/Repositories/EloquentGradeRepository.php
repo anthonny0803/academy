@@ -49,13 +49,6 @@ class EloquentGradeRepository implements GradeRepository
         return Grade::updateOrCreate($attributes, $values);
     }
 
-    public function findByEnrollmentAndColumn(string $enrollmentId, string $columnId): ?Grade
-    {
-        return Grade::where('enrollment_id', $enrollmentId)
-            ->where('grade_column_id', $columnId)
-            ->first();
-    }
-
     public function forGradeColumns(array $columnIds): Collection
     {
         return Grade::whereIn('grade_column_id', $columnIds)->get();

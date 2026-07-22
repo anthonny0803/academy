@@ -22,7 +22,5 @@ interface GradeRepository
 
     public function updateOrCreate(array $attributes, array $values): Grade;
 
-    public function findByEnrollmentAndColumn(string $enrollmentId, string $columnId): ?Grade;
-
     public function forGradeColumns(array $columnIds): Collection;
 }
