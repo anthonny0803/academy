@@ -152,7 +152,7 @@
                             @forelse ($enrollments as $enrollment)
                                 @php
                                     $studentGrades = $gradesByEnrollment[$enrollment->id] ?? [];
-                                    $average = $sectionSubjectTeacher->calculateStudentAverage($enrollment->id);
+                                    $average = $averagesByEnrollment[$enrollment->id] ?? null;
                                 @endphp
                                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                                     data-enrollment="{{ $enrollment->id }}">

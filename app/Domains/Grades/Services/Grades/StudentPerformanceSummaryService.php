@@ -2,12 +2,22 @@
 
 namespace App\Domains\Grades\Services\Grades;
 
+use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Grades\Support\GradeMatrix;
 use App\Domains\Students\Models\Student;
 
 class StudentPerformanceSummaryService
 {
+    private const DEFAULT_PASSING_GRADE = 60;
+
     public function forStudent(Student $student): array
     {
+        $gradeMatrix = GradeMatrix::fromGrades(
+            $student->enrollments->flatMap(fn (Enrollment $enrollment) => $enrollment->grades)
+        );
+
         return [
             'student' => [
                 'code' => $student->student_code,
@@ -17,14 +27,14 @@ class StudentPerformanceSummaryService
                 'is_active' => $student->is_active,
             ],
             'enrollments' => $student->enrollments
-                ->map(fn ($enrollment) => $this->buildEnrollmentData($enrollment))
+                ->map(fn (Enrollment $enrollment) => $this->buildEnrollmentData($enrollment, $gradeMatrix))
                 ->toArray(),
         ];
     }
 
-    private function buildEnrollmentData($enrollment): array
+    private function buildEnrollmentData(Enrollment $enrollment, GradeMatrix $gradeMatrix): array
     {
-        $passingGrade = $enrollment->section->academicPeriod->passing_grade ?? 60;
+        $passingGrade = $enrollment->section->academicPeriod->passing_grade ?? self::DEFAULT_PASSING_GRADE;
 
         return [
             'academic_period' => $enrollment->section->academicPeriod->name,
@@ -32,15 +42,15 @@ class StudentPerformanceSummaryService
             'status' => $enrollment->status,
             'passed' => $enrollment->passed,
             'subjects' => $enrollment->section->sectionSubjectTeachers
-                ->map(fn ($sst) => $this->buildSubjectData($sst, $enrollment, $passingGrade))
+                ->map(fn (SectionSubjectTeacher $sst) => $this->buildSubjectData($sst, $enrollment, $passingGrade, $gradeMatrix))
                 ->toArray(),
         ];
     }
 
-    private function buildSubjectData($sst, $enrollment, float $passingGrade): array
+    private function buildSubjectData(SectionSubjectTeacher $sst, Enrollment $enrollment, float $passingGrade, GradeMatrix $gradeMatrix): array
     {
-        $evaluations = $sst->gradeColumns->map(function ($column) use ($enrollment) {
-            $grade = $enrollment->grades->firstWhere('grade_column_id', $column->id);
+        $evaluations = $sst->gradeColumns->map(function (GradeColumn $column) use ($enrollment, $gradeMatrix) {
+            $grade = $gradeMatrix->find($enrollment->id, $column->id);
 
             return [
                 'name' => $column->name,
@@ -50,7 +60,7 @@ class StudentPerformanceSummaryService
             ];
         });
 
-        $weightedAverage = $sst->calculateStudentAverage($enrollment->id);
+        $weightedAverage = $gradeMatrix->weightedAverage($enrollment->id, $sst->gradeColumns);
 
         return [
             'name' => $sst->subject->name,
