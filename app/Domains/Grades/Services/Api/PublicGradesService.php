@@ -3,8 +3,8 @@
 namespace App\Domains\Grades\Services\Api;
 
 use App\Domains\Grades\Services\Grades\StudentPerformanceSummaryService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Repositories\UserRepository;
+use Closure;
 
 class PublicGradesService
 {
@@ -15,7 +15,7 @@ class PublicGradesService
 
     public function getStudentGrades(string $documentId, string $birthDate): ?array
     {
-        $user = $this->findUserByCredentials($documentId, $birthDate);
+        $user = $this->userRepository->findByCredentials($documentId, $birthDate, $this->studentRelations());
 
         if (! $user || ! $user->student) {
             return null;
@@ -26,7 +26,7 @@ class PublicGradesService
 
     public function getRepresentativeGrades(string $documentId, string $birthDate): ?array
     {
-        $user = $this->findUserByCredentials($documentId, $birthDate);
+        $user = $this->userRepository->findByCredentials($documentId, $birthDate, $this->representativeRelations());
 
         if (! $user || ! $user->representative) {
             return null;
@@ -44,24 +44,31 @@ class PublicGradesService
         ];
     }
 
-    private function findUserByCredentials(string $documentId, string $birthDate): ?User
+    private function studentRelations(): array
     {
-        return $this->userRepository->findByCredentials($documentId, $birthDate, [
+        return [
             'student.enrollments.section.academicPeriod',
-            'student.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
-                'subject',
-                'teacher.user',
-                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
-            ]),
+            'student.enrollments.section.sectionSubjectTeachers' => $this->gradedSectionSubjectTeachers(),
             'student.enrollments.grades.gradeColumn',
+        ];
+    }
+
+    private function representativeRelations(): array
+    {
+        return [
             'representative.students.user',
             'representative.students.enrollments.section.academicPeriod',
-            'representative.students.enrollments.section.sectionSubjectTeachers' => fn ($q) => $q->with([
-                'subject',
-                'teacher.user',
-                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
-            ]),
+            'representative.students.enrollments.section.sectionSubjectTeachers' => $this->gradedSectionSubjectTeachers(),
             'representative.students.enrollments.grades.gradeColumn',
+        ];
+    }
+
+    private function gradedSectionSubjectTeachers(): Closure
+    {
+        return fn ($query) => $query->with([
+            'subject',
+            'teacher.user',
+            'gradeColumns' => fn ($query) => $query->orderBy('display_order'),
         ]);
     }
 }

@@ -30,6 +30,10 @@ class BatchGradeService
             $skipped = 0;
             $userId = Auth::id();
 
+            $existingGrades = $this->gradeRepository
+                ->forGradeColumns([$gradeColumn->id])
+                ->keyBy('enrollment_id');
+
             foreach ($gradesData as $gradeData) {
                 $enrollmentId = $gradeData['enrollment_id'];
                 $value = $gradeData['value'] ?? null;
@@ -41,7 +45,7 @@ class BatchGradeService
                     continue;
                 }
 
-                $existingGrade = $this->gradeRepository->findByEnrollmentAndColumn($enrollmentId, $gradeColumn->id);
+                $existingGrade = $existingGrades->get($enrollmentId);
 
                 if ($existingGrade) {
                     if ((float) $existingGrade->value !== (float) $value
@@ -57,13 +61,14 @@ class BatchGradeService
                         $skipped++;
                     }
                 } else {
-                    $this->gradeRepository->create([
+                    $newGrade = $this->gradeRepository->create([
                         'enrollment_id' => $enrollmentId,
                         'grade_column_id' => $gradeColumn->id,
                         'value' => $value,
                         'observation' => $observation,
                         'last_modified_by' => $userId,
                     ]);
+                    $existingGrades->put($enrollmentId, $newGrade);
                     $created++;
                 }
             }
