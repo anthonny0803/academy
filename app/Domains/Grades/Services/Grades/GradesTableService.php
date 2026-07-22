@@ -3,6 +3,7 @@
 namespace App\Domains\Grades\Services\Grades;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Repositories\GradeRepository;
 use App\Domains\Grades\Support\GradeMatrix;
 
@@ -38,13 +39,20 @@ class GradesTableService
 
         $isConfigurationComplete = $sectionSubjectTeacher->isConfigurationComplete();
 
-        $gradesByEnrollment = $this->gradeMatrixFor($gradeColumns->pluck('id')->all())->toArray();
+        $gradeMatrix = $this->gradeMatrixFor($gradeColumns->pluck('id')->all());
+        $gradesByEnrollment = $gradeMatrix->toArray();
+        $averagesByEnrollment = $enrollments
+            ->mapWithKeys(fn (Enrollment $enrollment) => [
+                $enrollment->id => $gradeMatrix->weightedAverage($enrollment->id, $gradeColumns),
+            ])
+            ->all();
 
         return compact(
             'sectionSubjectTeacher',
             'gradeColumns',
             'enrollments',
             'gradesByEnrollment',
+            'averagesByEnrollment',
             'isConfigurationComplete',
             'academicPeriod',
             'minGrade',

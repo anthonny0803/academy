@@ -148,30 +148,4 @@ class SectionSubjectTeacher extends Model
     {
         return $this->grades()->exists();
     }
-
-    // Calcula el promedio ponderado de un estudiante
-
-    public function calculateStudentAverage(string $enrollmentId): ?float
-    {
-        $grades = Grade::where('enrollment_id', $enrollmentId)
-            ->whereHas('gradeColumn', function ($q) {
-                $q->where('section_subject_teacher_id', $this->id);
-            })
-            ->with('gradeColumn')
-            ->get();
-
-        if ($grades->isEmpty()) {
-            return null;
-        }
-
-        $totalWeight = $grades->sum(fn ($g) => $g->gradeColumn->weight);
-
-        if ($totalWeight == 0) {
-            return null;
-        }
-
-        $weightedSum = $grades->sum(fn ($g) => $g->value * $g->gradeColumn->weight);
-
-        return round($weightedSum / $totalWeight, 2);
-    }
 }
