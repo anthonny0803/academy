@@ -434,6 +434,51 @@ class GradeApiTest extends TestCase
         $this->assertDatabaseHas('grades', ['id' => $grade->id, 'value' => 9.5]);
     }
 
+    public function test_update_clears_observation_when_null_is_sent(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $grade = Grade::factory()->create([
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+            'value' => 8.5,
+            'observation' => 'ENTREGA TARDIA',
+        ]);
+        $token = $this->tokenFor(User::factory()->developer()->create());
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/grades/{$grade->id}",
+            ['value' => 8.5, 'observation' => null]
+        );
+
+        $response->assertOk()
+            ->assertJsonPath('data.observation', null);
+        $this->assertDatabaseHas('grades', ['id' => $grade->id, 'observation' => null]);
+    }
+
+    public function test_update_keeps_observation_when_key_is_omitted(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+        $grade = Grade::factory()->create([
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+            'value' => 8.5,
+            'observation' => 'ENTREGA TARDIA',
+        ]);
+        $token = $this->tokenFor(User::factory()->developer()->create());
+
+        $response = $this->withToken($token)->patchJson(
+            "/api/v1/grades/{$grade->id}",
+            ['value' => 9.5]
+        );
+
+        $response->assertOk()
+            ->assertJsonPath('data.observation', 'ENTREGA TARDIA');
+        $this->assertDatabaseHas('grades', [
+            'id' => $grade->id,
+            'observation' => 'ENTREGA TARDIA',
+        ]);
+    }
+
     public function test_destroy_is_forbidden_for_supervisor(): void
     {
         [$sst, $column, $enrollment] = $this->gradableGraph();

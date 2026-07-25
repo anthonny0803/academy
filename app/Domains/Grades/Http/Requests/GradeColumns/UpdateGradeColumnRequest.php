@@ -12,12 +12,12 @@ class UpdateGradeColumnRequest extends FormRequest
         return true;
     }
 
-    protected function getGradeColumnId(): int
+    protected function getGradeColumnId(): string
     {
         return $this->route('gradeColumn')->id;
     }
 
-    protected function getSectionSubjectTeacherId(): int
+    protected function getSectionSubjectTeacherId(): string
     {
         return $this->route('gradeColumn')->section_subject_teacher_id;
     }
