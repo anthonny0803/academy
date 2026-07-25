@@ -42,11 +42,16 @@ class UpdateGradeService
                 ]);
             }
 
-            $this->gradeRepository->update($grade, [
+            $attributes = [
                 'value' => $data['value'],
-                'observation' => $data['observation'] ?? $grade->observation,
                 'last_modified_by' => Auth::id(),
-            ]);
+            ];
+
+            if (array_key_exists('observation', $data)) {
+                $attributes['observation'] = $data['observation'];
+            }
+
+            $this->gradeRepository->update($grade, $attributes);
 
             return $grade->fresh(['enrollment.student.user', 'gradeColumn']);
         });

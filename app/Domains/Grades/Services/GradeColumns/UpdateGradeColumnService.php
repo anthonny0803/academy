@@ -24,12 +24,17 @@ class UpdateGradeColumnService
                 }
             }
 
-            $gradeColumn->update([
+            $attributes = [
                 'name' => $data['name'],
                 'weight' => $data['weight'],
                 'display_order' => $data['display_order'] ?? $gradeColumn->display_order,
-                'observation' => $data['observation'] ?? $gradeColumn->observation,
-            ]);
+            ];
+
+            if (array_key_exists('observation', $data)) {
+                $attributes['observation'] = $data['observation'];
+            }
+
+            $gradeColumn->update($attributes);
 
             return $gradeColumn->fresh('sectionSubjectTeacher');
         });
