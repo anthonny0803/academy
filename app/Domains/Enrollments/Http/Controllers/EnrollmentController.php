@@ -15,14 +15,12 @@ use App\Domains\Enrollments\Services\EnrollmentDetailsService;
 use App\Domains\Enrollments\Services\PromoteEnrollmentService;
 use App\Domains\Enrollments\Services\StoreEnrollmentService;
 use App\Domains\Enrollments\Services\TransferEnrollmentService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Students\Models\Student;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class EnrollmentController extends Controller
@@ -35,11 +33,6 @@ class EnrollmentController extends Controller
         private SectionRepository $sectionRepository,
         private AcademicPeriodRepository $academicPeriodRepository
     ) {}
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     public function index(Request $request): View|RedirectResponse
     {

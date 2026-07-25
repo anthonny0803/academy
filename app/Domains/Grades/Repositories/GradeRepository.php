@@ -20,7 +20,5 @@ interface GradeRepository
 
     public function findWithTrashed(string $id): Grade;
 
-    public function updateOrCreate(array $attributes, array $values): Grade;
-
     public function forGradeColumns(array $columnIds): Collection;
 }

@@ -3,12 +3,12 @@
 namespace App\Domains\Students\Http\Controllers;
 
 use App\Domains\Academics\Repositories\AcademicPeriodRepository;
-use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Representatives\Repositories\RepresentativeRepository;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Http\Controllers\Controller;
+use App\Domains\Shared\Support\StatusFilter;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use App\Domains\Students\Enums\StudentSituation;
@@ -29,7 +29,6 @@ use App\Domains\Students\Services\WithdrawStudentService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class StudentController extends Controller
@@ -43,11 +42,6 @@ class StudentController extends Controller
         private StudentRepository $studentRepository,
         private AcademicPeriodRepository $academicPeriodRepository
     ) {}
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     public function index(Request $request): View|RedirectResponse
     {
@@ -63,11 +57,7 @@ class StudentController extends Controller
             if (empty($search)) {
                 $students = collect();
             } else {
-                $isActive = match ($status) {
-                    'Activo' => true,
-                    'Inactivo' => false,
-                    default => null,
-                };
+                $isActive = StatusFilter::toBool($status);
 
                 $students = $this->studentRepository
                     ->paginateForListing($search, $isActive, $academicPeriodId, $sectionId, 6)

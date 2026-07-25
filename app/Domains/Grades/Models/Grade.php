@@ -5,7 +5,6 @@ namespace App\Domains\Grades\Models;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\HasEntityName;
-use App\Domains\Students\Models\Student;
 use App\Domains\Tenancy\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,16 +57,6 @@ class Grade extends Model implements HasEntityName
 
     // Query Scopes
 
-    public function scopeForEnrollment($query, string $enrollmentId)
-    {
-        return $query->where('enrollment_id', $enrollmentId);
-    }
-
-    public function scopeForColumn($query, string $columnId)
-    {
-        return $query->where('grade_column_id', $columnId);
-    }
-
     public function scopeForAssignment($query, string $sstId)
     {
         return $query->whereHas('gradeColumn', function ($q) use ($sstId) {
@@ -75,26 +64,7 @@ class Grade extends Model implements HasEntityName
         });
     }
 
-    public function scopeForSubject($query, string $subjectId)
-    {
-        return $query->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($subjectId) {
-            $q->where('subject_id', $subjectId);
-        });
-    }
-
-    public function scopeForSection($query, string $sectionId)
-    {
-        return $query->whereHas('gradeColumn.sectionSubjectTeacher', function ($q) use ($sectionId) {
-            $q->where('section_id', $sectionId);
-        });
-    }
-
     // Helper Methods
-
-    public function getStudent(): Student
-    {
-        return $this->enrollment->student;
-    }
 
     public function getColumnName(): string
     {
@@ -104,11 +74,6 @@ class Grade extends Model implements HasEntityName
     public function getWeight(): float
     {
         return (float) $this->gradeColumn->weight;
-    }
-
-    public function getWeightedValue(): float
-    {
-        return ($this->value * $this->getWeight()) / 100;
     }
 
     // Mutators

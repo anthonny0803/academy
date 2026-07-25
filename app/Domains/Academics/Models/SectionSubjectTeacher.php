@@ -122,16 +122,6 @@ class SectionSubjectTeacher extends Model
         return $this->getTotalWeight() === 100.0;
     }
 
-    public function hasGradeColumns(): bool
-    {
-        return $this->gradeColumns()->exists();
-    }
-
-    public function getGradeColumnsOrdered()
-    {
-        return $this->gradeColumns()->ordered()->get();
-    }
-
     public function canAddColumn(float $weight): bool
     {
         return ($this->getTotalWeight() + $weight) <= 100;
@@ -140,12 +130,5 @@ class SectionSubjectTeacher extends Model
     public function getRemainingWeight(): float
     {
         return 100 - $this->getTotalWeight();
-    }
-
-    // Helper Methods - Calificaciones
-
-    public function hasAnyGrades(): bool
-    {
-        return $this->grades()->exists();
     }
 }

@@ -14,7 +14,6 @@ use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class RoleManagementController extends Controller
@@ -25,11 +24,6 @@ class RoleManagementController extends Controller
     public function __construct(
         private UserRepository $userRepository
     ) {}
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     public function index(Request $request): View|RedirectResponse
     {

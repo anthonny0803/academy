@@ -13,8 +13,6 @@ class GradesTableService
 
     private const DEFAULT_MAX_GRADE = 100;
 
-    private const DEFAULT_PASSING_GRADE = 60;
-
     public function __construct(
         private GradeRepository $gradeRepository
     ) {}
@@ -35,7 +33,7 @@ class GradesTableService
 
         $minGrade = $academicPeriod->min_grade ?? self::DEFAULT_MIN_GRADE;
         $maxGrade = $academicPeriod->max_grade ?? self::DEFAULT_MAX_GRADE;
-        $passingGrade = $academicPeriod->passing_grade ?? self::DEFAULT_PASSING_GRADE;
+        $passingGrade = $academicPeriod->passing_grade;
 
         $isConfigurationComplete = $sectionSubjectTeacher->isConfigurationComplete();
 

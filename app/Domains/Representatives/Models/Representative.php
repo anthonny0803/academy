@@ -51,6 +51,7 @@ class Representative extends Model implements HasEntityName
 
     // Query Scopes
 
+    // Diverges from User::scopeSearch on purpose: also matches representative document_id and phone.
     public function scopeSearch($query, string $term)
     {
         $upperTerm = strtoupper($term);

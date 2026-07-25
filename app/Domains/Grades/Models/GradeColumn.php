@@ -68,16 +68,6 @@ class GradeColumn extends Model implements HasEntityName
         return $this->grades()->exists();
     }
 
-    public function getGradesCount(): int
-    {
-        return $this->grades()->count();
-    }
-
-    public function canBeDeleted(): bool
-    {
-        return ! $this->hasGrades();
-    }
-
     // Mutators
 
     protected function setNameAttribute($value): void

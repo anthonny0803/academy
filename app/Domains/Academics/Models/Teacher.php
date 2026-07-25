@@ -66,14 +66,7 @@ class Teacher extends Model implements HasEntityName
 
     public function scopeSearch($query, string $term)
     {
-        $upperTerm = strtoupper($term);
-        $lowerTerm = strtolower($term);
-
-        return $query->whereHas('user', function ($q) use ($upperTerm, $lowerTerm) {
-            $q->where('name', 'like', "%{$upperTerm}%")
-                ->orWhere('last_name', 'like', "%{$upperTerm}%")
-                ->orWhere('email', 'like', "%{$lowerTerm}%");
-        });
+        return $query->whereHas('user', fn ($q) => $q->search($term));
     }
 
     public function scopeWithUser($query)
@@ -114,23 +107,5 @@ class Teacher extends Model implements HasEntityName
     public function getSexAttribute(): ?string
     {
         return $this->user?->sex ?? null;
-    }
-
-    // Helper Methods
-
-    public function hasSubject(string $subjectId): bool
-    {
-        return $this->sectionSubjectTeachers()
-            ->where('subject_id', $subjectId)
-            ->exists();
-    }
-
-    public function getSubjectTeacher(string $subjectId): ?SectionSubjectTeacher
-    {
-        return $this->sectionSubjectTeachers()
-            ->where('subject_id', $subjectId)
-            ->primary()
-            ->active()
-            ->first();
     }
 }

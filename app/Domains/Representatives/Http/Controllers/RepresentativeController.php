@@ -2,7 +2,6 @@
 
 namespace App\Domains\Representatives\Http\Controllers;
 
-use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Http\Requests\StoreRepresentativeRequest;
 use App\Domains\Representatives\Http\Requests\UpdateRepresentativeRequest;
 use App\Domains\Representatives\Models\Representative;
@@ -11,12 +10,12 @@ use App\Domains\Representatives\Services\StoreRepresentativeService;
 use App\Domains\Representatives\Services\UpdateRepresentativeService;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Http\Controllers\Controller;
+use App\Domains\Shared\Support\StatusFilter;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class RepresentativeController extends Controller
@@ -29,11 +28,6 @@ class RepresentativeController extends Controller
         private RepresentativeRepository $representativeRepository
     ) {}
 
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
-
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', Representative::class, function () use ($request) {
@@ -45,11 +39,7 @@ class RepresentativeController extends Controller
             if (empty($search)) {
                 $representatives = collect();
             } else {
-                $isActive = match ($status) {
-                    'Activo' => true,
-                    'Inactivo' => false,
-                    default => null,
-                };
+                $isActive = StatusFilter::toBool($status);
                 $hasStudents = match ($studentsFilter) {
                     'con' => true,
                     'sin' => false,

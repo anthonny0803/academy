@@ -82,19 +82,6 @@ class EloquentGradeRepositoryTest extends TestCase
         $this->assertTrue($found->is($grade));
     }
 
-    public function test_update_or_create_updates_existing(): void
-    {
-        $grade = Grade::factory()->create();
-
-        $result = $this->repository->updateOrCreate(
-            ['enrollment_id' => $grade->enrollment_id, 'grade_column_id' => $grade->grade_column_id],
-            ['value' => 9.99]
-        );
-
-        $this->assertTrue($result->is($grade));
-        $this->assertEquals(9.99, (float) $result->fresh()->value);
-    }
-
     public function test_for_grade_columns_returns_grades_for_columns(): void
     {
         $grade = Grade::factory()->create();

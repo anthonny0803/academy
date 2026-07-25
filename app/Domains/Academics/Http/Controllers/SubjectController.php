@@ -9,14 +9,13 @@ use App\Domains\Academics\Repositories\SubjectRepository;
 use App\Domains\Academics\Services\Subjects\DeleteSubjectService;
 use App\Domains\Academics\Services\Subjects\StoreSubjectService;
 use App\Domains\Academics\Services\Subjects\UpdateSubjectService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
+use App\Domains\Shared\Support\StatusFilter;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class SubjectController extends Controller
@@ -29,22 +28,13 @@ class SubjectController extends Controller
         private SubjectRepository $subjectRepository
     ) {}
 
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
-
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', Subject::class, function () use ($request) {
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
 
-            $isActive = match ($status) {
-                'Activo' => true,
-                'Inactivo' => false,
-                default => null,
-            };
+            $isActive = StatusFilter::toBool($status);
 
             $subjects = $this->subjectRepository
                 ->paginateForListing($search, $isActive, 6)

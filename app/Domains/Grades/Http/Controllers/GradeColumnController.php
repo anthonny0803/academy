@@ -9,24 +9,17 @@ use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Services\GradeColumns\DeleteGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\StoreGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\UpdateGradeColumnService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\RenderableDomainException;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class GradeColumnController extends Controller
 {
     use AuthorizesRedirect;
     use AuthorizesRequests;
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     public function index(SectionSubjectTeacher $sectionSubjectTeacher): View|RedirectResponse
     {

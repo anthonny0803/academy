@@ -17,7 +17,7 @@ class BatchGradeRequest extends FormRequest
 
     protected function getGradeColumn()
     {
-        return $this->route('grade_column') ?? $this->route('gradeColumn');
+        return $this->route('gradeColumn');
     }
 
     public function rules(): array

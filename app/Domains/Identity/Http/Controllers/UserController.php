@@ -13,12 +13,12 @@ use App\Domains\Identity\Services\Users\StoreUserService;
 use App\Domains\Identity\Services\Users\UpdateUserService;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Http\Controllers\Controller;
+use App\Domains\Shared\Support\StatusFilter;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Role;
 
@@ -31,11 +31,6 @@ class UserController extends Controller
     public function __construct(
         private UserRepository $userRepository
     ) {}
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     public function index(Request $request): View|RedirectResponse
     {
@@ -55,11 +50,7 @@ class UserController extends Controller
             if (empty($search)) {
                 $users = collect();
             } else {
-                $isActive = match ($status) {
-                    'Activo' => true,
-                    'Inactivo' => false,
-                    default => null,
-                };
+                $isActive = StatusFilter::toBool($status);
                 $roleFilter = $role && $role !== 'Todos' ? $role : null;
 
                 $users = $this->userRepository
