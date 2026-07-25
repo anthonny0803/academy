@@ -2,6 +2,7 @@
 
 namespace App\Domains\Students\Http\Requests;
 
+use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Shared\Enums\Sex;
@@ -90,10 +91,7 @@ class StoreStudentRequest extends FormRequest
             }
 
             if ($section->isFull()) {
-                $validator->errors()->add(
-                    'section_id',
-                    'La sección seleccionada ha alcanzado su capacidad máxima.'
-                );
+                $validator->errors()->add('section_id', Section::CAPACITY_FULL_MESSAGE);
             }
         });
     }

@@ -35,6 +35,8 @@ class Section extends Model implements HasEntityName
         'capacity' => 'integer',
     ];
 
+    public const CAPACITY_FULL_MESSAGE = 'La sección seleccionada ha alcanzado su capacidad máxima.';
+
     // Contracts Implementation
 
     public function getEntityName(): string

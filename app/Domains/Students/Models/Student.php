@@ -80,6 +80,7 @@ class Student extends Model implements HasEntityName
 
     // Query Scopes
 
+    // Diverges from User::scopeSearch on purpose: joins users for ordering/selection and also matches student_code.
     public function scopeSearch(Builder $query, string $term): Builder
     {
         $upperTerm = strtoupper($term);

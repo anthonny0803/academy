@@ -10,8 +10,6 @@ use Illuminate\Support\Collection;
 
 class EnrollmentDetailsService
 {
-    private const DEFAULT_PASSING_GRADE = 60;
-
     public function handle(Enrollment $enrollment): array
     {
         $enrollment->load([
@@ -26,7 +24,7 @@ class EnrollmentDetailsService
             'grades.gradeColumn',
         ]);
 
-        $passingGrade = $enrollment->section->academicPeriod->passing_grade ?? self::DEFAULT_PASSING_GRADE;
+        $passingGrade = $enrollment->section->academicPeriod->passing_grade;
         $gradeMatrix = GradeMatrix::fromGrades($enrollment->grades);
 
         $subjectsData = $enrollment->section->sectionSubjectTeachers

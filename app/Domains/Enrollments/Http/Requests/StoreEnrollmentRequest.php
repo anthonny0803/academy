@@ -2,6 +2,7 @@
 
 namespace App\Domains\Enrollments\Http\Requests;
 
+use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Repositories\SectionRepository;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Tenancy\Rules\TenantExists;
@@ -48,10 +49,7 @@ class StoreEnrollmentRequest extends FormRequest
             }
 
             if ($section->isFull()) {
-                $validator->errors()->add(
-                    'section_id',
-                    'La sección seleccionada ha alcanzado su capacidad máxima.'
-                );
+                $validator->errors()->add('section_id', Section::CAPACITY_FULL_MESSAGE);
             }
 
             // Verificar si existe una inscripción activa del estudiante en este período

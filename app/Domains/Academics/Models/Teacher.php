@@ -66,14 +66,7 @@ class Teacher extends Model implements HasEntityName
 
     public function scopeSearch($query, string $term)
     {
-        $upperTerm = strtoupper($term);
-        $lowerTerm = strtolower($term);
-
-        return $query->whereHas('user', function ($q) use ($upperTerm, $lowerTerm) {
-            $q->where('name', 'like', "%{$upperTerm}%")
-                ->orWhere('last_name', 'like', "%{$upperTerm}%")
-                ->orWhere('email', 'like', "%{$lowerTerm}%");
-        });
+        return $query->whereHas('user', fn ($q) => $q->search($term));
     }
 
     public function scopeWithUser($query)

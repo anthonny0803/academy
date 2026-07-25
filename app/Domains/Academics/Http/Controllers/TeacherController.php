@@ -8,15 +8,14 @@ use App\Domains\Academics\Models\Teacher;
 use App\Domains\Academics\Repositories\TeacherRepository;
 use App\Domains\Academics\Services\Teachers\StoreTeacherService;
 use App\Domains\Academics\Services\Teachers\UpdateTeacherService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Enums\Sex;
 use App\Domains\Shared\Http\Controllers\Controller;
+use App\Domains\Shared\Support\StatusFilter;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class TeacherController extends Controller
@@ -29,11 +28,6 @@ class TeacherController extends Controller
         private TeacherRepository $teacherRepository
     ) {}
 
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
-
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', Teacher::class, function () use ($request) {
@@ -44,11 +38,7 @@ class TeacherController extends Controller
             if (empty($search)) {
                 $teachers = collect();
             } else {
-                $isActive = match ($status) {
-                    'Activo' => true,
-                    'Inactivo' => false,
-                    default => null,
-                };
+                $isActive = StatusFilter::toBool($status);
 
                 $teachers = $this->teacherRepository
                     ->paginateForListing($search, $isActive, 6)

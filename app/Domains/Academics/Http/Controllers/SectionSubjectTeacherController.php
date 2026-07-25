@@ -9,22 +9,15 @@ use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Academics\Services\SectionSubjectTeacher\DeleteSectionSubjectTeacherService;
 use App\Domains\Academics\Services\SectionSubjectTeacher\StoreSectionSubjectTeacherService;
 use App\Domains\Academics\Services\SectionSubjectTeacher\UpdateSectionSubjectTeacherService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 
 class SectionSubjectTeacherController extends Controller
 {
     use AuthorizesRedirect;
     use AuthorizesRequests;
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     public function store(
         StoreSectionSubjectTeacherRequest $request,

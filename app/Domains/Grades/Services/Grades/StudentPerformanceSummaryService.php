@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Services\Grades;
 
+use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\GradeColumn;
@@ -10,8 +11,6 @@ use App\Domains\Students\Models\Student;
 
 class StudentPerformanceSummaryService
 {
-    private const DEFAULT_PASSING_GRADE = 60;
-
     public function forStudent(Student $student): array
     {
         $gradeMatrix = GradeMatrix::fromGrades(
@@ -34,20 +33,20 @@ class StudentPerformanceSummaryService
 
     private function buildEnrollmentData(Enrollment $enrollment, GradeMatrix $gradeMatrix): array
     {
-        $passingGrade = $enrollment->section->academicPeriod->passing_grade ?? self::DEFAULT_PASSING_GRADE;
+        $academicPeriod = $enrollment->section->academicPeriod;
 
         return [
-            'academic_period' => $enrollment->section->academicPeriod->name,
+            'academic_period' => $academicPeriod->name,
             'section' => $enrollment->section->name,
             'status' => $enrollment->status,
             'passed' => $enrollment->passed,
             'subjects' => $enrollment->section->sectionSubjectTeachers
-                ->map(fn (SectionSubjectTeacher $sst) => $this->buildSubjectData($sst, $enrollment, $passingGrade, $gradeMatrix))
+                ->map(fn (SectionSubjectTeacher $sst) => $this->buildSubjectData($sst, $enrollment, $academicPeriod, $gradeMatrix))
                 ->toArray(),
         ];
     }
 
-    private function buildSubjectData(SectionSubjectTeacher $sst, Enrollment $enrollment, float $passingGrade, GradeMatrix $gradeMatrix): array
+    private function buildSubjectData(SectionSubjectTeacher $sst, Enrollment $enrollment, AcademicPeriod $academicPeriod, GradeMatrix $gradeMatrix): array
     {
         $evaluations = $sst->gradeColumns->map(function (GradeColumn $column) use ($enrollment, $gradeMatrix) {
             $grade = $gradeMatrix->find($enrollment->id, $column->id);
@@ -67,7 +66,7 @@ class StudentPerformanceSummaryService
             'teacher' => $sst->teacher->user->full_name,
             'evaluations' => $evaluations->toArray(),
             'weighted_average' => $weightedAverage,
-            'is_passing' => $weightedAverage !== null ? $weightedAverage >= $passingGrade : null,
+            'is_passing' => $weightedAverage !== null ? $academicPeriod->isGradePassing($weightedAverage) : null,
         ];
     }
 }

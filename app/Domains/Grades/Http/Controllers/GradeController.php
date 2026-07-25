@@ -13,14 +13,12 @@ use App\Domains\Grades\Services\Grades\GradesTableService;
 use App\Domains\Grades\Services\Grades\StoreGradeService;
 use App\Domains\Grades\Services\Grades\TeacherAssignmentsService;
 use App\Domains\Grades\Services\Grades\UpdateGradeService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\RenderableDomainException;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class GradeController extends Controller
@@ -31,11 +29,6 @@ class GradeController extends Controller
     public function __construct(
         private EnrollmentRepository $enrollmentRepository
     ) {}
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     /**
      * Dashboard de asignaciones para el profesor logueado

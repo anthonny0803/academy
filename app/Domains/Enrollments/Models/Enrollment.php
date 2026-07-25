@@ -59,6 +59,7 @@ class Enrollment extends Model implements HasEntityName
 
     // Query Scopes
 
+    // Diverges from User::scopeSearch on purpose: narrower set (no email) plus the enrolled student_code.
     public function scopeSearch(Builder $query, string $term): Builder
     {
         $term = strtoupper($term);

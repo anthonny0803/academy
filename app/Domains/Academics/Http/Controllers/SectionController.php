@@ -11,14 +11,13 @@ use App\Domains\Academics\Services\Sections\DeleteSectionService;
 use App\Domains\Academics\Services\Sections\SectionAssignmentsService;
 use App\Domains\Academics\Services\Sections\StoreSectionService;
 use App\Domains\Academics\Services\Sections\UpdateSectionService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
+use App\Domains\Shared\Support\StatusFilter;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use App\Domains\Shared\Traits\CanToggleActivation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class SectionController extends Controller
@@ -32,11 +31,6 @@ class SectionController extends Controller
         private AcademicPeriodRepository $academicPeriodRepository
     ) {}
 
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
-
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', Section::class, function () use ($request) {
@@ -46,11 +40,7 @@ class SectionController extends Controller
 
             $academicPeriods = $this->academicPeriodRepository->activeOrderedByStartDate();
 
-            $isActive = match ($status) {
-                'Activo' => true,
-                'Inactivo' => false,
-                default => null,
-            };
+            $isActive = StatusFilter::toBool($status);
             $periodFilter = $academicPeriodId && $academicPeriodId !== 'Todos' ? $academicPeriodId : null;
 
             $sections = $this->sectionRepository

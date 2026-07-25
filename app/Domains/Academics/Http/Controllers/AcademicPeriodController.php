@@ -11,14 +11,13 @@ use App\Domains\Academics\Services\AcademicPeriods\CloseAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\DeleteAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\StoreAcademicPeriodService;
 use App\Domains\Academics\Services\AcademicPeriods\UpdateAcademicPeriodService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Contracts\RenderableDomainException;
 use App\Domains\Shared\Http\Controllers\Controller;
+use App\Domains\Shared\Support\StatusFilter;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class AcademicPeriodController extends Controller
@@ -30,22 +29,13 @@ class AcademicPeriodController extends Controller
         private AcademicPeriodRepository $academicPeriodRepository
     ) {}
 
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
-
     public function index(Request $request): View|RedirectResponse
     {
         return $this->authorizeOrRedirect('viewAny', AcademicPeriod::class, function () use ($request) {
             $search = trim((string) $request->input('search', ''));
             $status = $request->input('status');
 
-            $isActive = match ($status) {
-                'Activo' => true,
-                'Inactivo' => false,
-                default => null,
-            };
+            $isActive = StatusFilter::toBool($status);
 
             $academicPeriods = $this->academicPeriodRepository
                 ->paginateForListing($search, $isActive, 6)

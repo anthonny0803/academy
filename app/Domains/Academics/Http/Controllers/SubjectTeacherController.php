@@ -9,13 +9,11 @@ use App\Domains\Academics\Models\Teacher;
 use App\Domains\Academics\Repositories\SubjectRepository;
 use App\Domains\Academics\Services\SubjectTeacher\DeleteSubjectTeacherService;
 use App\Domains\Academics\Services\SubjectTeacher\StoreSubjectTeacherService;
-use App\Domains\Identity\Models\User;
 use App\Domains\Shared\Http\Controllers\Controller;
 use App\Domains\Shared\Traits\AuthorizesRedirect;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class SubjectTeacherController extends Controller
@@ -26,11 +24,6 @@ class SubjectTeacherController extends Controller
     public function __construct(
         private SubjectRepository $subjectRepository
     ) {}
-
-    protected function currentUser(): User
-    {
-        return Auth::user();
-    }
 
     public function index(Request $request): View|RedirectResponse
     {
