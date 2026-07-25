@@ -44,11 +44,6 @@ class EloquentGradeRepository implements GradeRepository
         return Grade::withTrashed()->findOrFail($id);
     }
 
-    public function updateOrCreate(array $attributes, array $values): Grade
-    {
-        return Grade::updateOrCreate($attributes, $values);
-    }
-
     public function forGradeColumns(array $columnIds): Collection
     {
         return Grade::whereIn('grade_column_id', $columnIds)->get();

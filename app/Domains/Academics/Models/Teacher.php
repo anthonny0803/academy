@@ -115,22 +115,4 @@ class Teacher extends Model implements HasEntityName
     {
         return $this->user?->sex ?? null;
     }
-
-    // Helper Methods
-
-    public function hasSubject(string $subjectId): bool
-    {
-        return $this->sectionSubjectTeachers()
-            ->where('subject_id', $subjectId)
-            ->exists();
-    }
-
-    public function getSubjectTeacher(string $subjectId): ?SectionSubjectTeacher
-    {
-        return $this->sectionSubjectTeachers()
-            ->where('subject_id', $subjectId)
-            ->primary()
-            ->active()
-            ->first();
-    }
 }
