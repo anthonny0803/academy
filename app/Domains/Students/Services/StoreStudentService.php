@@ -77,9 +77,16 @@ class StoreStudentService
         });
     }
 
+    /**
+     * Must run inside an active DB transaction: the sequence lock is the
+     * serialization point that keeps the last code stable until the new
+     * student is inserted.
+     */
     private function generateStudentCode(bool $isChild): string
     {
         $prefix = $isChild ? 'CHILD' : 'ADULT';
+
+        $this->studentRepository->lockCodeSequence($prefix);
 
         $lastCode = $this->studentRepository->lastCodeForPrefix($prefix);
 
