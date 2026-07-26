@@ -79,6 +79,23 @@ class RoleManagementOptionsTest extends TestCase
         $this->assertFalse($user->fresh()->hasRole(Role::Admin->value));
     }
 
+    public function test_show_form_does_not_load_profile_relations_the_view_never_renders(): void
+    {
+        $developer = User::factory()->developer()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($developer)->get(route('role-management.show-form', [
+            'user' => $user,
+            'role' => Role::Admin->value,
+        ]));
+
+        $response->assertOk();
+        $response->assertViewHas('user', fn (User $viewUser) => ! $viewUser->relationLoaded('teacher')
+            && ! $viewUser->relationLoaded('representative')
+            && ! $viewUser->relationLoaded('student')
+        );
+    }
+
     public function test_assign_persists_the_role_when_no_fields_are_missing(): void
     {
         $developer = User::factory()->developer()->create();

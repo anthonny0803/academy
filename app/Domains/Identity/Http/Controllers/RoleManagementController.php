@@ -57,7 +57,6 @@ class RoleManagementController extends Controller
         $roleEnum = Role::tryFrom($role) ?? abort(404);
 
         return $this->authorizeOrRedirect('assign', [$user, $roleEnum], function () use ($user, $roleEnum, $roleRequirements) {
-            $user->load(['roles', 'teacher', 'representative', 'student']);
             $missingFields = $roleRequirements->missingFieldsForRole($user, $roleEnum);
 
             return view('role-management.assign-form', compact('user', 'roleEnum', 'missingFields'));
