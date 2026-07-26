@@ -54,15 +54,11 @@ class RoleManagementController extends Controller
 
     public function showForm(User $user, string $role, RoleRequirementsService $roleRequirements): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('assignManage', $user, function () use ($user, $role, $roleRequirements) {
-            $roleEnum = Role::tryFrom($role) ?? abort(404);
+        $roleEnum = Role::tryFrom($role) ?? abort(404);
 
+        return $this->authorizeOrRedirect('assign', [$user, $roleEnum], function () use ($user, $roleEnum, $roleRequirements) {
             $user->load(['roles', 'teacher', 'representative', 'student']);
             $missingFields = $roleRequirements->missingFieldsForRole($user, $roleEnum);
-
-            if (empty($missingFields)) {
-                return $this->assignDirect($user, $roleEnum);
-            }
 
             return view('role-management.assign-form', compact('user', 'roleEnum', 'missingFields'));
         });
@@ -82,16 +78,5 @@ class RoleManagementController extends Controller
         return redirect()
             ->route('role-management.show-assign-options', $user)
             ->with('success', "¡Rol {$roleEnum->value} asignado correctamente!");
-    }
-
-    private function assignDirect(User $user, Role $role): RedirectResponse
-    {
-        $this->authorize('assign', [$user, $role]);
-
-        app(AssignRoleService::class)->handle($user, $role, []);
-
-        return redirect()
-            ->route('role-management.show-assign-options', $user)
-            ->with('success', "¡Rol {$role->value} asignado correctamente!");
     }
 }

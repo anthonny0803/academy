@@ -45,7 +45,7 @@ class RoleManagementSelfDemoteTest extends TestCase
         $this->assertFalse($supervisor->hasRole(Role::Admin->value));
     }
 
-    public function test_supervisor_cannot_self_demote_via_direct_assignment(): void
+    public function test_supervisor_cannot_open_the_assign_form_to_self_demote(): void
     {
         $supervisor = $this->createSupervisor();
 

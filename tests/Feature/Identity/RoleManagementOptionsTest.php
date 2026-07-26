@@ -63,12 +63,28 @@ class RoleManagementOptionsTest extends TestCase
         });
     }
 
-    public function test_show_form_assigns_directly_when_no_fields_are_missing(): void
+    public function test_show_form_renders_confirmation_without_assigning_when_no_fields_are_missing(): void
     {
         $developer = User::factory()->developer()->create();
         $user = User::factory()->create();
 
         $response = $this->actingAs($developer)->get(route('role-management.show-form', [
+            'user' => $user,
+            'role' => Role::Admin->value,
+        ]));
+
+        $response->assertOk();
+        $response->assertViewIs('role-management.assign-form');
+        $response->assertViewHas('missingFields', []);
+        $this->assertFalse($user->fresh()->hasRole(Role::Admin->value));
+    }
+
+    public function test_assign_persists_the_role_when_no_fields_are_missing(): void
+    {
+        $developer = User::factory()->developer()->create();
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($developer)->post(route('role-management.assign', [
             'user' => $user,
             'role' => Role::Admin->value,
         ]));
