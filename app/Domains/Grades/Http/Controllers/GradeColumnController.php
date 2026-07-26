@@ -23,7 +23,7 @@ class GradeColumnController extends Controller
 
     public function index(SectionSubjectTeacher $sectionSubjectTeacher): View|RedirectResponse
     {
-        return $this->authorizeOrRedirect('viewAny', GradeColumn::class, function () use ($sectionSubjectTeacher) {
+        return $this->authorizeOrRedirect('viewForAssignment', [GradeColumn::class, $sectionSubjectTeacher], function () use ($sectionSubjectTeacher) {
             $sectionSubjectTeacher->load([
                 'section.academicPeriod',
                 'subject',
