@@ -54,6 +54,25 @@ class GradeColumnPolicy
         return null;
     }
 
+    private function cannotViewThisAssignment(User $user, SectionSubjectTeacher $sst): ?Response
+    {
+        // Developer, Supervisor, Admin pueden ver cualquier asignación
+        if ($user->isDeveloper() || $user->isSupervisor() || $user->isAdmin()) {
+            return null;
+        }
+
+        // Teacher solo sus asignaciones
+        if ($user->isTeacher() && $user->teacher) {
+            if ($sst->teacher_id !== $user->teacher->id) {
+                return Response::deny('Esta asignación no te corresponde.');
+            }
+
+            return null;
+        }
+
+        return Response::deny('No tienes autorización para ver estas configuraciones de evaluación.');
+    }
+
     private function cannotManageGradeColumns(User $user): ?Response
     {
         // Developer siempre puede (si user activo)
@@ -116,9 +135,10 @@ class GradeColumnPolicy
     // Policy Methods
     // =========================================
 
-    public function viewAny(User $currentUser): Response
+    public function viewForAssignment(User $currentUser, SectionSubjectTeacher $sst): Response
     {
         return $this->cannotViewGradeColumns($currentUser)
+            ?? $this->cannotViewThisAssignment($currentUser, $sst)
             ?? Response::allow();
     }
 
