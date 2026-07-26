@@ -6,10 +6,15 @@ use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Models\Subject;
 use App\Domains\Identity\Models\User;
+use App\Domains\Representatives\Enums\RelationshipType;
+use App\Domains\Representatives\Models\Representative;
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Students\Models\Student;
+use App\Domains\Students\Services\StoreStudentService;
 use App\Domains\Tenancy\Models\Tenant;
 use Carbon\Carbon;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -152,5 +157,58 @@ class TenantScopedUniqueValidationTest extends TestCase
             ->assertStatus(422)
             ->assertJsonPath('error.code', 'VALIDATION_ERROR')
             ->assertJsonPath('error.fields.email', 'Este correo ya está registrado en el sistema.');
+    }
+
+    public function test_student_code_sequence_restarts_for_each_tenant(): void
+    {
+        $code = $this->storeStudentInCurrentTenant();
+
+        // Everything the other tenant owns must be built inside the closure:
+        // a lazy load outside runs with the original tenant restored.
+        $otherCode = $this->withinTenant(
+            $this->otherTenant,
+            fn () => $this->storeStudentInCurrentTenant()
+        );
+
+        $this->assertSame('CHILD000001', $code);
+        $this->assertSame('CHILD000001', $otherCode);
+
+        $this->assertDatabaseHas('students', [
+            'student_code' => 'CHILD000001',
+            'tenant_id' => $this->tenant->id,
+        ]);
+        $this->assertDatabaseHas('students', [
+            'student_code' => 'CHILD000001',
+            'tenant_id' => $this->otherTenant->id,
+        ]);
+    }
+
+    public function test_student_code_sequence_keeps_growing_within_the_same_tenant(): void
+    {
+        $this->assertSame('CHILD000001', $this->storeStudentInCurrentTenant());
+        $this->assertSame('CHILD000002', $this->storeStudentInCurrentTenant());
+    }
+
+    public function test_student_code_is_still_unique_within_the_same_tenant(): void
+    {
+        Student::factory()->create(['student_code' => 'CHILD000001']);
+
+        $this->expectException(UniqueConstraintViolationException::class);
+
+        Student::factory()->create(['student_code' => 'CHILD000001']);
+    }
+
+    private function storeStudentInCurrentTenant(): string
+    {
+        $student = app(StoreStudentService::class)->handle(Representative::factory()->create(), [
+            'name' => 'Pedro',
+            'last_name' => 'Perez',
+            'sex' => Sex::Male->value,
+            'birth_date' => '2015-03-10',
+            'relationship_type' => RelationshipType::Father->value,
+            'section_id' => Section::factory()->create()->id,
+        ]);
+
+        return $student->student_code;
     }
 }

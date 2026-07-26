@@ -12,6 +12,8 @@ interface StudentRepository
 
     public function update(Student $student, array $attributes): Student;
 
+    public function lockCodeSequence(string $prefix): void;
+
     public function lastCodeForPrefix(string $prefix): ?string;
 
     public function paginateForListing(string $search, ?bool $isActive, ?string $academicPeriodId, ?string $sectionId, int $perPage = 6): LengthAwarePaginator;

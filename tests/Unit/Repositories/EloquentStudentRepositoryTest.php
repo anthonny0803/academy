@@ -11,8 +11,13 @@ use App\Domains\Students\Enums\StudentSituation;
 use App\Domains\Students\Models\Student;
 use App\Domains\Students\Repositories\EloquentStudentRepository;
 use App\Domains\Students\Repositories\StudentRepository;
+use App\Domains\Tenancy\Models\Tenant;
+use App\Domains\Tenancy\Support\CurrentTenant;
+use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use LogicException;
 use Tests\TestCase;
 
 class EloquentStudentRepositoryTest extends TestCase
@@ -75,6 +80,49 @@ class EloquentStudentRepositoryTest extends TestCase
         $this->assertNull($this->repository->lastCodeForPrefix('ADULT'));
     }
 
+    public function test_lock_code_sequence_takes_an_advisory_lock_before_reading(): void
+    {
+        $queries = $this->captureQueries(function () {
+            $this->repository->lockCodeSequence('CHILD');
+            $this->repository->lastCodeForPrefix('CHILD');
+        });
+
+        $this->assertStringContainsString('pg_advisory_xact_lock', $queries[0]['query']);
+        $this->assertStringContainsString('student_code', $queries[1]['query']);
+    }
+
+    public function test_lock_code_sequence_derives_a_distinct_key_per_prefix(): void
+    {
+        $queries = $this->captureQueries(function () {
+            $this->repository->lockCodeSequence('CHILD');
+            $this->repository->lockCodeSequence('ADULT');
+        });
+
+        $this->assertNotSame($queries[0]['bindings'][0], $queries[1]['bindings'][0]);
+    }
+
+    public function test_lock_code_sequence_derives_a_distinct_key_per_tenant(): void
+    {
+        $otherTenant = Tenant::factory()->create();
+
+        $queries = $this->captureQueries(function () use ($otherTenant) {
+            $this->repository->lockCodeSequence('CHILD');
+            $this->withinTenant($otherTenant, fn () => $this->repository->lockCodeSequence('CHILD'));
+        });
+
+        $this->assertNotSame($queries[0]['bindings'][0], $queries[1]['bindings'][0]);
+    }
+
+    public function test_lock_code_sequence_rejects_an_unresolved_tenant(): void
+    {
+        app(CurrentTenant::class)->forget();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('resolved tenant');
+
+        $this->repository->lockCodeSequence('CHILD');
+    }
+
     public function test_paginate_for_listing_matches_by_search(): void
     {
         $user = User::factory()->create(['name' => 'Carlos']);
@@ -132,5 +180,18 @@ class EloquentStudentRepositoryTest extends TestCase
 
         $this->assertSame(0, $count);
         $this->assertTrue($student->fresh()->is_active);
+    }
+
+    /**
+     * @return list<array{query: string, bindings: array<int, mixed>}>
+     */
+    private function captureQueries(Closure $callback): array
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $callback();
+
+        return DB::getQueryLog();
     }
 }
