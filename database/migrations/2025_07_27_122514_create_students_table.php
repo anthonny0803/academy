@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('students', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Identificador único (UUID v4) del Estudiante
             $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
-            // Código del Estudiante, Ej: ADULT001, CHILD001 (único)
+            // Código del Estudiante, Ej: ADULT001, CHILD001
+            // (único por tenant: ver scope_student_code_uniqueness_per_tenant)
             $table->string('student_code')->unique();
-            // Clave foránea al Usuario asociado a este perfil de Estudiante (único)
-            $table->foreignUuid('user_id')->constrained('users')->unique();
+            // Clave foránea al Usuario asociado a este perfil de Estudiante
+            // (único: ver enforce_one_profile_per_user)
+            $table->foreignUuid('user_id')->constrained('users');
             // Clave foránea al Representante legal/académico del Estudiante (obligatorio)
             $table->foreignUuid('representative_id')
                 ->constrained('representatives')

@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('representatives', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Identificador único (UUID v4) del Representante
             $table->foreignUuid('tenant_id')->nullable()->index(); // Tenant propietario (scope inactivo hasta Fase 4)
-            // Clave foránea al Usuario asociado a este perfil de Representante (único)
-            $table->foreignUuid('user_id')->constrained('users')->unique();
+            // Clave foránea al Usuario asociado a este perfil de Representante
+            // (único: ver enforce_one_profile_per_user)
+            $table->foreignUuid('user_id')->constrained('users');
             // Estado del Usuario en su rol de Representante (activo por defecto)
             $table->boolean('is_active')->default(true);
             $table->timestamps(); // Columnas created_at y updated_at para auditoría
