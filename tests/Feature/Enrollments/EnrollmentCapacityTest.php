@@ -117,7 +117,7 @@ class EnrollmentCapacityTest extends TestCase
         );
 
         $response->assertRedirect(route('students.show', $student));
-        $response->assertSessionHas('success');
+        $response->assertSessionHas('success', '¡Estudiante inscrito correctamente!');
 
         $this->assertTrue(
             Enrollment::where('student_id', $student->id)

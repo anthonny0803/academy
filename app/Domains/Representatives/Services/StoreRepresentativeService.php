@@ -27,7 +27,7 @@ class StoreRepresentativeService
                 'birth_date' => $data['birth_date'],
                 'phone' => $data['phone'],
                 'address' => $data['address'],
-                'occupation' => $data['occupation'],
+                'occupation' => $data['occupation'] ?? null,
                 'is_active' => false,
             ]);
 

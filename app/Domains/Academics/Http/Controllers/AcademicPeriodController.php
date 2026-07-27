@@ -25,6 +25,8 @@ class AcademicPeriodController extends Controller
     use AuthorizesRedirect;
     use AuthorizesRequests;
 
+    private const PERIOD_DELETED_MESSAGE = '¡Período académico eliminado correctamente!';
+
     public function __construct(
         private AcademicPeriodRepository $academicPeriodRepository
     ) {}
@@ -102,21 +104,8 @@ class AcademicPeriodController extends Controller
         return $this->authorizeOrRedirect('delete', $academicPeriod, function () use ($academicPeriod, $deleteService) {
             $results = $deleteService->handle($academicPeriod);
 
-            $message = '¡Período académico eliminado correctamente!';
-
-            if ($results['sections_deleted'] > 0) {
-                $message .= " Se eliminaron {$results['sections_deleted']} secciones";
-                if ($results['enrollments_deleted'] > 0) {
-                    $message .= ", {$results['enrollments_deleted']} inscripciones";
-                }
-                if ($results['assignments_deleted'] > 0) {
-                    $message .= " y {$results['assignments_deleted']} asignaciones agregadas";
-                }
-                $message .= ' asociadas.';
-            }
-
             return redirect()->route('academic-periods.index')
-                ->with('success', $message);
+                ->with('success', $this->deletionMessage($results));
         });
     }
 
@@ -144,5 +133,28 @@ class AcademicPeriodController extends Controller
                     ->with('error', $e->getMessage());
             }
         });
+    }
+
+    private function deletionMessage(array $results): string
+    {
+        $deleted = collect([
+            $this->countLabel($results['sections_deleted'], 'sección', 'secciones'),
+            $this->countLabel($results['assignments_deleted'], 'asignación', 'asignaciones'),
+        ])->filter();
+
+        if ($deleted->isEmpty()) {
+            return self::PERIOD_DELETED_MESSAGE;
+        }
+
+        return self::PERIOD_DELETED_MESSAGE.' Incluye '.$deleted->join(' y ').' asociadas.';
+    }
+
+    private function countLabel(int $count, string $singular, string $plural): ?string
+    {
+        if ($count === 0) {
+            return null;
+        }
+
+        return $count.' '.($count === 1 ? $singular : $plural);
     }
 }

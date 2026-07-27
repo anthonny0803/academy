@@ -124,6 +124,23 @@ class RepresentativeApiTest extends TestCase
         $this->assertTrue($user->hasRole(Role::Representative->value));
     }
 
+    public function test_store_without_occupation_creates_the_representative(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $payload = $this->validPayload();
+        unset($payload['occupation']);
+
+        $response = $this->withToken($token)->postJson('/api/v1/representatives', $payload);
+
+        $response->assertCreated()
+            ->assertJsonPath('data.user.occupation', null);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'lucia.ramirez@example.com',
+            'occupation' => null,
+        ]);
+    }
+
     public function test_store_validation_error_returns_envelope(): void
     {
         $token = $this->tokenFor(User::factory()->supervisor()->create());

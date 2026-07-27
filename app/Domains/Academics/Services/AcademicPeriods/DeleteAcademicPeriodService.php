@@ -2,6 +2,7 @@
 
 namespace App\Domains\Academics\Services\AcademicPeriods;
 
+use App\Domains\Academics\Exceptions\AcademicPeriodHasEnrollmentsException;
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Repositories\AcademicPeriodRepository;
 use App\Domains\Academics\Repositories\SectionRepository;
@@ -21,40 +22,34 @@ class DeleteAcademicPeriodService
      * - El período debe estar activo (no cerrado)
      * - El período no debe tener secciones activas
      *
-     * Si tiene secciones inactivas, se eliminan en cascada junto con:
-     * - Enrollments de esas secciones
-     * - SectionSubjectTeachers de esas secciones
+     * Un período con inscripciones no se elimina: sus calificaciones son historial
+     * académico y la FK grades.enrollment_id las borraría físicamente en cascada,
+     * saltándose el SoftDeletes de Grade.
+     *
+     * Si tiene secciones inactivas y vacías, se eliminan junto con sus
+     * SectionSubjectTeachers.
      */
     public function handle(AcademicPeriod $academicPeriod): array
     {
+        if ($academicPeriod->enrollments()->exists()) {
+            throw AcademicPeriodHasEnrollmentsException::forPeriod($academicPeriod);
+        }
+
         return DB::transaction(function () use ($academicPeriod) {
             $deletedSections = 0;
-            $deletedEnrollments = 0;
             $deletedAssignments = 0;
 
-            // Si tiene secciones inactivas, eliminarlas en cascada
-            if ($academicPeriod->hasSections()) {
-                foreach ($academicPeriod->sections as $section) {
-                    // Contar antes de eliminar
-                    $deletedEnrollments += $section->enrollments()->count();
-                    $deletedAssignments += $section->sectionSubjectTeachers()->count();
+            foreach ($academicPeriod->sections as $section) {
+                $deletedAssignments += $section->sectionSubjectTeachers()->delete();
 
-                    // Eliminar relaciones de la sección
-                    $section->enrollments()->delete();
-                    $section->sectionSubjectTeachers()->delete();
-
-                    // Eliminar la sección
-                    $this->sectionRepository->delete($section);
-                    $deletedSections++;
-                }
+                $this->sectionRepository->delete($section);
+                $deletedSections++;
             }
 
-            // Eliminar el período
             $this->academicPeriodRepository->delete($academicPeriod);
 
             return [
                 'sections_deleted' => $deletedSections,
-                'enrollments_deleted' => $deletedEnrollments,
                 'assignments_deleted' => $deletedAssignments,
             ];
         });

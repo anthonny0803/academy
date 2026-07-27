@@ -40,7 +40,10 @@ class EnrollmentLifecycleTest extends TestCase
         );
 
         $response->assertRedirect();
-        $response->assertSessionHas('success');
+        $response->assertSessionHas(
+            'success',
+            "¡Estudiante promovido a {$section2->name} correctamente!"
+        );
 
         // Old enrollment marked as promoted
         $enrollment->refresh();
@@ -76,7 +79,10 @@ class EnrollmentLifecycleTest extends TestCase
         );
 
         $response->assertRedirect();
-        $response->assertSessionHas('success');
+        $response->assertSessionHas(
+            'success',
+            '¡Estudiante transferido correctamente! El estudiante ha salido del sistema.'
+        );
 
         // Enrollment marked as transferred
         $enrollment->refresh();

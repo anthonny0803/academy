@@ -82,7 +82,7 @@ class EnrollmentController extends Controller
             $storeService->handle($student, $request->validated());
 
             return redirect()->route('students.show', $student)
-                ->with('success', 'Â¡Estudiante inscrito correctamente!');
+                ->with('success', '¡Estudiante inscrito correctamente!');
         });
     }
 
@@ -95,17 +95,17 @@ class EnrollmentController extends Controller
             $deleteService->handle($enrollment);
 
             return redirect()->route('students.show', $student)
-                ->with('success', 'Â¡InscripciÃ³n eliminada correctamente!');
+                ->with('success', '¡Inscripción eliminada correctamente!');
         });
     }
 
     // =========================================
-    // ACCIONES ESPECÃFICAS
+    // ACCIONES ESPECÍFICAS
     // =========================================
 
     /**
      * Mostrar formulario de TRANSFERENCIA
-     * El estudiante se va a otra instituciÃ³n educativa.
+     * El estudiante se va a otra institución educativa.
      */
     public function showTransferForm(Enrollment $enrollment): View|RedirectResponse
     {
@@ -128,13 +128,13 @@ class EnrollmentController extends Controller
             $transferService->handle($enrollment, $request->validated()['reason']);
 
             return redirect()->route('students.show', $enrollment->student)
-                ->with('success', 'Â¡Estudiante transferido correctamente! El estudiante ha salido del sistema.');
+                ->with('success', '¡Estudiante transferido correctamente! El estudiante ha salido del sistema.');
         });
     }
 
     /**
-     * Mostrar formulario de PROMOCIÃ“N
-     * El estudiante avanza de nivel dentro del MISMO perÃ­odo acadÃ©mico.
+     * Mostrar formulario de PROMOCIÓN
+     * El estudiante avanza de nivel dentro del MISMO período académico.
      */
     public function showPromoteForm(Enrollment $enrollment): View|RedirectResponse
     {
@@ -143,14 +143,14 @@ class EnrollmentController extends Controller
 
             $academicPeriod = $enrollment->section->academicPeriod;
 
-            // Verificar si el perÃ­odo permite promociones
+            // Verificar si el período permite promociones
             if (! $academicPeriod->isPromotable()) {
                 return redirect()
                     ->route('enrollments.show', $enrollment)
-                    ->with('error', "El perÃ­odo acadÃ©mico '{$academicPeriod->name}' no permite promociones.");
+                    ->with('error', "El período académico '{$academicPeriod->name}' no permite promociones.");
             }
 
-            // Secciones del MISMO perÃ­odo (excluyendo la actual)
+            // Secciones del MISMO período (excluyendo la actual)
             $sections = $this->sectionRepository->activeForPeriodExcept($academicPeriod->id, $enrollment->section_id);
 
             return view('enrollments.promote', compact('enrollment', 'sections', 'academicPeriod'));
@@ -158,7 +158,7 @@ class EnrollmentController extends Controller
     }
 
     /**
-     * Ejecutar promociÃ³n
+     * Ejecutar promoción
      */
     public function promote(
         PromoteEnrollmentRequest $request,
@@ -169,13 +169,13 @@ class EnrollmentController extends Controller
             $newEnrollment = $promoteService->handle($enrollment, $request->validated()['section_id']);
 
             return redirect()->route('students.show', $enrollment->student)
-                ->with('success', "Â¡Estudiante promovido a {$newEnrollment->section->name} correctamente!");
+                ->with('success', "¡Estudiante promovido a {$newEnrollment->section->name} correctamente!");
         });
     }
 
     /**
      * Mostrar formulario de RETIRO
-     * El estudiante abandona o es expulsado de la instituciÃ³n.
+     * El estudiante abandona o es expulsado de la institución.
      */
     public function showWithdrawForm(Enrollment $enrollment): View|RedirectResponse
     {
