@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class AcademicPeriod extends Model implements HasEntityName
 {
@@ -57,9 +58,9 @@ class AcademicPeriod extends Model implements HasEntityName
         return $this->hasMany(Section::class);
     }
 
-    public function enrollments(): HasMany
+    public function enrollments(): HasManyThrough
     {
-        return $this->hasMany(Enrollment::class);
+        return $this->hasManyThrough(Enrollment::class, Section::class);
     }
 
     // Query Scopes
