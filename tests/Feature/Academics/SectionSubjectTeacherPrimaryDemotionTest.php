@@ -8,6 +8,7 @@ use App\Domains\Academics\Models\SubjectTeacher;
 use App\Domains\Academics\Models\Teacher;
 use App\Domains\Academics\Services\SectionSubjectTeacher\StoreSectionSubjectTeacherService;
 use App\Domains\Academics\Services\SectionSubjectTeacher\UpdateSectionSubjectTeacherService;
+use App\Domains\Identity\Models\User;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -77,6 +78,57 @@ class SectionSubjectTeacherPrimaryDemotionTest extends TestCase
 
         $this->assertEqualsCanonicalizing([$primary->id, $peer->id], $withoutException);
         $this->assertSame([$peer->id], $excludingPrimary);
+    }
+
+    public function test_update_with_an_explicit_false_demotes_the_assignment(): void
+    {
+        $primary = SectionSubjectTeacher::factory()->create();
+
+        app(UpdateSectionSubjectTeacherService::class)->handle($primary, [
+            'is_primary' => false,
+            'status' => SectionSubjectTeacherStatus::Active->value,
+        ]);
+
+        $this->assertFalse($primary->fresh()->is_primary);
+    }
+
+    public function test_update_without_the_primary_key_keeps_the_current_value(): void
+    {
+        $primary = SectionSubjectTeacher::factory()->create();
+
+        app(UpdateSectionSubjectTeacherService::class)->handle($primary, [
+            'status' => SectionSubjectTeacherStatus::Active->value,
+        ]);
+
+        $this->assertTrue($primary->fresh()->is_primary);
+    }
+
+    public function test_edit_form_sends_a_false_when_the_primary_checkbox_is_unchecked(): void
+    {
+        $supervisor = User::factory()->supervisor()->create();
+        $assignment = SectionSubjectTeacher::factory()->create();
+
+        $response = $this->actingAs($supervisor)
+            ->get(route('sections.assignments', $assignment->section_id));
+
+        $response->assertOk();
+        $response->assertSee('<input type="hidden" name="is_primary" value="0">', false);
+    }
+
+    public function test_web_update_demotes_the_assignment_when_the_form_sends_a_false(): void
+    {
+        $supervisor = User::factory()->supervisor()->create();
+        $primary = SectionSubjectTeacher::factory()->create();
+
+        $response = $this->actingAs($supervisor)
+            ->from(route('sections.assignments', $primary->section_id))
+            ->put(route('section-subject-teacher.update', $primary), [
+                'is_primary' => '0',
+                'status' => SectionSubjectTeacherStatus::Active->value,
+            ]);
+
+        $response->assertRedirect(route('sections.show', $primary->section_id));
+        $this->assertFalse($primary->fresh()->is_primary);
     }
 
     public function test_store_without_the_primary_flag_demotes_nobody(): void

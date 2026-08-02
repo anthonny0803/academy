@@ -12,6 +12,17 @@ class SubjectTeacherInUseException extends RuntimeException implements Renderabl
         return new self('No se puede eliminar una asignación con registros asociados.');
     }
 
+    /**
+     * @param  array<int, string>  $subjectNames
+     */
+    public static function forSubjects(array $subjectNames): self
+    {
+        return new self(
+            'No puedes quitar estas materias porque el profesor tiene asignaciones activas en ellas: '
+            .implode(', ', $subjectNames).'.'
+        );
+    }
+
     public function statusCode(): int
     {
         return 409;
