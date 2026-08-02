@@ -12,6 +12,7 @@ use App\Domains\Grades\Services\Grades\DeleteGradeService;
 use App\Domains\Identity\Models\User;
 use App\Domains\Students\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -103,6 +104,21 @@ class EnrollmentDeleteHistoryTest extends TestCase
         );
         $this->assertDatabaseHas('enrollments', ['id' => $enrollment->id]);
         $this->assertNotNull(Grade::withTrashed()->find($grade->id));
+    }
+
+    public function test_the_database_refuses_to_delete_an_enrollment_that_owns_deleted_grades(): void
+    {
+        [$enrollment, $grade] = $this->gradedEnrollment();
+        app(DeleteGradeService::class)->handle($grade);
+
+        // The service guard defends the callers; this is the backstop for a
+        // write that races past it, which the cascade used to swallow. Nothing
+        // can be asserted afterwards: the violation aborts the transaction
+        // RefreshDatabase runs the test in.
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageMatches('/grades_enrollment_id_foreign/');
+
+        $enrollment->delete();
     }
 
     public function test_the_delete_endpoint_removes_an_enrollment_without_grades(): void
