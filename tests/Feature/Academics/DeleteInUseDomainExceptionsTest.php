@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Academics;
 
+use App\Domains\Academics\Exceptions\AcademicPeriodClosedException;
+use App\Domains\Academics\Exceptions\AcademicPeriodHasActiveSectionsException;
 use App\Domains\Academics\Exceptions\AcademicPeriodHasEnrollmentsException;
 use App\Domains\Academics\Exceptions\SectionSubjectTeacherHasGradesException;
 use App\Domains\Academics\Exceptions\SubjectInUseException;
@@ -184,6 +186,65 @@ class DeleteInUseDomainExceptionsTest extends TestCase
         }
 
         $this->assertHistorySurvived($period);
+    }
+
+    public function test_delete_academic_period_throws_when_the_period_is_closed(): void
+    {
+        $period = AcademicPeriod::factory()->inactive()->create();
+
+        try {
+            app(DeleteAcademicPeriodService::class)->handle($period);
+
+            $this->fail('Expected AcademicPeriodClosedException was not thrown.');
+        } catch (AcademicPeriodClosedException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('ACADEMIC_PERIOD_CLOSED', $e->errorCode());
+            $this->assertSame(
+                "No se puede eliminar el período académico '{$period->name}' porque está cerrado y contiene datos históricos.",
+                $e->getMessage()
+            );
+        }
+
+        $this->assertDatabaseHas('academic_periods', ['id' => $period->id]);
+    }
+
+    public function test_delete_academic_period_throws_when_it_has_active_sections(): void
+    {
+        $period = AcademicPeriod::factory()->create();
+        $section = Section::factory()->create(['academic_period_id' => $period->id]);
+
+        try {
+            app(DeleteAcademicPeriodService::class)->handle($period);
+
+            $this->fail('Expected AcademicPeriodHasActiveSectionsException was not thrown.');
+        } catch (AcademicPeriodHasActiveSectionsException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('ACADEMIC_PERIOD_HAS_ACTIVE_SECTIONS', $e->errorCode());
+            $this->assertSame(
+                "No se puede eliminar el período académico '{$period->name}' porque tiene secciones activas. Desactívalas primero.",
+                $e->getMessage()
+            );
+        }
+
+        $this->assertDatabaseHas('academic_periods', ['id' => $period->id]);
+        $this->assertDatabaseHas('sections', ['id' => $section->id]);
+    }
+
+    public function test_web_destroy_closed_academic_period_is_denied_by_the_policy(): void
+    {
+        $period = AcademicPeriod::factory()->inactive()->create();
+        $supervisor = User::factory()->supervisor()->create();
+
+        // The policy still answers first: the domain guard covers the callers
+        // that never reach an authorization layer.
+        $response = $this->actingAs($supervisor)
+            ->delete(route('academic-periods.destroy', $period));
+
+        $response->assertSessionHas(
+            'error',
+            'No puedes eliminar un período académico cerrado. Contiene datos históricos importantes.'
+        );
+        $this->assertDatabaseHas('academic_periods', ['id' => $period->id]);
     }
 
     public function test_delete_academic_period_removes_empty_inactive_sections(): void

@@ -2,6 +2,7 @@
 
 namespace App\Domains\Grades\Services\GradeColumns;
 
+use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Grades\Exceptions\GradeColumnWeightExceededException;
 use App\Domains\Grades\Models\GradeColumn;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +12,12 @@ class UpdateGradeColumnService
     public function handle(GradeColumn $gradeColumn, array $data): GradeColumn
     {
         return DB::transaction(function () use ($gradeColumn, $data) {
-            $sst = $gradeColumn->sectionSubjectTeacher;
+            $sst = SectionSubjectTeacher::query()
+                ->lockedById($gradeColumn->section_subject_teacher_id)
+                ->firstOrFail();
+
+            // El peso propio entra en el cálculo y se leyó antes del bloqueo
+            $gradeColumn->refresh();
 
             // Si cambia el peso, validar que no exceda 100%
             if (isset($data['weight']) && $data['weight'] != $gradeColumn->weight) {

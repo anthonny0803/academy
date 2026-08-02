@@ -12,6 +12,8 @@ class StoreGradeColumnService
     public function handle(SectionSubjectTeacher $sst, array $data): GradeColumn
     {
         return DB::transaction(function () use ($sst, $data) {
+            $sst = SectionSubjectTeacher::query()->lockedById($sst->id)->firstOrFail();
+
             // Validar que no exceda el 100%
             if (! $sst->canAddColumn($data['weight'])) {
                 throw GradeColumnWeightExceededException::remaining($sst->getRemainingWeight());

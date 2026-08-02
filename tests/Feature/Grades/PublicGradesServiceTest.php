@@ -6,14 +6,14 @@ use App\Domains\Grades\Services\Api\PublicGradesService;
 use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Students\Models\Student;
-use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use Tests\Concerns\CountsQueries;
 use Tests\TestCase;
 
 class PublicGradesServiceTest extends TestCase
 {
+    use CountsQueries;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -80,18 +80,5 @@ class PublicGradesServiceTest extends TestCase
         Student::factory()->create(['user_id' => $user->id]);
 
         return $user->fresh();
-    }
-
-    private function countQueries(Closure $callback): int
-    {
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-
-        $callback();
-
-        $queries = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        return $queries;
     }
 }
