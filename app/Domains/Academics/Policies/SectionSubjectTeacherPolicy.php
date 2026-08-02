@@ -36,33 +36,11 @@ class SectionSubjectTeacherPolicy
         return null;
     }
 
-    private function cannotViewThisAssignment(User $user, SectionSubjectTeacher $sst): ?Response
-    {
-        // Developer, Supervisor, Admin pueden ver cualquier asignación
-        if ($user->isDeveloper() || $user->isSupervisor() || $user->isAdmin()) {
-            return null;
-        }
-
-        // Teacher puede ver solo sus propias asignaciones
-        if ($user->isTeacher() && $sst->teacher_id !== $user->teacher->id) {
-            return Response::deny('No tienes autorización para ver esta asignación.');
-        }
-
-        return null;
-    }
-
     // Policy Methods
 
     public function viewAny(User $currentUser): Response
     {
         return $this->cannotViewAssignments($currentUser)
-            ?? Response::allow();
-    }
-
-    public function view(User $currentUser, SectionSubjectTeacher $sst): Response
-    {
-        return $this->cannotViewAssignments($currentUser)
-            ?? $this->cannotViewThisAssignment($currentUser, $sst)
             ?? Response::allow();
     }
 
