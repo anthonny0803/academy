@@ -10,12 +10,11 @@ class DeleteGradeColumnService
 {
     public function handle(GradeColumn $gradeColumn): void
     {
-        DB::transaction(function () use ($gradeColumn) {
-            // Doble verificación: no eliminar si tiene notas
-            if ($gradeColumn->hasGrades()) {
-                throw GradeColumnHasGradesException::make();
-            }
+        if ($gradeColumn->hasGrades()) {
+            throw GradeColumnHasGradesException::make();
+        }
 
+        DB::transaction(function () use ($gradeColumn) {
             $gradeColumn->delete();
         });
     }
