@@ -15,6 +15,7 @@ use App\Domains\Grades\Services\Grades\UpdateGradeService;
 use App\Domains\Students\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class GradeDomainExceptionsTest extends TestCase
@@ -149,6 +150,84 @@ class GradeDomainExceptionsTest extends TestCase
         ]);
 
         $this->assertSame(1, $result['skipped']);
+        $this->assertSame(0, Grade::count());
+    }
+
+    public function test_batch_throws_when_the_configuration_is_incomplete(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph(columnWeight: 60);
+
+        try {
+            app(BatchGradeService::class)->handle($column, [
+                ['enrollment_id' => $enrollment->id, 'value' => 8.5],
+            ]);
+
+            $this->fail('Expected GradingConfigurationIncompleteException was not thrown.');
+        } catch (GradingConfigurationIncompleteException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('GRADING_CONFIGURATION_INCOMPLETE', $e->errorCode());
+            $this->assertSame(
+                'La configuración de evaluaciones debe sumar 100% antes de calificar.',
+                $e->getMessage()
+            );
+        }
+
+        $this->assertSame(0, Grade::count());
+    }
+
+    public function test_batch_throws_when_a_writing_row_is_outside_the_section(): void
+    {
+        [$sst, $column] = $this->gradableGraph();
+        [, , $foreignEnrollment] = $this->gradableGraph();
+
+        try {
+            app(BatchGradeService::class)->handle($column, [
+                ['enrollment_id' => $foreignEnrollment->id, 'value' => 8.5],
+            ]);
+
+            $this->fail('Expected EnrollmentNotGradableException was not thrown.');
+        } catch (EnrollmentNotGradableException $e) {
+            $this->assertSame(422, $e->statusCode());
+            $this->assertSame('ENROLLMENT_NOT_GRADABLE', $e->errorCode());
+            $this->assertSame('El estudiante no pertenece a esta sección.', $e->getMessage());
+        }
+
+        $this->assertSame(0, Grade::count());
+    }
+
+    public function test_batch_throws_when_a_writing_row_targets_an_unknown_enrollment(): void
+    {
+        [$sst, $column] = $this->gradableGraph();
+
+        try {
+            app(BatchGradeService::class)->handle($column, [
+                ['enrollment_id' => Str::uuid()->toString(), 'value' => 8.5],
+            ]);
+
+            $this->fail('Expected EnrollmentNotGradableException was not thrown.');
+        } catch (EnrollmentNotGradableException $e) {
+            $this->assertSame('El estudiante no pertenece a esta sección.', $e->getMessage());
+        }
+
+        $this->assertSame(0, Grade::count());
+    }
+
+    public function test_batch_throws_when_a_writing_row_is_out_of_range(): void
+    {
+        [$sst, $column, $enrollment] = $this->gradableGraph();
+
+        try {
+            app(BatchGradeService::class)->handle($column, [
+                ['enrollment_id' => $enrollment->id, 'value' => 999],
+            ]);
+
+            $this->fail('Expected GradeOutOfRangeException was not thrown.');
+        } catch (GradeOutOfRangeException $e) {
+            $this->assertSame(422, $e->statusCode());
+            $this->assertSame('GRADE_OUT_OF_RANGE', $e->errorCode());
+            $this->assertSame('La nota debe estar entre 0.00 y 10.00.', $e->getMessage());
+        }
+
         $this->assertSame(0, Grade::count());
     }
 
