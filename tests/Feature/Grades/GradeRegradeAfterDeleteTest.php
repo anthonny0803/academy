@@ -4,9 +4,11 @@ namespace Tests\Feature\Grades;
 
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Grades\Exceptions\GradeAlreadyExistsException;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Services\Grades\DeleteGradeService;
+use App\Domains\Grades\Services\Grades\StoreGradeService;
 use App\Domains\Students\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -107,5 +109,31 @@ class GradeRegradeAfterDeleteTest extends TestCase
         $this->assertNotSame($deleted->id, $newGradeId);
         $this->assertNotNull(Grade::withTrashed()->find($deleted->id)->deleted_at);
         $this->assertNull(Grade::find($newGradeId)->deleted_at);
+    }
+
+    public function test_store_service_rejects_a_second_live_grade_for_the_same_cell(): void
+    {
+        [, $column, $enrollment] = $this->gradableGraph();
+        Grade::factory()->create([
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+            'value' => 4,
+        ]);
+
+        // Calling the service directly is what a concurrent write does: it
+        // reaches the index without the form request having ruled first.
+        try {
+            app(StoreGradeService::class)->handle($column, $enrollment, ['value' => 8.5]);
+
+            $this->fail('Expected GradeAlreadyExistsException was not thrown.');
+        } catch (GradeAlreadyExistsException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('GRADE_ALREADY_EXISTS', $e->errorCode());
+            $this->assertSame('Este estudiante ya tiene una nota en esta evaluación.', $e->getMessage());
+        }
+
+        $this->assertSame(1, Grade::where('enrollment_id', $enrollment->id)
+            ->where('grade_column_id', $column->id)
+            ->count());
     }
 }

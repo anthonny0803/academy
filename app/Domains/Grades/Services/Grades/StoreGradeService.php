@@ -5,11 +5,13 @@ namespace App\Domains\Grades\Services\Grades;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Exceptions\EnrollmentNotGradableException;
+use App\Domains\Grades\Exceptions\GradeAlreadyExistsException;
 use App\Domains\Grades\Exceptions\GradeOutOfRangeException;
 use App\Domains\Grades\Exceptions\GradingConfigurationIncompleteException;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Repositories\GradeRepository;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -45,13 +47,19 @@ class StoreGradeService
                 throw GradeOutOfRangeException::make($academicPeriod->min_grade, $academicPeriod->max_grade);
             }
 
-            $grade = $this->gradeRepository->create([
-                'enrollment_id' => $enrollment->id,
-                'grade_column_id' => $gradeColumn->id,
-                'value' => $data['value'],
-                'observation' => $data['observation'] ?? null,
-                'last_modified_by' => Auth::id(),
-            ]);
+            // The partial unique index is the real serialization point for the
+            // cell: the form request check can be overtaken by a concurrent write.
+            try {
+                $grade = $this->gradeRepository->create([
+                    'enrollment_id' => $enrollment->id,
+                    'grade_column_id' => $gradeColumn->id,
+                    'value' => $data['value'],
+                    'observation' => $data['observation'] ?? null,
+                    'last_modified_by' => Auth::id(),
+                ]);
+            } catch (UniqueConstraintViolationException) {
+                throw GradeAlreadyExistsException::make();
+            }
 
             return $grade->fresh(['enrollment.student.user', 'gradeColumn']);
         });
