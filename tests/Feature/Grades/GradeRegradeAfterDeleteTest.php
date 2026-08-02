@@ -129,7 +129,9 @@ class GradeRegradeAfterDeleteTest extends TestCase
         } catch (GradeAlreadyExistsException $e) {
             $this->assertSame(409, $e->statusCode());
             $this->assertSame('GRADE_ALREADY_EXISTS', $e->errorCode());
-            $this->assertSame('Este estudiante ya tiene una nota en esta evaluación.', $e->getMessage());
+            // The 409 names the concurrent write; the ordinary case is the 422
+            // the form request answers with its own text.
+            $this->assertSame('Otro usuario acaba de calificar a este estudiante en esta evaluación.', $e->getMessage());
         }
 
         $this->assertSame(1, Grade::where('enrollment_id', $enrollment->id)

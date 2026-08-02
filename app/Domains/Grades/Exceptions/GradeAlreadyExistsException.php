@@ -9,7 +9,7 @@ class GradeAlreadyExistsException extends RuntimeException implements Renderable
 {
     public static function make(): self
     {
-        return new self('Este estudiante ya tiene una nota en esta evaluación.');
+        return new self('Otro usuario acaba de calificar a este estudiante en esta evaluación.');
     }
 
     public function statusCode(): int

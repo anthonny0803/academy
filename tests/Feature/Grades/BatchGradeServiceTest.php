@@ -5,10 +5,12 @@ namespace Tests\Feature\Grades;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Enrollments\Models\Enrollment;
+use App\Domains\Grades\Exceptions\GradeAlreadyExistsException;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Services\Grades\BatchGradeService;
 use App\Domains\Students\Models\Student;
+use App\Domains\Tenancy\Models\Tenant;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\CountsQueries;
@@ -86,6 +88,33 @@ class BatchGradeServiceTest extends TestCase
         $this->assertSame(1, $summary['updated']);
         $this->assertSame(1, $summary['skipped']);
         $this->assertSame(3, $summary['total']);
+    }
+
+    public function test_a_write_that_loses_the_race_for_a_cell_is_a_semantic_conflict(): void
+    {
+        [$column, $section] = $this->columnWithSection();
+        $enrollment = $this->activeEnrollmentIn($section);
+
+        // grades_enrollment_column_unique spans no tenant, but the read that
+        // decides between create and update does. Seeding the live grade in
+        // another tenant leaves the service in the exact state a concurrent
+        // write leaves it: the read says the cell is free, the index says no.
+        $this->withinTenant(Tenant::factory()->create(), fn () => Grade::factory()->create([
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+            'value' => 4,
+        ]));
+
+        try {
+            app(BatchGradeService::class)->handle($column, [
+                ['enrollment_id' => $enrollment->id, 'value' => 9],
+            ]);
+
+            $this->fail('Expected GradeAlreadyExistsException was not thrown.');
+        } catch (GradeAlreadyExistsException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('GRADE_ALREADY_EXISTS', $e->errorCode());
+        }
     }
 
     /**
