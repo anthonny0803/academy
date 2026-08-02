@@ -27,7 +27,8 @@ class StoreGradeRequest extends FormRequest
                 'uuid',
                 TenantExists::in('enrollments'),
                 Rule::unique('grades')
-                    ->where('grade_column_id', $gradeColumn?->id),
+                    ->where('grade_column_id', $gradeColumn?->id)
+                    ->withoutTrashed(),
             ],
             'value' => [
                 'required',
