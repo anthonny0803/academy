@@ -11,8 +11,7 @@ class DeleteSectionSubjectTeacherService
     public function handle(SectionSubjectTeacher $sst): void
     {
         DB::transaction(function () use ($sst) {
-            // Verificar que no tenga calificaciones asociadas
-            if ($sst->grades()->exists()) {
+            if ($sst->grades()->withTrashed()->exists()) {
                 throw SectionSubjectTeacherHasGradesException::make();
             }
 

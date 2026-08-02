@@ -9,7 +9,7 @@ class SectionSubjectTeacherHasGradesException extends RuntimeException implement
 {
     public static function make(): self
     {
-        return new self('No se puede eliminar esta asignación porque tiene calificaciones registradas.');
+        return new self('No se puede eliminar esta asignación porque tiene calificaciones en su historial, incluidas las eliminadas.');
     }
 
     public function statusCode(): int

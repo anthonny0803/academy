@@ -21,6 +21,7 @@ use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
+use App\Domains\Grades\Services\Grades\DeleteGradeService;
 use App\Domains\Identity\Models\User;
 use App\Domains\Students\Models\Student;
 use Database\Seeders\RoleAndPermissionSeeder;
@@ -69,6 +70,45 @@ class DeleteInUseDomainExceptionsTest extends TestCase
         ]);
 
         return $period;
+    }
+
+    /**
+     * @return array{0: SectionSubjectTeacher, 1: Grade}
+     */
+    private function gradedAssignment(): array
+    {
+        $sst = SectionSubjectTeacher::factory()->create();
+        $column = GradeColumn::factory()->create([
+            'section_subject_teacher_id' => $sst->id,
+            'weight' => 100,
+        ]);
+        $student = Student::factory()->inSection($sst->section)->create();
+        $enrollment = $student->enrollments()->where('section_id', $sst->section_id)->first();
+
+        $grade = Grade::factory()->create([
+            'enrollment_id' => $enrollment->id,
+            'grade_column_id' => $column->id,
+        ]);
+
+        return [$sst, $grade];
+    }
+
+    private function assertDeletingTheAssignmentIsRejected(SectionSubjectTeacher $sst): void
+    {
+        try {
+            app(DeleteSectionSubjectTeacherService::class)->handle($sst);
+
+            $this->fail('Expected SectionSubjectTeacherHasGradesException was not thrown.');
+        } catch (SectionSubjectTeacherHasGradesException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('SECTION_SUBJECT_TEACHER_HAS_GRADES', $e->errorCode());
+            $this->assertSame(
+                'No se puede eliminar esta asignación porque tiene calificaciones en su historial, incluidas las eliminadas.',
+                $e->getMessage()
+            );
+        }
+
+        $this->assertSame(1, SectionSubjectTeacher::count());
     }
 
     private function assertHistorySurvived(AcademicPeriod $period): void
@@ -140,32 +180,22 @@ class DeleteInUseDomainExceptionsTest extends TestCase
 
     public function test_delete_section_subject_teacher_throws_when_it_has_grades(): void
     {
-        $sst = SectionSubjectTeacher::factory()->create();
-        $column = GradeColumn::factory()->create([
-            'section_subject_teacher_id' => $sst->id,
-            'weight' => 100,
-        ]);
-        $student = Student::factory()->inSection($sst->section)->create();
-        $enrollment = $student->enrollments()->where('section_id', $sst->section_id)->first();
-        Grade::factory()->create([
-            'enrollment_id' => $enrollment->id,
-            'grade_column_id' => $column->id,
-        ]);
+        [$sst] = $this->gradedAssignment();
 
-        try {
-            app(DeleteSectionSubjectTeacherService::class)->handle($sst);
+        $this->assertDeletingTheAssignmentIsRejected($sst);
+    }
 
-            $this->fail('Expected SectionSubjectTeacherHasGradesException was not thrown.');
-        } catch (SectionSubjectTeacherHasGradesException $e) {
-            $this->assertSame(409, $e->statusCode());
-            $this->assertSame('SECTION_SUBJECT_TEACHER_HAS_GRADES', $e->errorCode());
-            $this->assertSame(
-                'No se puede eliminar esta asignación porque tiene calificaciones registradas.',
-                $e->getMessage()
-            );
-        }
+    /**
+     * Grade columns cascade with their assignment, and `grades` restricts their
+     * deletion. A soft-deleted grade still holds that restriction, so the guard
+     * has to see the trashed history the foreign key sees.
+     */
+    public function test_delete_section_subject_teacher_throws_when_its_only_grades_are_deleted(): void
+    {
+        [$sst, $grade] = $this->gradedAssignment();
+        app(DeleteGradeService::class)->handle($grade);
 
-        $this->assertSame(1, SectionSubjectTeacher::count());
+        $this->assertDeletingTheAssignmentIsRejected($sst);
     }
 
     public function test_delete_academic_period_throws_when_a_section_has_enrollments(): void
