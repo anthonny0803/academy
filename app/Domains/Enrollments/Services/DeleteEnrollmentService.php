@@ -22,7 +22,7 @@ class DeleteEnrollmentService
 
     public function handle(Enrollment $enrollment): void
     {
-        if ($enrollment->grades()->withTrashed()->exists()) {
+        if ($enrollment->hasGrades()) {
             throw EnrollmentHasGradesException::make();
         }
 

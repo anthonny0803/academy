@@ -48,7 +48,7 @@ class EnrollmentPolicy
 
     private function cannotDeleteEnrollmentWithGrades(Enrollment $enrollment): ?Response
     {
-        if ($enrollment->grades()->withTrashed()->exists()) {
+        if ($enrollment->hasGrades()) {
             return Response::deny('No puedes eliminar una inscripción con calificaciones en su historial, incluidas las eliminadas.');
         }
 

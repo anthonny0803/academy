@@ -69,6 +69,16 @@ class SectionSubjectTeacher extends Model
         );
     }
 
+    /**
+     * Every grade under the assignment, deleted ones included. Its columns
+     * cascade with it and `grades.grade_column_id` restricts them, so the
+     * history is what decides whether the assignment can be deleted.
+     */
+    public function gradeHistory(): HasManyThrough
+    {
+        return $this->grades()->withTrashed();
+    }
+
     // Query Scopes
 
     public function scopeActive($query)
@@ -115,6 +125,11 @@ class SectionSubjectTeacher extends Model
     public function isActive(): bool
     {
         return $this->status === SectionSubjectTeacherStatus::Active->value;
+    }
+
+    public function hasGrades(): bool
+    {
+        return $this->gradeHistory()->exists();
     }
 
     // Helper Methods - Configuración de Columnas
