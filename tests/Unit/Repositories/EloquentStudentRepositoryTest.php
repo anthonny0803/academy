@@ -13,15 +13,15 @@ use App\Domains\Students\Repositories\EloquentStudentRepository;
 use App\Domains\Students\Repositories\StudentRepository;
 use App\Domains\Tenancy\Models\Tenant;
 use App\Domains\Tenancy\Support\CurrentTenant;
-use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use LogicException;
+use Tests\Concerns\CountsQueries;
 use Tests\TestCase;
 
 class EloquentStudentRepositoryTest extends TestCase
 {
+    use CountsQueries;
     use RefreshDatabase;
 
     private StudentRepository $repository;
@@ -82,7 +82,7 @@ class EloquentStudentRepositoryTest extends TestCase
 
     public function test_lock_code_sequence_takes_an_advisory_lock_before_reading(): void
     {
-        $queries = $this->captureQueries(function () {
+        $queries = $this->recordQueries(function () {
             $this->repository->lockCodeSequence('CHILD');
             $this->repository->lastCodeForPrefix('CHILD');
         });
@@ -93,7 +93,7 @@ class EloquentStudentRepositoryTest extends TestCase
 
     public function test_lock_code_sequence_derives_a_distinct_key_per_prefix(): void
     {
-        $queries = $this->captureQueries(function () {
+        $queries = $this->recordQueries(function () {
             $this->repository->lockCodeSequence('CHILD');
             $this->repository->lockCodeSequence('ADULT');
         });
@@ -105,7 +105,7 @@ class EloquentStudentRepositoryTest extends TestCase
     {
         $otherTenant = Tenant::factory()->create();
 
-        $queries = $this->captureQueries(function () use ($otherTenant) {
+        $queries = $this->recordQueries(function () use ($otherTenant) {
             $this->repository->lockCodeSequence('CHILD');
             $this->withinTenant($otherTenant, fn () => $this->repository->lockCodeSequence('CHILD'));
         });
@@ -180,18 +180,5 @@ class EloquentStudentRepositoryTest extends TestCase
 
         $this->assertSame(0, $count);
         $this->assertTrue($student->fresh()->is_active);
-    }
-
-    /**
-     * @return list<array{query: string, bindings: array<int, mixed>}>
-     */
-    private function captureQueries(Closure $callback): array
-    {
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-
-        $callback();
-
-        return DB::getQueryLog();
     }
 }

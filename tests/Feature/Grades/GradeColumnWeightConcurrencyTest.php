@@ -9,11 +9,12 @@ use App\Domains\Grades\Services\GradeColumns\StoreGradeColumnService;
 use App\Domains\Grades\Services\GradeColumns\UpdateGradeColumnService;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use Tests\Concerns\CountsQueries;
 use Tests\TestCase;
 
 class GradeColumnWeightConcurrencyTest extends TestCase
 {
+    use CountsQueries;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -96,27 +97,11 @@ class GradeColumnWeightConcurrencyTest extends TestCase
     }
 
     /**
-     * @return array<int, string>
-     */
-    private function recordQueries(callable $callback): array
-    {
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-
-        $callback();
-
-        $queries = array_column(DB::getQueryLog(), 'query');
-        DB::disableQueryLog();
-
-        return $queries;
-    }
-
-    /**
-     * @param  array<int, string>  $queries
+     * @param  list<array{query: string}>  $queries
      */
     private function locksTheAssignment(array $queries): bool
     {
-        foreach ($queries as $query) {
+        foreach (array_column($queries, 'query') as $query) {
             if (str_contains($query, 'section_subject_teacher') && str_contains($query, 'for update')) {
                 return true;
             }

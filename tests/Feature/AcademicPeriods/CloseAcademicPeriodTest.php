@@ -14,14 +14,14 @@ use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Students\Enums\StudentSituation;
 use App\Domains\Students\Models\Student;
-use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use Tests\Concerns\CountsQueries;
 use Tests\TestCase;
 
 class CloseAcademicPeriodTest extends TestCase
 {
+    use CountsQueries;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -279,19 +279,6 @@ class CloseAcademicPeriodTest extends TestCase
         $sectionNames = array_column($preview['details'], 'name');
         $this->assertContains($firstSection->name, $sectionNames);
         $this->assertContains($secondSection->name, $sectionNames);
-    }
-
-    private function countQueries(Closure $callback): int
-    {
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-
-        $callback();
-
-        $queries = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        return $queries;
     }
 
     private function periodWithGradedEnrollments(int $enrollments): AcademicPeriod

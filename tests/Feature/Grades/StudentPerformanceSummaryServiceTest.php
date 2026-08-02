@@ -10,14 +10,14 @@ use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Services\Grades\StudentPerformanceSummaryService;
 use App\Domains\Grades\Support\StudentPerformanceRelations;
 use App\Domains\Students\Models\Student;
-use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use Tests\Concerns\CountsQueries;
 use Tests\TestCase;
 
 class StudentPerformanceSummaryServiceTest extends TestCase
 {
+    use CountsQueries;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -107,18 +107,5 @@ class StudentPerformanceSummaryServiceTest extends TestCase
         return Student::query()
             ->with(StudentPerformanceRelations::forStudent())
             ->findOrFail($student->id);
-    }
-
-    private function countQueries(Closure $callback): int
-    {
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-
-        $callback();
-
-        $queries = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        return $queries;
     }
 }

@@ -15,14 +15,14 @@ use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Students\Models\Student;
-use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
+use Tests\Concerns\CountsQueries;
 use Tests\TestCase;
 
 class GenerateStudentPerformanceObservationJobTest extends TestCase
 {
+    use CountsQueries;
     use RefreshDatabase;
 
     protected function setUp(): void
@@ -132,18 +132,5 @@ class GenerateStudentPerformanceObservationJobTest extends TestCase
                 'value' => 80,
             ]);
         }
-    }
-
-    private function countQueries(Closure $callback): int
-    {
-        DB::flushQueryLog();
-        DB::enableQueryLog();
-
-        $callback();
-
-        $queries = count(DB::getQueryLog());
-        DB::disableQueryLog();
-
-        return $queries;
     }
 }
