@@ -355,6 +355,8 @@
 
                     {{-- Es principal --}}
                     <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+                        {{-- An unchecked box sends nothing, and an absent key means "leave it as it was" --}}
+                        <input type="hidden" name="is_primary" value="0">
                         <label class="flex items-center gap-3 cursor-pointer">
                             <input type="checkbox" id="edit-is_primary" name="is_primary" value="1"
                                    class="rounded border-gray-300 dark:border-gray-600 text-amber-600 shadow-sm focus:ring-amber-500 dark:bg-gray-800">
