@@ -9,6 +9,7 @@ use App\Domains\Identity\Exceptions\UnsupportedRoleAssignmentException;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Repositories\UserRepository;
 use App\Domains\Representatives\Repositories\RepresentativeRepository;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 class AssignRoleService
@@ -76,11 +77,17 @@ class AssignRoleService
         // Assign the Spatie role
         $user->assignRole(Role::Teacher->value);
 
-        // Create Teacher profile
-        $this->teacherRepository->create([
-            'user_id' => $user->id,
-            'is_active' => true,
-        ]);
+        // Create Teacher profile. The unique on user_id is the real
+        // serialization point: the exists() above can be overtaken by a
+        // concurrent assignment between the two statements.
+        try {
+            $this->teacherRepository->create([
+                'user_id' => $user->id,
+                'is_active' => true,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            throw RoleAlreadyAssignedException::teacherProfile();
+        }
     }
 
     private function handleRepresentativeRole(User $user, array $data): void
@@ -97,10 +104,14 @@ class AssignRoleService
         $user->assignRole(Role::Representative->value);
 
         // Create Representative profile
-        $this->representativeRepository->create([
-            'user_id' => $user->id,
-            'is_active' => false, // Inactive until store a student associated
-        ]);
+        try {
+            $this->representativeRepository->create([
+                'user_id' => $user->id,
+                'is_active' => false, // Inactive until store a student associated
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            throw RoleAlreadyAssignedException::representativeProfile();
+        }
     }
 
     private function updatePasswordIfNeeded(User $user, array $data): void
