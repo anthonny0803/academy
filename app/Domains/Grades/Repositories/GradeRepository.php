@@ -16,9 +16,5 @@ interface GradeRepository
 
     public function delete(Grade $grade): void;
 
-    public function restore(Grade $grade): void;
-
-    public function findWithTrashed(string $id): Grade;
-
     public function forGradeColumns(array $columnIds): Collection;
 }

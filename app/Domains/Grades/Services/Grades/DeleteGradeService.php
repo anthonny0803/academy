@@ -34,25 +34,4 @@ class DeleteGradeService
             $this->gradeRepository->delete($grade);
         });
     }
-
-    /**
-     * Restaurar nota eliminada (solo Developer)
-     */
-    public function restore(string $gradeId): Grade
-    {
-        return DB::transaction(function () use ($gradeId) {
-            $grade = $this->gradeRepository->findWithTrashed($gradeId);
-
-            Log::info('Grade restored', [
-                'grade_id' => $grade->id,
-                'restored_by' => Auth::id(),
-                'restored_at' => now(),
-            ]);
-
-            $this->gradeRepository->restore($grade);
-            $this->gradeRepository->update($grade, ['last_modified_by' => Auth::id()]);
-
-            return $grade->fresh(['enrollment.student.user', 'gradeColumn']);
-        });
-    }
 }

@@ -62,26 +62,6 @@ class EloquentGradeRepositoryTest extends TestCase
         $this->assertSoftDeleted('grades', ['id' => $grade->id]);
     }
 
-    public function test_restore_restores_soft_deleted(): void
-    {
-        $grade = Grade::factory()->create();
-        $grade->delete();
-
-        $this->repository->restore($grade);
-
-        $this->assertNotSoftDeleted('grades', ['id' => $grade->id]);
-    }
-
-    public function test_find_with_trashed_finds_soft_deleted(): void
-    {
-        $grade = Grade::factory()->create();
-        $grade->delete();
-
-        $found = $this->repository->findWithTrashed($grade->id);
-
-        $this->assertTrue($found->is($grade));
-    }
-
     public function test_for_grade_columns_returns_grades_for_columns(): void
     {
         $grade = Grade::factory()->create();

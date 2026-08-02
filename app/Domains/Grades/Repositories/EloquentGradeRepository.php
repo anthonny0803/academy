@@ -34,16 +34,6 @@ class EloquentGradeRepository implements GradeRepository
         $grade->delete();
     }
 
-    public function restore(Grade $grade): void
-    {
-        $grade->restore();
-    }
-
-    public function findWithTrashed(string $id): Grade
-    {
-        return Grade::withTrashed()->findOrFail($id);
-    }
-
     public function forGradeColumns(array $columnIds): Collection
     {
         return Grade::whereIn('grade_column_id', $columnIds)->get();
