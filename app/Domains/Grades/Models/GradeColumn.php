@@ -65,7 +65,11 @@ class GradeColumn extends Model implements HasEntityName
 
     public function hasGrades(): bool
     {
-        return $this->grades()->exists();
+        if (array_key_exists('grades_count', $this->attributes)) {
+            return $this->attributes['grades_count'] > 0;
+        }
+
+        return $this->grades()->withTrashed()->exists();
     }
 
     // Mutators

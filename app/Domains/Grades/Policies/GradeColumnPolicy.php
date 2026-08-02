@@ -116,7 +116,7 @@ class GradeColumnPolicy
     private function cannotModifyColumnWithGrades(GradeColumn $gradeColumn): ?Response
     {
         if ($gradeColumn->hasGrades()) {
-            return Response::deny('No puedes modificar una evaluación que ya tiene notas registradas.');
+            return Response::deny('No puedes modificar una evaluación con notas en su historial, incluidas las eliminadas.');
         }
 
         return null;
@@ -125,7 +125,7 @@ class GradeColumnPolicy
     private function cannotDeleteColumnWithGrades(GradeColumn $gradeColumn): ?Response
     {
         if ($gradeColumn->hasGrades()) {
-            return Response::deny('No puedes eliminar una evaluación que tiene notas registradas.');
+            return Response::deny('No puedes eliminar una evaluación con notas en su historial, incluidas las eliminadas.');
         }
 
         return null;

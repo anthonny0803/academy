@@ -28,7 +28,7 @@ class GradeColumnController extends Controller
                 'section.academicPeriod',
                 'subject',
                 'teacher.user',
-                'gradeColumns' => fn ($q) => $q->orderBy('display_order'),
+                'gradeColumns' => fn ($q) => $q->ordered()->withCount(['grades' => fn ($grades) => $grades->withTrashed()]),
             ]);
 
             $totalWeight = $sectionSubjectTeacher->getTotalWeight();
