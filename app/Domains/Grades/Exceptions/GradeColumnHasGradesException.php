@@ -9,7 +9,7 @@ class GradeColumnHasGradesException extends RuntimeException implements Renderab
 {
     public static function make(): self
     {
-        return new self('No se puede eliminar esta evaluación porque tiene notas registradas.');
+        return new self('No se puede eliminar esta evaluación porque tiene notas en su historial, incluidas las eliminadas.');
     }
 
     public function statusCode(): int

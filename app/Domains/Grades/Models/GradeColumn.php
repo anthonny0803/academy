@@ -49,6 +49,15 @@ class GradeColumn extends Model implements HasEntityName
         return $this->hasMany(Grade::class);
     }
 
+    /**
+     * Every grade the column ever owned, deleted ones included: what
+     * `grades.grade_column_id` restricts, and what `hasGrades` answers about.
+     */
+    public function gradeHistory(): HasMany
+    {
+        return $this->hasMany(Grade::class)->withTrashed();
+    }
+
     // Query Scopes
 
     public function scopeForAssignment($query, string $sstId)
@@ -65,7 +74,11 @@ class GradeColumn extends Model implements HasEntityName
 
     public function hasGrades(): bool
     {
-        return $this->grades()->exists();
+        if (array_key_exists('grade_history_count', $this->attributes)) {
+            return $this->attributes['grade_history_count'] > 0;
+        }
+
+        return $this->gradeHistory()->exists();
     }
 
     // Mutators

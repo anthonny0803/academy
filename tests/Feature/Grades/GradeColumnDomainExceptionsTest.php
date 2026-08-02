@@ -95,7 +95,7 @@ class GradeColumnDomainExceptionsTest extends TestCase
             $this->assertSame(409, $e->statusCode());
             $this->assertSame('GRADE_COLUMN_HAS_GRADES', $e->errorCode());
             $this->assertSame(
-                'No se puede eliminar esta evaluación porque tiene notas registradas.',
+                'No se puede eliminar esta evaluación porque tiene notas en su historial, incluidas las eliminadas.',
                 $e->getMessage()
             );
         }

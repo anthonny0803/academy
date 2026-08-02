@@ -10,12 +10,11 @@ class DeleteSectionSubjectTeacherService
 {
     public function handle(SectionSubjectTeacher $sst): void
     {
-        DB::transaction(function () use ($sst) {
-            // Verificar que no tenga calificaciones asociadas
-            if ($sst->grades()->exists()) {
-                throw SectionSubjectTeacherHasGradesException::make();
-            }
+        if ($sst->hasGrades()) {
+            throw SectionSubjectTeacherHasGradesException::make();
+        }
 
+        DB::transaction(function () use ($sst) {
             $sst->delete();
         });
     }

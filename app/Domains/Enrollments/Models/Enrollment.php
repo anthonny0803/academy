@@ -57,6 +57,16 @@ class Enrollment extends Model implements HasEntityName
         return $this->hasMany(Grade::class);
     }
 
+    /**
+     * Every grade the enrollment ever owned, deleted ones included. The
+     * `grades.enrollment_id` cascade destroys them all, so the history is what
+     * decides whether the enrollment can be deleted.
+     */
+    public function gradeHistory(): HasMany
+    {
+        return $this->hasMany(Grade::class)->withTrashed();
+    }
+
     // Query Scopes
 
     // Diverges from User::scopeSearch on purpose: narrower set (no email) plus the enrolled student_code.
@@ -134,5 +144,10 @@ class Enrollment extends Model implements HasEntityName
     public function hasPassed(): ?bool
     {
         return $this->passed;
+    }
+
+    public function hasGrades(): bool
+    {
+        return $this->gradeHistory()->exists();
     }
 }

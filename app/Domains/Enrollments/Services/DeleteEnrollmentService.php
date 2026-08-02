@@ -2,6 +2,7 @@
 
 namespace App\Domains\Enrollments\Services;
 
+use App\Domains\Enrollments\Exceptions\EnrollmentHasGradesException;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
@@ -21,6 +22,10 @@ class DeleteEnrollmentService
 
     public function handle(Enrollment $enrollment): void
     {
+        if ($enrollment->hasGrades()) {
+            throw EnrollmentHasGradesException::make();
+        }
+
         DB::transaction(function () use ($enrollment) {
             $student = $enrollment->student;
             $representativeId = $student->representative_id;
