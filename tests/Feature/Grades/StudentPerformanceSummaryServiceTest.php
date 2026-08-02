@@ -8,6 +8,7 @@ use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Services\Grades\StudentPerformanceSummaryService;
+use App\Domains\Grades\Support\StudentPerformanceRelations;
 use App\Domains\Students\Models\Student;
 use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
@@ -104,16 +105,7 @@ class StudentPerformanceSummaryServiceTest extends TestCase
     private function reloadWithSummaryGraph(Student $student): Student
     {
         return Student::query()
-            ->with([
-                'user',
-                'enrollments.section.academicPeriod',
-                'enrollments.section.sectionSubjectTeachers' => fn ($query) => $query->with([
-                    'subject',
-                    'teacher.user',
-                    'gradeColumns',
-                ]),
-                'enrollments.grades.gradeColumn',
-            ])
+            ->with(StudentPerformanceRelations::forStudent())
             ->findOrFail($student->id);
     }
 

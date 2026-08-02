@@ -3,8 +3,8 @@
 namespace App\Domains\Grades\Services\Api;
 
 use App\Domains\Grades\Services\Grades\StudentPerformanceSummaryService;
+use App\Domains\Grades\Support\StudentPerformanceRelations;
 use App\Domains\Identity\Repositories\UserRepository;
-use Closure;
 
 class PublicGradesService
 {
@@ -46,29 +46,11 @@ class PublicGradesService
 
     private function studentRelations(): array
     {
-        return [
-            'student.enrollments.section.academicPeriod',
-            'student.enrollments.section.sectionSubjectTeachers' => $this->gradedSectionSubjectTeachers(),
-            'student.enrollments.grades.gradeColumn',
-        ];
+        return StudentPerformanceRelations::prefixed('student');
     }
 
     private function representativeRelations(): array
     {
-        return [
-            'representative.students.user',
-            'representative.students.enrollments.section.academicPeriod',
-            'representative.students.enrollments.section.sectionSubjectTeachers' => $this->gradedSectionSubjectTeachers(),
-            'representative.students.enrollments.grades.gradeColumn',
-        ];
-    }
-
-    private function gradedSectionSubjectTeachers(): Closure
-    {
-        return fn ($query) => $query->with([
-            'subject',
-            'teacher.user',
-            'gradeColumns' => fn ($query) => $query->orderBy('display_order'),
-        ]);
+        return StudentPerformanceRelations::prefixed('representative.students');
     }
 }

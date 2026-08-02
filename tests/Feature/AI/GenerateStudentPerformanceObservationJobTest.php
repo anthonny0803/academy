@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\AI;
 
+use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\AI\Contracts\AiTextGenerator;
 use App\Domains\AI\Enums\ObservationStatus;
@@ -9,11 +10,15 @@ use App\Domains\AI\Exceptions\AiGenerationException;
 use App\Domains\AI\Jobs\GenerateStudentPerformanceObservationJob;
 use App\Domains\AI\Models\StudentPerformanceObservation;
 use App\Domains\AI\Services\GenerateStudentPerformanceObservationService;
+use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Students\Models\Student;
+use Closure;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class GenerateStudentPerformanceObservationJobTest extends TestCase
@@ -67,25 +72,78 @@ class GenerateStudentPerformanceObservationJobTest extends TestCase
         $this->assertNull($observation->content);
     }
 
-    /**
-     * Build a student with one graded subject (single 100% column, value 80)
-     * enrolled in the section of an active assignment.
-     */
-    private function gradedStudent(): Student
+    public function test_query_count_does_not_grow_with_the_size_of_the_record(): void
     {
-        $sst = SectionSubjectTeacher::factory()->create();
-        $column = GradeColumn::factory()->create([
-            'section_subject_teacher_id' => $sst->id,
-            'weight' => 100,
-        ]);
-        $student = Student::factory()->inSection($sst->section)->create();
-        $enrollment = $student->enrollments()->where('section_id', $sst->section_id)->first();
-        Grade::factory()->create([
-            'enrollment_id' => $enrollment->id,
-            'grade_column_id' => $column->id,
-            'value' => 80,
-        ]);
+        $this->mock(AiTextGenerator::class, function ($mock): void {
+            $mock->shouldReceive('generate')
+                ->twice()
+                ->andReturn('Observación generada.');
+        });
+
+        $shortRecord = $this->observationFor($this->gradedStudent());
+        $longRecord = $this->observationFor($this->gradedStudent(sections: 3, subjectsPerSection: 4));
+
+        $service = app(GenerateStudentPerformanceObservationService::class);
+
+        $this->assertSame(
+            $this->countQueries(fn () => (new GenerateStudentPerformanceObservationJob($shortRecord))->handle($service)),
+            $this->countQueries(fn () => (new GenerateStudentPerformanceObservationJob($longRecord))->handle($service)),
+        );
+    }
+
+    private function observationFor(Student $student): StudentPerformanceObservation
+    {
+        return StudentPerformanceObservation::factory()->create(['student_id' => $student->id]);
+    }
+
+    /**
+     * Build a student enrolled in $sections sections, each with
+     * $subjectsPerSection graded subjects (single 100% column, value 80).
+     */
+    private function gradedStudent(int $sections = 1, int $subjectsPerSection = 1): Student
+    {
+        $student = Student::factory()->create();
+        $student->enrollments()->delete();
+
+        for ($section = 0; $section < $sections; $section++) {
+            $this->enrollInGradedSection($student, $subjectsPerSection);
+        }
 
         return $student;
+    }
+
+    private function enrollInGradedSection(Student $student, int $subjects): void
+    {
+        $enrollment = Enrollment::create([
+            'student_id' => $student->id,
+            'section_id' => Section::factory()->create()->id,
+            'status' => EnrollmentStatus::Active->value,
+        ]);
+
+        for ($subject = 0; $subject < $subjects; $subject++) {
+            $sst = SectionSubjectTeacher::factory()->create(['section_id' => $enrollment->section_id]);
+            $column = GradeColumn::factory()->create([
+                'section_subject_teacher_id' => $sst->id,
+                'weight' => 100,
+            ]);
+            Grade::factory()->create([
+                'enrollment_id' => $enrollment->id,
+                'grade_column_id' => $column->id,
+                'value' => 80,
+            ]);
+        }
+    }
+
+    private function countQueries(Closure $callback): int
+    {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+
+        $callback();
+
+        $queries = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        return $queries;
     }
 }

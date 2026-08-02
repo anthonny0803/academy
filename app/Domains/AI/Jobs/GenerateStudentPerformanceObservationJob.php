@@ -5,6 +5,8 @@ namespace App\Domains\AI\Jobs;
 use App\Domains\AI\Enums\ObservationStatus;
 use App\Domains\AI\Models\StudentPerformanceObservation;
 use App\Domains\AI\Services\GenerateStudentPerformanceObservationService;
+use App\Domains\Grades\Support\StudentPerformanceRelations;
+use App\Domains\Students\Models\Student;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
@@ -32,13 +34,25 @@ class GenerateStudentPerformanceObservationJob implements ShouldQueue
     {
         $this->observation->update(['status' => ObservationStatus::Processing]);
 
-        $content = $service->forStudent($this->observation->student);
+        $content = $service->forStudent($this->loadStudentWithPerformanceTree());
 
         $this->observation->update([
             'status' => ObservationStatus::Completed,
             'content' => $content,
             'generated_at' => now(),
         ]);
+    }
+
+    /**
+     * The summary walks the whole academic record, so the tree is loaded up
+     * front: an N+1 here burns the job timeout and retries the provider call.
+     */
+    private function loadStudentWithPerformanceTree(): Student
+    {
+        return $this->observation
+            ->student()
+            ->with(StudentPerformanceRelations::forStudent())
+            ->firstOrFail();
     }
 
     public function failed(?Throwable $exception): void
