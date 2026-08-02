@@ -94,6 +94,17 @@ class SectionSubjectTeacher extends Model
             ->when($exceptId, fn ($subQuery) => $subQuery->where('id', '!=', $exceptId));
     }
 
+    /**
+     * Serialization point for the 100% weighting: a new grade column has no
+     * row of its own to lock, so concurrent writers queue on the assignment.
+     * Must run inside an active DB transaction, and the instance it returns
+     * carries no loaded relations, so getTotalWeight() reads under the lock.
+     */
+    public function scopeLockedById($query, string $id)
+    {
+        return $query->whereKey($id)->lockForUpdate();
+    }
+
     // Helper Methods - Estado
 
     public function isPrimary(): bool
