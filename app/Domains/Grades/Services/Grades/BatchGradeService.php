@@ -8,6 +8,7 @@ use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Exceptions\EnrollmentNotGradableException;
 use App\Domains\Grades\Exceptions\GradeOutOfRangeException;
+use App\Domains\Grades\Exceptions\GradeValueNotNumericException;
 use App\Domains\Grades\Exceptions\GradingConfigurationIncompleteException;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Repositories\GradeRepository;
@@ -105,7 +106,11 @@ class BatchGradeService
                 continue;
             }
 
-            if (! $academicPeriod->isGradeValid($gradeData['value'])) {
+            if (! is_numeric($gradeData['value'])) {
+                throw GradeValueNotNumericException::make();
+            }
+
+            if (! $academicPeriod->isGradeValid((float) $gradeData['value'])) {
                 throw GradeOutOfRangeException::make($academicPeriod->min_grade, $academicPeriod->max_grade);
             }
         }
