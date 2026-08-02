@@ -7,10 +7,13 @@ use App\Domains\Academics\Models\SectionSubjectTeacher;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Exceptions\EnrollmentNotGradableException;
+use App\Domains\Grades\Exceptions\GradeAlreadyExistsException;
 use App\Domains\Grades\Exceptions\GradeOutOfRangeException;
+use App\Domains\Grades\Exceptions\GradeValueNotNumericException;
 use App\Domains\Grades\Exceptions\GradingConfigurationIncompleteException;
 use App\Domains\Grades\Models\GradeColumn;
 use App\Domains\Grades\Repositories\GradeRepository;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -70,13 +73,21 @@ class BatchGradeService
                         $skipped++;
                     }
                 } else {
-                    $newGrade = $this->gradeRepository->create([
-                        'enrollment_id' => $enrollmentId,
-                        'grade_column_id' => $gradeColumn->id,
-                        'value' => $value,
-                        'observation' => $observation,
-                        'last_modified_by' => $userId,
-                    ]);
+                    // The partial unique index is the real serialization point
+                    // for the cell: the read above can be overtaken by a
+                    // concurrent write between the two statements.
+                    try {
+                        $newGrade = $this->gradeRepository->create([
+                            'enrollment_id' => $enrollmentId,
+                            'grade_column_id' => $gradeColumn->id,
+                            'value' => $value,
+                            'observation' => $observation,
+                            'last_modified_by' => $userId,
+                        ]);
+                    } catch (UniqueConstraintViolationException) {
+                        throw GradeAlreadyExistsException::make();
+                    }
+
                     $existingGrades->put($enrollmentId, $newGrade);
                     $created++;
                 }
@@ -105,7 +116,11 @@ class BatchGradeService
                 continue;
             }
 
-            if (! $academicPeriod->isGradeValid($gradeData['value'])) {
+            if (! is_numeric($gradeData['value'])) {
+                throw GradeValueNotNumericException::make();
+            }
+
+            if (! $academicPeriod->isGradeValid((float) $gradeData['value'])) {
                 throw GradeOutOfRangeException::make($academicPeriod->min_grade, $academicPeriod->max_grade);
             }
         }

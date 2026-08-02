@@ -7,6 +7,7 @@ use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Grades\Exceptions\EnrollmentNotGradableException;
 use App\Domains\Grades\Exceptions\GradeAlreadyExistsException;
 use App\Domains\Grades\Exceptions\GradeOutOfRangeException;
+use App\Domains\Grades\Exceptions\GradeValueNotNumericException;
 use App\Domains\Grades\Exceptions\GradingConfigurationIncompleteException;
 use App\Domains\Grades\Models\Grade;
 use App\Domains\Grades\Models\GradeColumn;
@@ -41,9 +42,13 @@ class StoreGradeService
                 throw EnrollmentNotGradableException::inactive();
             }
 
+            if (! is_numeric($data['value'] ?? null)) {
+                throw GradeValueNotNumericException::make();
+            }
+
             // Validar rango de nota
             $academicPeriod = $sst->section->academicPeriod;
-            if (! $academicPeriod->isGradeValid($data['value'])) {
+            if (! $academicPeriod->isGradeValid((float) $data['value'])) {
                 throw GradeOutOfRangeException::make($academicPeriod->min_grade, $academicPeriod->max_grade);
             }
 

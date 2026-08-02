@@ -9,6 +9,7 @@ use App\Domains\Identity\Exceptions\UnsupportedRoleAssignmentException;
 use App\Domains\Identity\Models\User;
 use App\Domains\Identity\Services\RoleManagement\AssignRoleService;
 use App\Domains\Representatives\Models\Representative;
+use App\Domains\Tenancy\Models\Tenant;
 use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -82,6 +83,53 @@ class AssignRoleDomainExceptionsTest extends TestCase
             $this->assertSame(409, $e->statusCode());
             $this->assertSame('El usuario ya tiene un perfil de representante', $e->getMessage());
         }
+    }
+
+    public function test_a_teacher_profile_the_scoped_read_cannot_see_is_a_semantic_conflict(): void
+    {
+        $user = User::factory()->create();
+
+        // The unique on teachers.user_id spans no tenant, but the exists()
+        // that guards the create does. Seeding the profile in another tenant
+        // leaves the service where a concurrent assignment leaves it: the
+        // read says the user has no profile, the index says otherwise.
+        // It is saved from make() because the factory hook reaches the user
+        // through a relation the other tenant cannot resolve.
+        $this->withinTenant(Tenant::factory()->create(), fn () => Teacher::factory()
+            ->make(['user_id' => $user->id])
+            ->save());
+
+        try {
+            app(AssignRoleService::class)->handle($user, Role::Teacher, []);
+
+            $this->fail('Expected RoleAlreadyAssignedException was not thrown.');
+        } catch (RoleAlreadyAssignedException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('El usuario ya tiene un perfil de profesor', $e->getMessage());
+        }
+
+        // The role spatie had already written rolls back with the profile.
+        $this->assertFalse($user->fresh()->hasRole(Role::Teacher->value));
+    }
+
+    public function test_a_representative_profile_the_scoped_read_cannot_see_is_a_semantic_conflict(): void
+    {
+        $user = User::factory()->create();
+
+        $this->withinTenant(Tenant::factory()->create(), fn () => Representative::factory()
+            ->make(['user_id' => $user->id])
+            ->save());
+
+        try {
+            app(AssignRoleService::class)->handle($user, Role::Representative, []);
+
+            $this->fail('Expected RoleAlreadyAssignedException was not thrown.');
+        } catch (RoleAlreadyAssignedException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('El usuario ya tiene un perfil de representante', $e->getMessage());
+        }
+
+        $this->assertFalse($user->fresh()->hasRole(Role::Representative->value));
     }
 
     public function test_web_assign_flashes_the_domain_error_and_redirects_back(): void
