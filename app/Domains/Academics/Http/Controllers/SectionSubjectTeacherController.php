@@ -44,7 +44,7 @@ class SectionSubjectTeacherController extends Controller
         UpdateSectionSubjectTeacherService $updateService,
         SectionSubjectTeacher $sectionSubjectTeacher
     ): RedirectResponse {
-        return $this->authorizeOrRedirect('update', SectionSubjectTeacher::class, function () use ($request, $updateService, $sectionSubjectTeacher) {
+        return $this->authorizeOrRedirect('update', $sectionSubjectTeacher, function () use ($request, $updateService, $sectionSubjectTeacher) {
             $updateService->handle($sectionSubjectTeacher, $request->validated());
 
             return redirect()->route('sections.show', $sectionSubjectTeacher->section_id)
@@ -56,7 +56,7 @@ class SectionSubjectTeacherController extends Controller
         SectionSubjectTeacher $sectionSubjectTeacher,
         DeleteSectionSubjectTeacherService $deleteService
     ): RedirectResponse {
-        return $this->authorizeOrRedirect('delete', SectionSubjectTeacher::class, function () use ($sectionSubjectTeacher, $deleteService) {
+        return $this->authorizeOrRedirect('delete', $sectionSubjectTeacher, function () use ($sectionSubjectTeacher, $deleteService) {
             $sectionId = $sectionSubjectTeacher->section_id;
             $deleteService->handle($sectionSubjectTeacher);
 

@@ -72,13 +72,18 @@ class SectionSubjectTeacherPolicy
             ?? Response::allow();
     }
 
-    public function update(User $currentUser): Response
+    /**
+     * The assignment is unused today — managing one is a role-wide ability — but
+     * the parameter is what makes this an object-level check, so a caller cannot
+     * authorize the class while holding the bound instance.
+     */
+    public function update(User $currentUser, SectionSubjectTeacher $sst): Response
     {
         return $this->cannotManageAssignments($currentUser)
             ?? Response::allow();
     }
 
-    public function delete(User $currentUser): Response
+    public function delete(User $currentUser, SectionSubjectTeacher $sst): Response
     {
         if (! $currentUser->isActive() || ! $currentUser->isDeveloper()) {
             return Response::deny('Solo los desarrolladores pueden eliminar asignaciones.');
