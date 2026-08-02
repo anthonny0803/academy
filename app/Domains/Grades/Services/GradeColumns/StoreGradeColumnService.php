@@ -12,19 +12,19 @@ class StoreGradeColumnService
     public function handle(SectionSubjectTeacher $sst, array $data): GradeColumn
     {
         return DB::transaction(function () use ($sst, $data) {
-            $lockedSst = SectionSubjectTeacher::query()->lockedById($sst->id)->firstOrFail();
+            $sst = SectionSubjectTeacher::query()->lockedById($sst->id)->firstOrFail();
 
             // Validar que no exceda el 100%
-            if (! $lockedSst->canAddColumn($data['weight'])) {
-                throw GradeColumnWeightExceededException::remaining($lockedSst->getRemainingWeight());
+            if (! $sst->canAddColumn($data['weight'])) {
+                throw GradeColumnWeightExceededException::remaining($sst->getRemainingWeight());
             }
 
             // Calcular display_order si no viene
             $displayOrder = $data['display_order']
-                ?? ($lockedSst->gradeColumns()->max('display_order') + 1);
+                ?? ($sst->gradeColumns()->max('display_order') + 1);
 
             $gradeColumn = GradeColumn::create([
-                'section_subject_teacher_id' => $lockedSst->id,
+                'section_subject_teacher_id' => $sst->id,
                 'name' => $data['name'],
                 'weight' => $data['weight'],
                 'display_order' => $displayOrder,
