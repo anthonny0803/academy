@@ -3,6 +3,7 @@
 namespace Tests\Feature\Enrollments;
 
 use App\Domains\Academics\Exceptions\SectionFullException;
+use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
 use App\Domains\Enrollments\Models\Enrollment;
@@ -60,8 +61,11 @@ class SectionCapacityGuardTest extends TestCase
 
     public function test_promote_enrollment_service_throws_section_full_exception_when_target_section_is_full(): void
     {
-        $sourceSection = Section::factory()->create();
-        $targetSection = Section::factory()->withCapacity(1)->create();
+        // The promotion has to be legal in every other respect, so that capacity
+        // is the only rule left to fail.
+        $academicPeriod = AcademicPeriod::factory()->promotable()->create();
+        $sourceSection = Section::factory()->create(['academic_period_id' => $academicPeriod->id]);
+        $targetSection = Section::factory()->withCapacity(1)->create(['academic_period_id' => $academicPeriod->id]);
         Student::factory()->inSection($targetSection)->create();
 
         $student = Student::factory()->inSection($sourceSection)->create();

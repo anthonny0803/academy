@@ -2,8 +2,10 @@
 
 namespace App\Domains\Enrollments\Services;
 
+use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Services\Sections\EnsureSectionHasCapacityService;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Exceptions\StudentAlreadyEnrolledInPeriodException;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
 use App\Domains\Representatives\Services\SyncRepresentativeStatusService;
@@ -24,7 +26,11 @@ class StoreEnrollmentService
     public function handle(Student $student, array $data): Enrollment
     {
         return DB::transaction(function () use ($student, $data) {
-            $this->ensureSectionHasCapacity->handle($data['section_id']);
+            $this->enrollmentRepository->lockStudentEnrollments($student->id);
+
+            $section = $this->ensureSectionHasCapacity->handle($data['section_id']);
+
+            $this->assertNotAlreadyEnrolledInPeriod($student, $section);
 
             $updates = [];
             $wasInactive = ! $student->isActive();
@@ -54,5 +60,17 @@ class StoreEnrollmentService
 
             return $enrollment;
         });
+    }
+
+    private function assertNotAlreadyEnrolledInPeriod(Student $student, Section $section): void
+    {
+        $alreadyEnrolled = $this->enrollmentRepository
+            ->hasActiveEnrollmentInPeriod($student->id, $section->academic_period_id);
+
+        if (! $alreadyEnrolled) {
+            return;
+        }
+
+        throw StudentAlreadyEnrolledInPeriodException::forPeriod($section->academicPeriod);
     }
 }
