@@ -7,6 +7,7 @@ use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Academics\Services\Sections\EnsureSectionHasCapacityService;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Exceptions\EnrollmentNotActiveException;
 use App\Domains\Enrollments\Exceptions\SectionOutsideAcademicPeriodException;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Repositories\EnrollmentRepository;
@@ -35,6 +36,8 @@ class PromoteEnrollmentService
     {
         return DB::transaction(function () use ($enrollment, $newSectionId) {
             $this->enrollmentRepository->lockStudentEnrollments($enrollment->student_id);
+
+            $this->assertEnrollmentIsActive($enrollment);
 
             $academicPeriod = $enrollment->section->academicPeriod;
 
@@ -77,6 +80,20 @@ class PromoteEnrollmentService
 
             return $newEnrollment->fresh(['student.user', 'section.academicPeriod']);
         });
+    }
+
+    /**
+     * Promoting a non-active enrollment would create a second active one for a
+     * student who already has the replacement, breaking the same "one active
+     * enrollment per period" rule StoreEnrollmentService enforces.
+     */
+    private function assertEnrollmentIsActive(Enrollment $enrollment): void
+    {
+        if ($enrollment->isActive()) {
+            return;
+        }
+
+        throw EnrollmentNotActiveException::make();
     }
 
     private function assertPeriodAllowsPromotion(AcademicPeriod $academicPeriod): void

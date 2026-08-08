@@ -6,6 +6,7 @@ use App\Domains\Academics\Exceptions\AcademicPeriodNotPromotableException;
 use App\Domains\Academics\Models\AcademicPeriod;
 use App\Domains\Academics\Models\Section;
 use App\Domains\Enrollments\Enums\EnrollmentStatus;
+use App\Domains\Enrollments\Exceptions\EnrollmentNotActiveException;
 use App\Domains\Enrollments\Exceptions\SectionOutsideAcademicPeriodException;
 use App\Domains\Enrollments\Models\Enrollment;
 use App\Domains\Enrollments\Services\PromoteEnrollmentService;
@@ -54,6 +55,40 @@ class EnrollmentPromotionRulesTest extends TestCase
             Enrollment::where('student_id', $student->id)
                 ->where('section_id', $foreignSection->id)
                 ->exists()
+        );
+    }
+
+    /**
+     * Promoting an already promoted enrollment would leave the student holding
+     * two active ones in the same period — the very invariant StoreEnrollment
+     * Service now refuses to break. The same rule has to answer at both doors.
+     */
+    public function test_promote_rejects_an_enrollment_that_is_no_longer_active(): void
+    {
+        $academicPeriod = AcademicPeriod::factory()->promotable()->create();
+        $sourceSection = Section::factory()->create(['academic_period_id' => $academicPeriod->id]);
+        $firstTarget = Section::factory()->create(['academic_period_id' => $academicPeriod->id]);
+        $secondTarget = Section::factory()->create(['academic_period_id' => $academicPeriod->id]);
+
+        $student = Student::factory()->inSection($sourceSection)->create();
+        $enrollment = $student->enrollments()->where('section_id', $sourceSection->id)->first();
+
+        app(PromoteEnrollmentService::class)->handle($enrollment, $firstTarget->id);
+
+        try {
+            app(PromoteEnrollmentService::class)->handle($enrollment->refresh(), $secondTarget->id);
+
+            $this->fail('Expected EnrollmentNotActiveException was not thrown.');
+        } catch (EnrollmentNotActiveException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('ENROLLMENT_NOT_ACTIVE', $e->errorCode());
+        }
+
+        $this->assertSame(
+            1,
+            Enrollment::where('student_id', $student->id)
+                ->where('status', EnrollmentStatus::Active->value)
+                ->count()
         );
     }
 
