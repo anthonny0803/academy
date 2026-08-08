@@ -18,6 +18,8 @@ interface EnrollmentRepository
 
     public function paginateForListing(string $search, ?string $status, ?string $academicPeriodId, ?string $sectionId, int $perPage = 6): LengthAwarePaginator;
 
+    public function lockStudentEnrollments(string $studentId): void;
+
     public function hasActiveEnrollmentInPeriod(string $studentId, string $academicPeriodId): bool;
 
     public function studentIdsForActivePeriod(string $academicPeriodId): Collection;
