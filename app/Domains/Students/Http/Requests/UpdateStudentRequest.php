@@ -46,7 +46,7 @@ class UpdateStudentRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
-                'regex:/^[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}$/',
+                'regex:'.DocumentId::PATTERN,
                 Rule::unique('users', 'document_id')
                     ->ignore($this->route('student')->user_id)
                     ->whereNotNull('document_id'),
@@ -78,7 +78,7 @@ class UpdateStudentRequest extends FormRequest
             'email.unique' => 'Este correo electrónico ya está registrado.',
             'sex.required' => 'El sexo es obligatorio.',
             'sex.in' => 'El sexo seleccionado no es válido.',
-            'document_id.regex' => 'El formato del documento no es válido (ej: 12345678A o X1234567B).',
+            'document_id.regex' => DocumentId::FORMAT_MESSAGE,
             'document_id.unique' => 'Este documento ya está registrado.',
             'document_id.required' => 'El documento de identidad es obligatorio.',
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',

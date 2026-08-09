@@ -66,7 +66,7 @@ class AssignRoleRequest extends FormRequest
                 $rules['document_id'] = [
                     'required',
                     'string',
-                    'regex:/^[A-Z]?[0-9]{7,9}[A-Z]?$/',
+                    'regex:'.DocumentId::PATTERN,
                 ];
             }
 
@@ -123,7 +123,7 @@ class AssignRoleRequest extends FormRequest
             'password.required' => 'La contraseña es obligatoria.',
             'password.confirmed' => 'La confirmación de la contraseña no coincide.',
             'document_id.required' => 'El documento de identidad es obligatorio.',
-            'document_id.regex' => 'El formato del documento de identidad no es válido (ej: 12345678Z o X1234567L).',
+            'document_id.regex' => DocumentId::FORMAT_MESSAGE,
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'phone.required' => 'El teléfono es obligatorio.',

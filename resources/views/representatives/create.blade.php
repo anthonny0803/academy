@@ -63,7 +63,6 @@
                                         DNI/NIE <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" id="document_id" name="document_id" value="{{ old('document_id') }}" required autocomplete="off"
-                                           pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}"
                                            class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 placeholder:text-gray-400/50 uppercase"
                                            placeholder="12345678A">
                                     @error('document_id')
@@ -168,7 +167,6 @@
                                             </svg>
                                         </div>
                                         <input type="text" id="phone" name="phone" value="{{ old('phone') }}" required autocomplete="off"
-                                               pattern="[0-9]{9,13}"
                                                class="block w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 placeholder:text-gray-400/50"
                                                placeholder="612345678">
                                     </div>

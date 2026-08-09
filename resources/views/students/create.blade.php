@@ -116,7 +116,6 @@
                                         DNI/NIE <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" id="document_id" name="document_id" value="{{ old('document_id') }}" required autocomplete="off"
-                                           pattern="[A-Za-z]{0,1}[0-9]{7,9}[A-Za-z]{1}"
                                            class="block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-900 dark:text-white rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 uppercase">
                                     @error('document_id')
                                         <p class="text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
