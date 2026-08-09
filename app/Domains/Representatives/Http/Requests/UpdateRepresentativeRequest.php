@@ -48,7 +48,7 @@ class UpdateRepresentativeRequest extends FormRequest
             'document_id' => [
                 'required',
                 'string',
-                'regex:/^[A-Z]?[0-9]{7,9}[A-Z]?$/',
+                'regex:'.DocumentId::PATTERN,
                 Rule::unique('users', 'document_id')->ignore($representative->user_id),
             ],
             'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
@@ -64,7 +64,7 @@ class UpdateRepresentativeRequest extends FormRequest
             'email.unique' => 'Este correo ya está registrado en el sistema.',
             'email.email' => 'El correo electrónico no tiene un formato válido.',
             'sex.enum' => 'El sexo debe ser Masculino o Femenino.',
-            'document_id.regex' => 'El documento debe tener formato válido (Ej: 12345678A, X1234567B).',
+            'document_id.regex' => DocumentId::FORMAT_MESSAGE,
             'document_id.unique' => 'Este documento ya está registrado.',
             'birth_date.date' => 'La fecha de nacimiento no es válida.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
