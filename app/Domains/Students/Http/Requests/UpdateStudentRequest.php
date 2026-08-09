@@ -79,7 +79,7 @@ class UpdateStudentRequest extends FormRequest
             'sex.required' => 'El sexo es obligatorio.',
             'sex.in' => 'El sexo seleccionado no es válido.',
             'document_id.regex' => DocumentId::FORMAT_MESSAGE,
-            'document_id.unique' => 'Este documento ya está registrado.',
+            'document_id.unique' => DocumentId::DUPLICATE_MESSAGE,
             'document_id.required' => 'El documento de identidad es obligatorio.',
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',

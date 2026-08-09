@@ -8,6 +8,7 @@ use App\Domains\Shared\Support\DocumentId;
 use App\Domains\Shared\Support\Occupation;
 use App\Domains\Shared\Support\Phone;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class AssignRoleRequest extends FormRequest
@@ -48,29 +49,26 @@ class AssignRoleRequest extends FormRequest
 
         try {
             $roleEnum = Role::from($role);
-        } catch (\ValueError $e) {
-            // Si el rol no es válido, no validar nada más
-            // (el controller maneja el error)
+        } catch (\ValueError) {
+            // An unknown role has nothing to validate. This runs before the
+            // controller, which aborts with a 404 as soon as it takes over.
             return $rules;
         }
 
-        // Validar password si el usuario NO lo tiene
         if (empty($targetUser->password)) {
             $rules['password'] = ['required', 'string', Password::defaults(), 'confirmed'];
         }
 
-        // Validaciones específicas para Representative
         if ($roleEnum === Role::Representative) {
-            // document_id - solo validar si NO lo tiene
             if (empty($targetUser->document_id)) {
                 $rules['document_id'] = [
                     'required',
                     'string',
                     'regex:'.DocumentId::PATTERN,
+                    Rule::unique('users', 'document_id'),
                 ];
             }
 
-            // birth_date - solo validar si NO lo tiene
             if (empty($targetUser->birth_date)) {
                 $rules['birth_date'] = [
                     'required',
@@ -79,16 +77,14 @@ class AssignRoleRequest extends FormRequest
                 ];
             }
 
-            // phone - solo validar si NO lo tiene
             if (empty($targetUser->phone)) {
                 $rules['phone'] = [
                     'required',
                     'string',
-                    'regex:/^[0-9]{9,15}$/',
+                    'regex:'.Phone::PATTERN,
                 ];
             }
 
-            // address - solo validar si NO lo tiene
             if (empty($targetUser->address)) {
                 $rules['address'] = [
                     'required',
@@ -97,7 +93,6 @@ class AssignRoleRequest extends FormRequest
                 ];
             }
 
-            // occupation - siempre nullable
             $rules['occupation'] = ['nullable', 'string', 'max:100'];
         }
 
@@ -124,10 +119,11 @@ class AssignRoleRequest extends FormRequest
             'password.confirmed' => 'La confirmación de la contraseña no coincide.',
             'document_id.required' => 'El documento de identidad es obligatorio.',
             'document_id.regex' => DocumentId::FORMAT_MESSAGE,
+            'document_id.unique' => DocumentId::DUPLICATE_MESSAGE,
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'phone.required' => 'El teléfono es obligatorio.',
-            'phone.regex' => 'El formato del teléfono no es válido (debe tener entre 9 y 15 dígitos).',
+            'phone.regex' => Phone::FORMAT_MESSAGE,
             'address.required' => 'La dirección es obligatoria.',
             'address.max' => 'La dirección no puede superar los 255 caracteres.',
             'occupation.max' => 'La ocupación no puede superar los 100 caracteres.',

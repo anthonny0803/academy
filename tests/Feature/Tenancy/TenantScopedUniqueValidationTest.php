@@ -9,6 +9,7 @@ use App\Domains\Identity\Models\User;
 use App\Domains\Representatives\Enums\RelationshipType;
 use App\Domains\Representatives\Models\Representative;
 use App\Domains\Shared\Enums\Sex;
+use App\Domains\Shared\Support\DocumentId;
 use App\Domains\Students\Models\Student;
 use App\Domains\Students\Services\StoreStudentService;
 use App\Domains\Tenancy\Models\Tenant;
@@ -157,6 +158,34 @@ class TenantScopedUniqueValidationTest extends TestCase
             ->assertStatus(422)
             ->assertJsonPath('error.code', 'VALIDATION_ERROR')
             ->assertJsonPath('error.fields.email', 'Este correo ya está registrado en el sistema.');
+    }
+
+    public function test_api_representative_store_still_rejects_a_document_used_by_another_tenant(): void
+    {
+        $token = $this->tokenFor(User::factory()->supervisor()->create());
+        $this->withinTenant(
+            $this->otherTenant,
+            fn () => User::factory()->create(['document_id' => '12345678A'])
+        );
+
+        // A person holds one document worldwide, so global uniqueness is a
+        // product decision like email above. The message has to say so: the
+        // colliding row lives in a tenant this user cannot see.
+        $this->withToken($token)
+            ->postJson('/api/v1/representatives', [
+                'name' => 'Lucia',
+                'last_name' => 'Ramirez',
+                'email' => 'lucia.ramirez@example.com',
+                'sex' => Sex::Female->value,
+                'document_id' => '12345678A',
+                'birth_date' => '1990-05-20',
+                'phone' => '123456789',
+                'address' => 'Calle Falsa 123',
+                'occupation' => 'Ingeniera',
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('error.code', 'VALIDATION_ERROR')
+            ->assertJsonPath('error.fields.document_id', DocumentId::DUPLICATE_MESSAGE);
     }
 
     public function test_student_code_sequence_restarts_for_each_tenant(): void

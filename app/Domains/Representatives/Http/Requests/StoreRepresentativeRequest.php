@@ -44,7 +44,7 @@ class StoreRepresentativeRequest extends FormRequest
                 Rule::unique('users', 'document_id'),
             ],
             'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
-            'phone' => ['required', 'string', 'regex:/^[0-9]{9,15}$/'],
+            'phone' => ['required', 'string', 'regex:'.Phone::PATTERN],
             'address' => ['required', 'string', 'max:255'],
             'occupation' => ['nullable', 'string', 'max:100'],
         ];
@@ -57,11 +57,11 @@ class StoreRepresentativeRequest extends FormRequest
             'email.email' => 'El correo electrónico no tiene un formato válido.',
             'sex.enum' => 'El sexo debe ser Masculino o Femenino.',
             'document_id.regex' => DocumentId::FORMAT_MESSAGE,
-            'document_id.unique' => 'Este documento ya está registrado.',
+            'document_id.unique' => DocumentId::DUPLICATE_MESSAGE,
             'birth_date.date' => 'La fecha de nacimiento no es válida.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'birth_date.after' => 'La fecha de nacimiento debe ser posterior a 1900.',
-            'phone.regex' => 'El teléfono debe tener entre 9 y 15 dígitos.',
+            'phone.regex' => Phone::FORMAT_MESSAGE,
             'address.max' => 'La dirección no puede exceder 255 caracteres.',
             'occupation.max' => 'La ocupación no puede exceder 100 caracteres.',
         ];

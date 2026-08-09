@@ -4,6 +4,7 @@ namespace Tests\Feature\Identity;
 
 use App\Domains\Academics\Models\Teacher;
 use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Exceptions\DocumentIdAlreadyRegisteredException;
 use App\Domains\Identity\Exceptions\RoleAlreadyAssignedException;
 use App\Domains\Identity\Exceptions\UnsupportedRoleAssignmentException;
 use App\Domains\Identity\Models\User;
@@ -129,6 +130,26 @@ class AssignRoleDomainExceptionsTest extends TestCase
             $this->assertSame('El usuario ya tiene un perfil de representante', $e->getMessage());
         }
 
+        $this->assertFalse($user->fresh()->hasRole(Role::Representative->value));
+    }
+
+    public function test_a_document_already_taken_is_a_semantic_conflict_not_a_crash(): void
+    {
+        User::factory()->create(['document_id' => '12345678A']);
+        $user = User::factory()->create(['document_id' => null]);
+
+        try {
+            app(AssignRoleService::class)->handle($user, Role::Representative, [
+                'document_id' => '12345678A',
+            ]);
+
+            $this->fail('Expected DocumentIdAlreadyRegisteredException was not thrown.');
+        } catch (DocumentIdAlreadyRegisteredException $e) {
+            $this->assertSame(409, $e->statusCode());
+            $this->assertSame('DOCUMENT_ID_ALREADY_REGISTERED', $e->errorCode());
+        }
+
+        // The role spatie had already written rolls back with the profile.
         $this->assertFalse($user->fresh()->hasRole(Role::Representative->value));
     }
 

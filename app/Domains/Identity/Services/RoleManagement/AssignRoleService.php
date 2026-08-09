@@ -4,6 +4,7 @@ namespace App\Domains\Identity\Services\RoleManagement;
 
 use App\Domains\Academics\Repositories\TeacherRepository;
 use App\Domains\Identity\Enums\Role;
+use App\Domains\Identity\Exceptions\DocumentIdAlreadyRegisteredException;
 use App\Domains\Identity\Exceptions\RoleAlreadyAssignedException;
 use App\Domains\Identity\Exceptions\UnsupportedRoleAssignmentException;
 use App\Domains\Identity\Models\User;
@@ -134,8 +135,19 @@ class AssignRoleService
             }
         }
 
-        if (! empty($updates)) {
+        if (empty($updates)) {
+            return;
+        }
+
+        // document_id is unique across the whole system, and this write is the
+        // real serialization point: the Form Request reads the table one
+        // statement earlier and another assignment fits in between. email is
+        // the only other unique on users and it is never part of $updates,
+        // so the violation can only be the document.
+        try {
             $this->userRepository->update($user, $updates);
+        } catch (UniqueConstraintViolationException) {
+            throw DocumentIdAlreadyRegisteredException::make();
         }
     }
 }
