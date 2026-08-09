@@ -65,7 +65,7 @@ class UpdateRepresentativeRequest extends FormRequest
             'email.email' => 'El correo electrónico no tiene un formato válido.',
             'sex.enum' => 'El sexo debe ser Masculino o Femenino.',
             'document_id.regex' => DocumentId::FORMAT_MESSAGE,
-            'document_id.unique' => 'Este documento ya está registrado.',
+            'document_id.unique' => DocumentId::DUPLICATE_MESSAGE,
             'birth_date.date' => 'La fecha de nacimiento no es válida.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'birth_date.after' => 'La fecha de nacimiento debe ser posterior a 1900.',
