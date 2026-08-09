@@ -8,6 +8,7 @@ use App\Domains\Shared\Support\DocumentId;
 use App\Domains\Shared\Support\Occupation;
 use App\Domains\Shared\Support\Phone;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class AssignRoleRequest extends FormRequest
@@ -67,6 +68,7 @@ class AssignRoleRequest extends FormRequest
                     'required',
                     'string',
                     'regex:'.DocumentId::PATTERN,
+                    Rule::unique('users', 'document_id'),
                 ];
             }
 
@@ -124,6 +126,7 @@ class AssignRoleRequest extends FormRequest
             'password.confirmed' => 'La confirmación de la contraseña no coincide.',
             'document_id.required' => 'El documento de identidad es obligatorio.',
             'document_id.regex' => DocumentId::FORMAT_MESSAGE,
+            'document_id.unique' => DocumentId::DUPLICATE_MESSAGE,
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'phone.required' => 'El teléfono es obligatorio.',
