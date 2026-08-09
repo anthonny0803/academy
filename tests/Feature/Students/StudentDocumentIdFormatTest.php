@@ -152,6 +152,26 @@ class StudentDocumentIdFormatTest extends TestCase
         $this->assertSame($originalDocument, $student->user->fresh()->document_id);
     }
 
+    public function test_the_forms_ship_no_client_side_copy_of_the_field_rules(): void
+    {
+        $supervisor = User::factory()->supervisor()->create();
+        $student = Student::factory()->create();
+        $student->user->update(['document_id' => self::DOCUMENT_WITHOUT_FINAL_LETTER]);
+
+        $forms = [
+            route('students.edit', $student),
+            route('representatives.students.create', $student->representative),
+            route('representatives.create'),
+        ];
+
+        foreach ($forms as $form) {
+            $response = $this->actingAs($supervisor)->get($form);
+
+            $response->assertOk();
+            $response->assertDontSee('pattern=', false);
+        }
+    }
+
     public function test_representative_creation_keeps_accepting_documents_with_and_without_a_final_letter(): void
     {
         $supervisor = User::factory()->supervisor()->create();
