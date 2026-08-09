@@ -47,7 +47,7 @@ class StoreStudentRequest extends FormRequest
                 'required',
                 'string',
                 'max:20',
-                'regex:/^[A-Z]{0,1}[0-9]{7,9}[A-Z]{1}$/',
+                'regex:'.DocumentId::PATTERN,
                 Rule::unique('users', 'document_id')
                     ->whereNotNull('document_id')
                     ->ignore($representativeUserId),
@@ -120,7 +120,7 @@ class StoreStudentRequest extends FormRequest
             'sex.required' => 'El sexo es obligatorio.',
             'sex.in' => 'El sexo seleccionado no es válido.',
             'document_id.required' => 'El documento de identidad es obligatorio.',
-            'document_id.regex' => 'El formato del documento no es válido (ej: 12345678A o X1234567B).',
+            'document_id.regex' => DocumentId::FORMAT_MESSAGE,
             'document_id.unique' => 'Este documento ya está registrado.',
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
