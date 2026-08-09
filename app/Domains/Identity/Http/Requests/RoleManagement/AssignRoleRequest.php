@@ -49,20 +49,17 @@ class AssignRoleRequest extends FormRequest
 
         try {
             $roleEnum = Role::from($role);
-        } catch (\ValueError $e) {
-            // Si el rol no es válido, no validar nada más
-            // (el controller maneja el error)
+        } catch (\ValueError) {
+            // An unknown role has nothing to validate. This runs before the
+            // controller, which aborts with a 404 as soon as it takes over.
             return $rules;
         }
 
-        // Validar password si el usuario NO lo tiene
         if (empty($targetUser->password)) {
             $rules['password'] = ['required', 'string', Password::defaults(), 'confirmed'];
         }
 
-        // Validaciones específicas para Representative
         if ($roleEnum === Role::Representative) {
-            // document_id - solo validar si NO lo tiene
             if (empty($targetUser->document_id)) {
                 $rules['document_id'] = [
                     'required',
@@ -72,7 +69,6 @@ class AssignRoleRequest extends FormRequest
                 ];
             }
 
-            // birth_date - solo validar si NO lo tiene
             if (empty($targetUser->birth_date)) {
                 $rules['birth_date'] = [
                     'required',
@@ -81,7 +77,6 @@ class AssignRoleRequest extends FormRequest
                 ];
             }
 
-            // phone - solo validar si NO lo tiene
             if (empty($targetUser->phone)) {
                 $rules['phone'] = [
                     'required',
@@ -90,7 +85,6 @@ class AssignRoleRequest extends FormRequest
                 ];
             }
 
-            // address - solo validar si NO lo tiene
             if (empty($targetUser->address)) {
                 $rules['address'] = [
                     'required',
@@ -99,7 +93,6 @@ class AssignRoleRequest extends FormRequest
                 ];
             }
 
-            // occupation - siempre nullable
             $rules['occupation'] = ['nullable', 'string', 'max:100'];
         }
 
