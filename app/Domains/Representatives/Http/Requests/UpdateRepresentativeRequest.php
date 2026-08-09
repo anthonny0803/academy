@@ -52,7 +52,7 @@ class UpdateRepresentativeRequest extends FormRequest
                 Rule::unique('users', 'document_id')->ignore($representative->user_id),
             ],
             'birth_date' => ['required', 'date', 'before:today', 'after:1900-01-01'],
-            'phone' => ['required', 'string', 'regex:/^[0-9]{9,15}$/'],
+            'phone' => ['required', 'string', 'regex:'.Phone::PATTERN],
             'address' => ['required', 'string', 'max:255'],
             'occupation' => ['nullable', 'string', 'max:100'],
         ];
@@ -69,7 +69,7 @@ class UpdateRepresentativeRequest extends FormRequest
             'birth_date.date' => 'La fecha de nacimiento no es válida.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'birth_date.after' => 'La fecha de nacimiento debe ser posterior a 1900.',
-            'phone.regex' => 'El teléfono debe tener entre 9 y 15 dígitos.',
+            'phone.regex' => Phone::FORMAT_MESSAGE,
             'address.max' => 'La dirección no puede exceder 255 caracteres.',
             'occupation.max' => 'La ocupación no puede exceder 100 caracteres.',
         ];

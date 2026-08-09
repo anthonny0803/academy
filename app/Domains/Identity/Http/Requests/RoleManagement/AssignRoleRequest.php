@@ -84,7 +84,7 @@ class AssignRoleRequest extends FormRequest
                 $rules['phone'] = [
                     'required',
                     'string',
-                    'regex:/^[0-9]{9,15}$/',
+                    'regex:'.Phone::PATTERN,
                 ];
             }
 
@@ -127,7 +127,7 @@ class AssignRoleRequest extends FormRequest
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
             'birth_date.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
             'phone.required' => 'El teléfono es obligatorio.',
-            'phone.regex' => 'El formato del teléfono no es válido (debe tener entre 9 y 15 dígitos).',
+            'phone.regex' => Phone::FORMAT_MESSAGE,
             'address.required' => 'La dirección es obligatoria.',
             'address.max' => 'La dirección no puede superar los 255 caracteres.',
             'occupation.max' => 'La ocupación no puede superar los 100 caracteres.',
